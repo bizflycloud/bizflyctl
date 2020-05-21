@@ -13,6 +13,32 @@ go build -o bizfly main.go
 ### Example
 
 ```shell script
+➜  bizflycli git:(master) ✗ bizfly --help
+BizFly Cloud Command Line
+
+Usage:
+  bizfly [command]
+
+Available Commands:
+  help        Help about any command
+  server      BizFly Cloud Server Interaction
+  snapshot    BizFly Cloud Snapshot Interaction
+  volume      BizFly Cloud Volume Interaction
+
+Flags:
+      --config string     config file (default is $HOME/.bizfly.yaml)
+      --email string      Your BizFly Cloud Email (default "sapd@vccloud.vn")
+  -h, --help              help for bizfly
+      --password string   Your BizFly CLoud Password (default "33CMgrprH7zsjgBIr6zN")
+  -t, --toggle            Help message for toggle
+
+Use "bizfly [command] --help" for more information about a command.
+
+```
+
+- Example Get snapshot
+
+```shell script
 ➜  bizflycli git:(master) ✗ bizfly snapshot get 5af19947-566d-48a1-bc45-93666086951f
 +--------------------------------------+----------------------------+-----------+------+--------------------------------------+----------------------------+--------------------------------------+
 |                  ID                  |            NAME            |  STATUS   | SIZE |                 TYPE                 |         CREATED AT         |              VOLUME ID               |
