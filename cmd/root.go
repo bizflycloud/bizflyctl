@@ -1,5 +1,5 @@
 /*
-Copyright © 2020 NAME HERE <EMAIL ADDRESS>
+Copyright © 2020 BizFly Cloud
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -99,32 +99,30 @@ func initConfig() {
 	}
 }
 
-func apiClientForContext(cmd *cobra.Command) (*gobizfly.Client, error) {
+func apiClientForContext(cmd *cobra.Command) (*gobizfly.Client, context.Context) {
 	email, err := cmd.Flags().GetString("email")
 	if email == "" {
 		log.Fatal("Email is required")
-		return nil, err
 	}
 	password,  err := cmd.Flags().GetString("password")
 	if password == "" {
 		log.Fatal("Password is required")
-		return nil, err
 	}
 
 	client, err := gobizfly.NewClient(gobizfly.WithTenantName(email))
 
 	if err != nil {
-		return nil, err
+		log.Fatal(err)
 	}
 	ctx, cancelFunc := context.WithTimeout(context.Background(), time.Second*10)
 	defer cancelFunc()
 	//TODO Get token from cache
 	tok, err := client.Token.Create(ctx, &gobizfly.TokenCreateRequest{AuthMethod: "password", Username: email, Password: password})
 	if err != nil {
-		return nil, err
+		log.Fatal(err)
 	}
 
 	client.SetKeystoneToken(tok.KeystoneToken)
 
-	return client, nil
+	return client, ctx
 }
