@@ -119,5 +119,4 @@ func init() {
 	volumeCmd.AddCommand(volumeListCmd)
 	volumeCmd.AddCommand(volumeGetCmd)
 	volumeCmd.AddCommand(volumeDeleteCmd)
-	volumeCmd.AddCommand(volumeDeleteCmd)
 }
