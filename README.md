@@ -27,9 +27,9 @@ Available Commands:
 
 Flags:
       --config string     config file (default is $HOME/.bizfly.yaml)
-      --email string      Your BizFly Cloud Email (default "sapd@vccloud.vn")
+      --email string      Your BizFly Cloud Email
   -h, --help              help for bizfly
-      --password string   Your BizFly CLoud Password (default "33CMgrprH7zsjgBIr6zN")
+      --password string   Your BizFly CLoud Password
   -t, --toggle            Help message for toggle
 
 Use "bizfly [command] --help" for more information about a command.
