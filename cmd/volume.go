@@ -23,7 +23,7 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
-	"github.com/bizflycloud/bizflycli/common"
+	"github.com/bizflycloud/bizflyctl/formatter"
 	"github.com/bizflycloud/gobizfly"
 )
 
@@ -88,7 +88,7 @@ Example: bizfly volume get 9e580b1a-0526-460b-9a6f-d8f80130bda8
 		}
 		var data [][]string
 		data = append(data, []string{volume.ID, volume.Name, volume.Status, strconv.Itoa(volume.Size), volume.CreatedAt, volume.SnapshotID})
-		common.Output(volumeHeaderList, data)
+		formatter.Output(volumeHeaderList, data)
 	},
 }
 
@@ -110,7 +110,7 @@ Example: bizfly volume list
 			data = append(data, []string{
 				vol.ID, vol.Name, vol.Status, strconv.Itoa(vol.Size), vol.CreatedAt, vol.VolumeType, vol.SnapshotID})
 		}
-		common.Output(volumeHeaderList, data)
+		formatter.Output(volumeHeaderList, data)
 	},
 }
 

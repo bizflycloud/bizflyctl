@@ -1,8 +1,9 @@
-package common
+package formatter
 
 import (
-	"github.com/olekukonko/tablewriter"
 	"os"
+
+	"github.com/olekukonko/tablewriter"
 )
 
 func Output(header []string, data [][]string) {

@@ -21,7 +21,7 @@ import (
 	"log"
 	"strings"
 
-	"github.com/bizflycloud/bizflycli/common"
+	"github.com/bizflycloud/bizflyctl/formatter"
 	"github.com/bizflycloud/gobizfly"
 	"github.com/spf13/cobra"
 )
@@ -81,7 +81,7 @@ var serverListCmd = &cobra.Command{
 			s := []string{server.ID, server.Name, server.Status}
 			data = append(data, s)
 		}
-		common.Output(serverListHeader, data)
+		formatter.Output(serverListHeader, data)
 	},
 }
 
@@ -108,7 +108,7 @@ Example: bizfly server get fd554aac-9ab1-11ea-b09d-bbaf82f02f58
 		}
 		var data [][]string
 		data = append(data, []string{server.ID, server.Name, server.Status})
-		common.Output(serverListHeader, data)
+		formatter.Output(serverListHeader, data)
 	},
 }
 

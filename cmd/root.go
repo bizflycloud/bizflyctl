@@ -18,7 +18,6 @@ package cmd
 import (
 	"context"
 	"fmt"
-	"github.com/spf13/cobra"
 	"log"
 	"os"
 	"time"
@@ -26,6 +25,7 @@ import (
 	"github.com/bizflycloud/gobizfly"
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/viper"
+	"github.com/spf13/cobra"
 )
 
 var (

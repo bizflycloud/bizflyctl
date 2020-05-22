@@ -15,7 +15,7 @@ limitations under the License.
 */
 package main
 
-import "github.com/bizflycloud/bizflycli/cmd"
+import "github.com/bizflycloud/bizflyctl/cmd"
 
 func main() {
 	cmd.Execute()

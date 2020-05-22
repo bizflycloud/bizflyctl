@@ -23,7 +23,7 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
-	"github.com/bizflycloud/bizflycli/common"
+	"github.com/bizflycloud/bizflyctl/formatter"
 	"github.com/bizflycloud/gobizfly"
 )
 
@@ -95,7 +95,7 @@ Example: bizfly snapshot get <snapshot_id>`,
 		}
 		var data [][]string
 		data = append(data, []string{snap.Id, snap.Name, snap.Status, strconv.Itoa(snap.Size), snap.VolumeTypeId, snap.CreateAt, snap.VolumeId})
-		common.Output(snapshotHeaderList, data)
+		formatter.Output(snapshotHeaderList, data)
 	},
 }
 
@@ -116,7 +116,7 @@ Example: bizfly snapshot list
 			data = append(data, []string{
 				snap.Id, snap.Name, snap.Status, strconv.Itoa(snap.Size), snap.VolumeTypeId, snap.CreateAt, snap.VolumeId})
 		}
-		common.Output(snapshotHeaderList, data)
+		formatter.Output(snapshotHeaderList, data)
 	},
 }
 
