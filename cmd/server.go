@@ -51,7 +51,7 @@ You can delete multiple server with list of server id
 Example: bizfly server delete fd554aac-9ab1-11ea-b09d-bbaf82f02f58 f5869e9c-9ab2-11ea-b9e3-e353a4f04836
 `,
 	Run: func(cmd *cobra.Command, args []string) {
-		client, ctx := apiClientForContext(cmd)
+		client, ctx := getApiClient(cmd)
 		for _, serverID := range args {
 			fmt.Printf("Deleting server %s \n", serverID)
 			err := client.Server.Delete(ctx, serverID)
@@ -71,7 +71,7 @@ var serverListCmd = &cobra.Command{
 	Short: "List all server in your account",
 	Long:  `List all server in your account`,
 	Run: func(cmd *cobra.Command, args []string) {
-		client, ctx := apiClientForContext(cmd)
+		client, ctx := getApiClient(cmd)
 		servers, err := client.Server.List(ctx, &gobizfly.ListOptions{})
 		if err != nil {
 			log.Fatal(err)
@@ -96,7 +96,7 @@ Example: bizfly server get fd554aac-9ab1-11ea-b09d-bbaf82f02f58
 		if len(args) > 1 {
 			fmt.Printf("Unknow variable %s", strings.Join(args[1:], ""))
 		}
-		client, ctx := apiClientForContext(cmd)
+		client, ctx := getApiClient(cmd)
 
 		server, err := client.Server.Get(ctx, args[0])
 		if err != nil {

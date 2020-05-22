@@ -59,7 +59,7 @@ var deleteSnapshotCmd = &cobra.Command{
 	Long: `Delete a snapshot or list of snapshots.
 Example: bizfly snapshot delete <snapshot_id> <snapshot_id>`,
 	Run: func(cmd *cobra.Command, args []string) {
-		client, ctx := apiClientForContext(cmd)
+		client, ctx := getApiClient(cmd)
 		for _, snapshotID := range args {
 			fmt.Printf("Deleting snapshot %s \n", snapshotID)
 			err := client.Snapshot.Delete(ctx, snapshotID)
@@ -83,7 +83,7 @@ Example: bizfly snapshot get <snapshot_id>`,
 		if len(args) > 1 {
 			fmt.Printf("Unknow variable %s", strings.Join(args[1:], ""))
 		}
-		client, ctx := apiClientForContext(cmd)
+		client, ctx := getApiClient(cmd)
 
 		snap, err := client.Snapshot.Get(ctx, args[0])
 		if err != nil {
@@ -106,7 +106,7 @@ var listSnapshotCmd = &cobra.Command{
 Example: bizfly snapshot list
 `,
 	Run: func(cmd *cobra.Command, args []string) {
-		client, ctx := apiClientForContext(cmd)
+		client, ctx := getApiClient(cmd)
 		snapshots, err := client.Snapshot.List(ctx, &gobizfly.ListOptions{})
 		if err != nil {
 			log.Fatal(err)

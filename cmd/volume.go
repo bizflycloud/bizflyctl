@@ -51,7 +51,7 @@ Example: bizfly volume delete fd554aac-9ab1-11ea-b09d-bbaf82f02f58
 You can delete multiple volumes with list of volume ID
 Example: bizfly volume delete fd554aac-9ab1-11ea-b09d-bbaf82f02f58 f5869e9c-9ab2-11ea-b9e3-e353a4f04836`,
 	Run: func(cmd *cobra.Command, args []string) {
-		client, ctx := apiClientForContext(cmd)
+		client, ctx := getApiClient(cmd)
 		for _, volumeID := range args {
 			fmt.Printf("Deleting volume %s \n", volumeID)
 			err := client.Volume.Delete(ctx, volumeID)
@@ -76,7 +76,7 @@ Example: bizfly volume get 9e580b1a-0526-460b-9a6f-d8f80130bda8
 		if len(args) > 1 {
 			fmt.Printf("Unknow variable %s", strings.Join(args[1:], ""))
 		}
-		client, ctx := apiClientForContext(cmd)
+		client, ctx := getApiClient(cmd)
 
 		volume, err := client.Volume.Get(ctx, args[0])
 		if err != nil {
@@ -100,7 +100,7 @@ var volumeListCmd = &cobra.Command{
 Example: bizfly volume list
 `,
 	Run: func(cmd *cobra.Command, args []string) {
-		client, ctx := apiClientForContext(cmd)
+		client, ctx := getApiClient(cmd)
 		volumes, err := client.Volume.List(ctx, &gobizfly.ListOptions{})
 		if err != nil {
 			log.Fatal(err)

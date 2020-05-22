@@ -99,7 +99,7 @@ func initConfig() {
 	}
 }
 
-func apiClientForContext(cmd *cobra.Command) (*gobizfly.Client, context.Context) {
+func getApiClient(cmd *cobra.Command) (*gobizfly.Client, context.Context) {
 	email, err := cmd.Flags().GetString("email")
 	if email == "" {
 		log.Fatal("Email is required")
