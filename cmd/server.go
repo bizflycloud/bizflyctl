@@ -33,13 +33,13 @@ var (
 	serverName string
 	// serverOS gobizfly type
 
-	imageID string
-	volumeID string
+	imageID    string
+	volumeID   string
 	snapshotID string
 	flavorName string
 
 	// basic, premium, enterprise category
-	serverCategory string
+	serverCategory   string
 	availabilityZone string
 
 	// rootdisk
@@ -47,7 +47,6 @@ var (
 	rootDiskSize int
 	// ssh key
 	sshKey string
-
 )
 
 //type responseMessage struct {
@@ -137,9 +136,9 @@ Example: bizfly server get fd554aac-9ab1-11ea-b09d-bbaf82f02f58
 }
 
 var serverCreateCmd = &cobra.Command{
-	Use: "create",
+	Use:   "create",
 	Short: "Create a server",
-	Long: "Crunceate a new server, return a task ID of the processing",
+	Long:  "Crunceate a new server, return a task ID of the processing",
 	Run: func(cmd *cobra.Command, arg []string) {
 
 		if imageID == "" && volumeID == "" && snapshotID == "" {
@@ -168,13 +167,13 @@ var serverCreateCmd = &cobra.Command{
 		}
 
 		scr := gobizfly.ServerCreateRequest{
-			Name: serverName,
-			FlavorName: flavorName,
-			SSHKey: sshKey,
-			RootDisk: &rootDisk,
-			Type: serverCategory,
+			Name:             serverName,
+			FlavorName:       flavorName,
+			SSHKey:           sshKey,
+			RootDisk:         &rootDisk,
+			Type:             serverCategory,
 			AvailabilityZone: availabilityZone,
-			OS: &serverOS,
+			OS:               &serverOS,
 		}
 		client, ctx := getApiClient(cmd)
 		svrTask, err := client.Server.Create(ctx, &scr)
@@ -184,7 +183,7 @@ var serverCreateCmd = &cobra.Command{
 		}
 
 		fmt.Printf("Creating server with task id: %v", svrTask)
- 	},
+	},
 }
 
 func init() {
@@ -192,7 +191,6 @@ func init() {
 	serverCmd.AddCommand(serverListCmd)
 	serverCmd.AddCommand(serverGetCmd)
 	serverCmd.AddCommand(serverDeleteCmd)
-
 
 	scpf := serverCreateCmd.PersistentFlags()
 	scpf.StringVar(&serverName, "name", "", "Name of server")

@@ -28,10 +28,9 @@ import (
 )
 
 var (
-	lbListHeader = []string{"ID", "Name", "Network Type", "IP Address", "Operating Status", "Type"}
-	poolListHeader = []string{"ID", "Name", "Algorithm", "Protocol", "Operating Status"}
+	lbListHeader       = []string{"ID", "Name", "Network Type", "IP Address", "Operating Status", "Type"}
+	poolListHeader     = []string{"ID", "Name", "Algorithm", "Protocol", "Operating Status"}
 	listenerListHeader = []string{"ID", "Name", "Protocol", "Protocol Port", "Operating Status", "Default Pool ID"}
-
 )
 
 // serverCmd represents the server command
@@ -45,17 +44,17 @@ var lbCmd = &cobra.Command{
 }
 
 var lbListenerCmd = &cobra.Command{
-	Use: "listener",
+	Use:   "listener",
 	Short: "BizFly Cloud Load Balancer Listener Interaction",
-	Long: "BizFly Cloud Load Balancer Listener Action: Create, List, Delete, Get",
-	Run: func(cmd *cobra.Command, args []string) {},
+	Long:  "BizFly Cloud Load Balancer Listener Action: Create, List, Delete, Get",
+	Run:   func(cmd *cobra.Command, args []string) {},
 }
 
 var lbPoolCmd = &cobra.Command{
-	Use: "pool",
+	Use:   "pool",
 	Short: "BizFly Cloud Load Balancer Pool Interaction",
-	Long: "BizFly Cloud Load Balancer Pool Action: Create, List, Delete, Get",
-	Run: func(cmd *cobra.Command, args []string) {},
+	Long:  "BizFly Cloud Load Balancer Pool Action: Create, List, Delete, Get",
+	Run:   func(cmd *cobra.Command, args []string) {},
 }
 
 // deleteCmd represents the delete command
@@ -131,7 +130,6 @@ Example: bizfly loadbalancer get fd554aac-9ab1-11ea-b09d-bbaf82f02f58
 	},
 }
 
-
 // lbPoolDeleteCmd represents the delete command
 var lbPoolDeleteCmd = &cobra.Command{
 	Use:   "delete",
@@ -158,7 +156,7 @@ Example: bizfly loadbalancer pool delete fd554aac-9ab1-11ea-b09d-bbaf82f02f58
 var lbPoolListCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List all pools in a load balancer",
-	Long:  `List all pools in a load balancer
+	Long: `List all pools in a load balancer
 Example: bizfly loadbalancer pool list <loadbalancer_id>
 `,
 	Run: func(cmd *cobra.Command, args []string) {
@@ -205,7 +203,6 @@ Example: bizfly loadbalancer pool get fd554aac-9ab1-11ea-b09d-bbaf82f02f58
 	},
 }
 
-
 // lbListenerDeleteCmd represents the delete command
 var lbListenerDeleteCmd = &cobra.Command{
 	Use:   "delete",
@@ -232,7 +229,7 @@ Example: bizfly loadbalancer listener delete fd554aac-9ab1-11ea-b09d-bbaf82f02f5
 var lbListenerListCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List all listeners in a load balancer",
-	Long:  `List all listeners in a loadbalancer
+	Long: `List all listeners in a loadbalancer
 Example: bizfly loadbalancer listener list <loadbalancer_id>
 `,
 	Run: func(cmd *cobra.Command, args []string) {
@@ -278,6 +275,7 @@ Example: bizfly loadbalancer listener get fd554aac-9ab1-11ea-b09d-bbaf82f02f58
 		formatter.Output(listenerListHeader, data)
 	},
 }
+
 func init() {
 	rootCmd.AddCommand(lbCmd)
 	lbCmd.AddCommand(lbListCmd)

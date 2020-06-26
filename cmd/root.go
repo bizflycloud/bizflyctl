@@ -24,8 +24,8 @@ import (
 
 	"github.com/bizflycloud/gobizfly"
 	homedir "github.com/mitchellh/go-homedir"
-	"github.com/spf13/viper"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 var (
@@ -104,7 +104,7 @@ func getApiClient(cmd *cobra.Command) (*gobizfly.Client, context.Context) {
 	if email == "" {
 		log.Fatal("Email is required")
 	}
-	password,  err := cmd.Flags().GetString("password")
+	password, err := cmd.Flags().GetString("password")
 	if password == "" {
 		log.Fatal("Password is required")
 	}

@@ -22,9 +22,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/spf13/cobra"
 	"github.com/bizflycloud/bizflyctl/formatter"
 	"github.com/bizflycloud/gobizfly"
+	"github.com/spf13/cobra"
 )
 
 var (
@@ -35,7 +35,7 @@ var (
 var snapshotCmd = &cobra.Command{
 	Use:   "snapshot",
 	Short: "BizFly Cloud Snapshot Interaction",
-	Long: `BizFly Cloud Server Action: Create, List, Delete, Snapshot`,
+	Long:  `BizFly Cloud Server Action: Create, List, Delete, Snapshot`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("snapshot called")
 	},
@@ -100,7 +100,7 @@ Example: bizfly snapshot get <snapshot_id>`,
 }
 
 var listSnapshotCmd = &cobra.Command{
-	Use: "list",
+	Use:   "list",
 	Short: "List all snapshots in your account",
 	Long: `List all snapshots in your account
 Example: bizfly snapshot list
@@ -112,7 +112,7 @@ Example: bizfly snapshot list
 			log.Fatal(err)
 		}
 		var data [][]string
-		for _, snap:= range snapshots {
+		for _, snap := range snapshots {
 			data = append(data, []string{
 				snap.Id, snap.Name, snap.Status, strconv.Itoa(snap.Size), snap.VolumeTypeId, snap.CreateAt, snap.VolumeId})
 		}

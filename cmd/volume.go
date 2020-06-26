@@ -22,9 +22,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/spf13/cobra"
 	"github.com/bizflycloud/bizflyctl/formatter"
 	"github.com/bizflycloud/gobizfly"
+	"github.com/spf13/cobra"
 )
 
 var (
@@ -35,7 +35,7 @@ var (
 var volumeCmd = &cobra.Command{
 	Use:   "volume",
 	Short: "BizFly Cloud Volume Interaction",
-	Long: `BizFly Cloud Server Action: Create, List, Delete, Extend Volume`,
+	Long:  `BizFly Cloud Server Action: Create, List, Delete, Extend Volume`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("volume called")
 	},
