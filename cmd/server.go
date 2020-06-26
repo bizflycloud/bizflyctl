@@ -19,6 +19,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"os"
 	"strings"
 
 	"github.com/bizflycloud/bizflyctl/formatter"
@@ -28,7 +29,30 @@ import (
 
 var (
 	serverListHeader = []string{"ID", "Name", "Status"}
+
+	serverName string
+	// serverOS gobizfly type
+
+	imageID string
+	volumeID string
+	snapshotID string
+	flavorName string
+
+	// basic, premium, enterprise category
+	serverCategory string
+	availabilityZone string
+
+	// rootdisk
+	rootDiskType string
+	rootDiskSize int
+	// ssh key
+	sshKey string
+
 )
+
+//type responseMessage struct {
+//	message string `json:"message"`
+//}
 
 // serverCmd represents the server command
 var serverCmd = &cobra.Command{
@@ -112,9 +136,78 @@ Example: bizfly server get fd554aac-9ab1-11ea-b09d-bbaf82f02f58
 	},
 }
 
+var serverCreateCmd = &cobra.Command{
+	Use: "create",
+	Short: "Create a server",
+	Long: "Crunceate a new server, return a task ID of the processing",
+	Run: func(cmd *cobra.Command, arg []string) {
+
+		if imageID == "" && volumeID == "" && snapshotID == "" {
+			fmt.Println("You need to specify image-id or volume-id or snapshot-id to create a new server")
+		}
+
+		var serverOS gobizfly.ServerOS
+
+		if imageID != "" {
+			serverOS.Type = "image"
+			serverOS.ID = imageID
+		}
+		if volumeID != "" {
+			serverOS.Type = "volume"
+			serverOS.ID = volumeID
+		}
+
+		if snapshotID != "" {
+			serverOS.Type = "snapshot"
+			serverOS.ID = snapshotID
+		}
+
+		rootDisk := gobizfly.ServerDisk{
+			Type: rootDiskType,
+			Size: rootDiskSize,
+		}
+
+		scr := gobizfly.ServerCreateRequest{
+			Name: serverName,
+			FlavorName: flavorName,
+			SSHKey: sshKey,
+			RootDisk: &rootDisk,
+			Type: serverCategory,
+			AvailabilityZone: availabilityZone,
+			OS: &serverOS,
+		}
+		client, ctx := getApiClient(cmd)
+		svrTask, err := client.Server.Create(ctx, &scr)
+		if err != nil {
+			fmt.Printf("Create server error: %v", err)
+			os.Exit(1)
+		}
+
+		fmt.Printf("Creating server with task id: %v", svrTask)
+ 	},
+}
+
 func init() {
 	rootCmd.AddCommand(serverCmd)
 	serverCmd.AddCommand(serverListCmd)
 	serverCmd.AddCommand(serverGetCmd)
 	serverCmd.AddCommand(serverDeleteCmd)
+
+
+	scpf := serverCreateCmd.PersistentFlags()
+	scpf.StringVar(&serverName, "name", "", "Name of server")
+	cobra.MarkFlagRequired(scpf, "name")
+	scpf.StringVar(&imageID, "image-id", "", "ID of OS image. Create a root disk using this image ID")
+	scpf.StringVar(&volumeID, "volume-id", "", "ID of volume. Create a server using an existing root disk volume.")
+	scpf.StringVar(&snapshotID, "snapshot-id", "", "ID of snapshot. Create a server from a snapshot ID.")
+	scpf.StringVar(&flavorName, "flavor", "", "Name of flavor. Flavor for create a server. Using 'bizfly flavor list' to get a list of flavors")
+	cobra.MarkFlagRequired(scpf, "flavor")
+	scpf.StringVar(&serverCategory, "category", "premium", "Server category: basic, premium or enterprise.")
+	scpf.StringVar(&availabilityZone, "availability-zone", "HN1", "Availability Zone of server.")
+	scpf.StringVar(&rootDiskType, "rootdisk-type", "HDD", "Type of root disk: HDD or SSD.")
+	scpf.IntVar(&rootDiskSize, "rootdisk-size", 0, "Size of root disk in Gigabyte. Minimum is 20GB")
+	cobra.MarkFlagRequired(scpf, "rootdisk-size")
+	scpf.StringVar(&sshKey, "ssh-key", "", "SSH key")
+
+	serverCmd.AddCommand(serverCreateCmd)
 }
