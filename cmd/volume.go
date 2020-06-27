@@ -19,6 +19,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"os"
 	"strconv"
 	"strings"
 
@@ -29,6 +30,11 @@ import (
 
 var (
 	volumeHeaderList = []string{"ID", "Name", "Status", "Size", "Created At", "Type", "Snapshot ID"}
+	volumeName       string
+	volumeSize       int
+	volumeType       string
+	volumeCategory   string
+	serverID         string
 )
 
 // volumeCmd represents the volume command
@@ -41,7 +47,7 @@ var volumeCmd = &cobra.Command{
 	},
 }
 
-// deleteCmd represents the delete command
+// volumeDeleteCmd represents the delete command
 var volumeDeleteCmd = &cobra.Command{
 	Use:   "delete",
 	Short: "Delete volume",
@@ -65,7 +71,7 @@ Example: bizfly volume delete fd554aac-9ab1-11ea-b09d-bbaf82f02f58 f5869e9c-9ab2
 	},
 }
 
-// getCmd represents the get command
+// volumeGetCmd represents the get command
 var volumeGetCmd = &cobra.Command{
 	Use:   "get",
 	Short: "Get detail a volume",
@@ -92,7 +98,7 @@ Example: bizfly volume get 9e580b1a-0526-460b-9a6f-d8f80130bda8
 	},
 }
 
-// listCmd represents the list command
+// volumeListCmd represents the list command
 var volumeListCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List all volumes in your account",
@@ -114,9 +120,121 @@ Example: bizfly volume list
 	},
 }
 
+// volumeCreateCmd represents the create command
+var volumeCreateCmd = &cobra.Command{
+	Use:   "create",
+	Short: "Create a new volume",
+	Long: `
+Create a new volume
+Use: bizfly volume create
+`,
+	Run: func(cmd *cobra.Command, args []string) {
+		client, ctx := getApiClient(cmd)
+		vcr := gobizfly.VolumeCreateRequest{
+			Name:             volumeName,
+			Size:             volumeSize,
+			VolumeType:       volumeType,
+			SnapshotID:       snapshotID,
+			ServerID:         serverID,
+			AvailabilityZone: availabilityZone,
+			VolumeCategory:   volumeCategory,
+		}
+		volume, err := client.Volume.Create(ctx, &vcr)
+		if err != nil {
+			fmt.Printf("Create a new volume error: %v", err)
+			os.Exit(1)
+		}
+		var data [][]string
+		data = append(data, []string{volume.ID, volume.Name, volume.Status, strconv.Itoa(volume.Size), volume.CreatedAt, volume.SnapshotID})
+		formatter.Output(volumeHeaderList, data)
+	},
+}
+
+// volumeAttachCmd represents the volume attach command
+var volumeAttachCmd = &cobra.Command{
+	Use:   "attach",
+	Short: "Attach a volume to a server",
+	Long: `
+Attach a volume to a server
+Use: bizfly volume attach <volume-id> <server-id>
+`,
+	Run: func(cmd *cobra.Command, args []string) {
+		if len(args) < 2 {
+			fmt.Println("Command error: use bizfly volume attach <volume-id> <server-id>")
+			os.Exit(1)
+		}
+		volumeID := args[0]
+		if volumeID == "" {
+			fmt.Println("You need to specify volume-id in the command")
+			os.Exit(1)
+		}
+		serverID := args[1]
+		if serverID == "" {
+			fmt.Println("You need to specify server-id in the command")
+			os.Exit(1)
+		}
+		client, ctx := getApiClient(cmd)
+		res, err := client.Volume.Attach(ctx, volumeID, serverID)
+		if err != nil {
+			fmt.Printf("Attach a volume to a server error: %v", err)
+			os.Exit(1)
+		}
+		fmt.Println(res.Message)
+	},
+}
+
+// volumeDetachCmd represents the volume detach command
+var volumeDetachCmd = &cobra.Command{
+	Use:   "detach",
+	Short: "Detach a volume from a server",
+	Long: `
+Detach a volume from a server
+Use: bizfly volume detach <volume-id> <server-id>
+`,
+	Run: func(cmd *cobra.Command, args []string) {
+		if len(args) < 2 {
+			fmt.Println("Command error: use bizfly volume attach <volume-id> <server-id>")
+			os.Exit(1)
+		}
+		volumeID := args[0]
+		if volumeID == "" {
+			fmt.Println("You need to specify volume-id in the command")
+			os.Exit(1)
+		}
+		serverID := args[1]
+		if serverID == "" {
+			fmt.Println("You need to specify server-id in the command")
+			os.Exit(1)
+		}
+		client, ctx := getApiClient(cmd)
+		res, err := client.Volume.Detach(ctx, volumeID, serverID)
+		if err != nil {
+			fmt.Printf("Detach a volume from a server error: %v", err)
+			os.Exit(1)
+		}
+		fmt.Println(res.Message)
+	},
+}
+
 func init() {
 	rootCmd.AddCommand(volumeCmd)
 	volumeCmd.AddCommand(volumeListCmd)
 	volumeCmd.AddCommand(volumeGetCmd)
 	volumeCmd.AddCommand(volumeDeleteCmd)
+
+	vcpf := volumeCreateCmd.PersistentFlags()
+	vcpf.StringVar(&volumeName, "name", "", "Volume name")
+	cobra.MarkFlagRequired(vcpf, "name")
+	vcpf.StringVar(&volumeType, "type", "HDD", "Volume type: SSD or HDD.")
+	vcpf.StringVar(&volumeCategory, "category", "premium", "Volume category: premium, enterprise or basic.")
+	vcpf.IntVar(&volumeSize, "size", 0, "Volume size")
+	cobra.MarkFlagRequired(vcpf, "size")
+	vcpf.StringVar(&availabilityZone, "availability-zone", "HN1", "Avaialability Zone of volume.")
+	vcpf.StringVar(&snapshotID, "snapshot-id", "", "Creae a volume from a snapshot")
+	vcpf.StringVar(&serverID, "server-id", "", "Create a new volume and attach to a server")
+	volumeCmd.AddCommand(volumeCreateCmd)
+
+	volumeCmd.AddCommand(volumeAttachCmd)
+
+	volumeCmd.AddCommand(volumeDetachCmd)
 }
