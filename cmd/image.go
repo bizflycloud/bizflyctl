@@ -23,7 +23,7 @@ var imageListCmd = &cobra.Command{
 	Short: "list all os images in BizFly Cloud",
 	Long: `
 List all os images in BizFly Cloud
-Use: bizflyctl image list
+Use: bizfly image list
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 		client, ctx := getApiClient(cmd)

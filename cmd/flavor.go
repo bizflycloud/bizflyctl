@@ -24,7 +24,7 @@ var flavorListCmd = &cobra.Command{
 	Short: "List all flavor of BizFly Cloud",
 	Long: `
 List all flavor of BizFly Cloud.
-Use: bizflyctl flavor list
+Use: bizfly flavor list
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 		client, ctx := getApiClient(cmd)
