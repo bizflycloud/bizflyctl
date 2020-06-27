@@ -135,10 +135,11 @@ Example: bizfly server get fd554aac-9ab1-11ea-b09d-bbaf82f02f58
 	},
 }
 
+// serverCreateCmd represents the create server command
 var serverCreateCmd = &cobra.Command{
 	Use:   "create",
 	Short: "Create a server",
-	Long:  "Crunceate a new server, return a task ID of the processing",
+	Long:  "Create a new server, return a task ID of the processing",
 	Run: func(cmd *cobra.Command, arg []string) {
 
 		if imageID == "" && volumeID == "" && snapshotID == "" {
@@ -186,6 +187,56 @@ var serverCreateCmd = &cobra.Command{
 	},
 }
 
+// serverRebootCmd represents the reboot server command
+var serverRebootCmd = &cobra.Command{
+	Use:   "reboot",
+	Short: "Reboot a server. This is soft reboot",
+	Long: `
+Reboot a server
+Use: bizfly server reboot <server-id>
+`,
+	Run: func(cmd *cobra.Command, args []string) {
+		if len(args) < 1 {
+			fmt.Println("You need to specify server-id in the command. Use bizfly server reboot <server-id>")
+			os.Exit(1)
+		}
+		serverID := args[0]
+		client, ctx := getApiClient(cmd)
+		res, err := client.Server.SoftReboot(ctx, serverID)
+		if err != nil {
+			fmt.Printf("Reboot server error %v", err)
+			os.Exit(1)
+		}
+		fmt.Println(res.Message)
+
+	},
+}
+
+// serverHardRebootCmd represents the hard reboot server command
+var serverHardRebootCmd = &cobra.Command{
+	Use: "hard reboot",
+	Short: "Hard reboot a server",
+	Long: `
+Hard reboot a server.
+Use: bizfly server hard reboot <server-id>
+`,
+	Run: func(cmd *cobra.Command, args []string) {
+		if len(args) < 1 {
+			fmt.Println("You need to specify server-id in the command. Use bizfly server hard reboot <server-id>")
+			os.Exit(1)
+		}
+		serverID := args[0]
+		client, ctx := getApiClient(cmd)
+		res, err := client.Server.HardReboot(ctx, serverID)
+		if err != nil {
+			fmt.Printf("Hard Reboot server error %v", err)
+			os.Exit(1)
+		}
+		fmt.Println(res.Message)
+
+	},
+}
+
 func init() {
 	rootCmd.AddCommand(serverCmd)
 	serverCmd.AddCommand(serverListCmd)
@@ -208,4 +259,6 @@ func init() {
 	scpf.StringVar(&sshKey, "ssh-key", "", "SSH key")
 
 	serverCmd.AddCommand(serverCreateCmd)
+	serverCmd.AddCommand(serverRebootCmd)
+	serverCmd.AddCommand(serverHardRebootCmd)
 }
