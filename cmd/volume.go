@@ -216,6 +216,29 @@ Use: bizfly volume detach <volume-id> <server-id>
 	},
 }
 
+// extendVolumeCmd represent the resize volume command
+var extendVolumeCmd = &cobra.Command{
+	Use:   "extend",
+	Short: "Extend size of a volume",
+	Long: `
+Extend size of a volume
+Use: bizfly volume extend <volume-id> --size <new-size>
+`,
+	Run: func(cmd *cobra.Command, args []string) {
+		if len(args) < 1{
+			fmt.Println("You need to specify the volume-id in the command. Use: bizfly volume extend <volume-id> --size <new size>")
+			os.Exit(1)
+		}
+		volumeID := args[0]
+		client, ctx := getApiClient(cmd)
+		_, err := client.Volume.ExtendVolume(ctx, volumeID, volumeSize)
+		if err != nil {
+			fmt.Printf("Extend volume error: %v\n", err)
+		}
+		fmt.Printf("Extending volume %v\n", volumeID)
+	},
+}
+
 func init() {
 	rootCmd.AddCommand(volumeCmd)
 	volumeCmd.AddCommand(volumeListCmd)
@@ -237,4 +260,8 @@ func init() {
 	volumeCmd.AddCommand(volumeAttachCmd)
 
 	volumeCmd.AddCommand(volumeDetachCmd)
+
+	extendVolumeCmd.PersistentFlags().IntVar(&volumeSize, "size", 0, "Volume size")
+	cobra.MarkFlagRequired(extendVolumeCmd.PersistentFlags(), "size")
+	volumeCmd.AddCommand(extendVolumeCmd)
 }
