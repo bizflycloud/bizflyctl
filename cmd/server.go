@@ -183,7 +183,7 @@ var serverCreateCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		fmt.Printf("Creating server with task id: %v", svrTask)
+		fmt.Printf("Creating server with task id: %v\n", svrTask)
 	},
 }
 
@@ -214,25 +214,100 @@ Use: bizfly server reboot <server-id>
 
 // serverHardRebootCmd represents the hard reboot server command
 var serverHardRebootCmd = &cobra.Command{
-	Use: "hard reboot",
+	Use:   "hard reboot",
 	Short: "Hard reboot a server",
 	Long: `
 Hard reboot a server.
 Use: bizfly server hard reboot <server-id>
 `,
 	Run: func(cmd *cobra.Command, args []string) {
-		if len(args) < 1 {
+		if len(args) < 2 {
 			fmt.Println("You need to specify server-id in the command. Use bizfly server hard reboot <server-id>")
+			os.Exit(1)
+		}
+		serverID := args[1]
+		client, ctx := getApiClient(cmd)
+		res, err := client.Server.HardReboot(ctx, serverID)
+		if err != nil {
+			fmt.Printf("Hard Reboot server error %v\n", err)
+			os.Exit(1)
+		}
+		fmt.Println(res.Message)
+
+	},
+}
+
+// serverStopCmd represents the hard stop server command
+var serverStopCmd = &cobra.Command{
+	Use:   "stop",
+	Short: "Stop a server",
+	Long: `
+Stop a server.
+Use: bizfly server stop <server-id>
+`,
+	Run: func(cmd *cobra.Command, args []string) {
+		if len(args) < 1 {
+			fmt.Println("You need to specify server-id in the command. Use bizfly server stop <server-id>")
 			os.Exit(1)
 		}
 		serverID := args[0]
 		client, ctx := getApiClient(cmd)
-		res, err := client.Server.HardReboot(ctx, serverID)
+		_, err := client.Server.Stop(ctx, serverID)
 		if err != nil {
-			fmt.Printf("Hard Reboot server error %v", err)
+			fmt.Printf("Stop server error %v\n", err)
 			os.Exit(1)
 		}
-		fmt.Println(res.Message)
+		fmt.Printf("Stopping server: %s\n", serverID)
+
+	},
+}
+
+// serverStartCmd represents the hard stop server command
+var serverStartCmd = &cobra.Command{
+	Use:   "start",
+	Short: "Start a server",
+	Long: `
+Start a server.
+Use: bizfly server start <server-id>
+`,
+	Run: func(cmd *cobra.Command, args []string) {
+		if len(args) < 1 {
+			fmt.Println("You need to specify server-id in the command. Use bizfly server start <server-id>")
+			os.Exit(1)
+		}
+		serverID := args[0]
+		client, ctx := getApiClient(cmd)
+		_, err := client.Server.Stop(ctx, serverID)
+		if err != nil {
+			fmt.Printf("Start server error %v\n", err)
+			os.Exit(1)
+		}
+		fmt.Printf("Starting server: %s\n", serverID)
+
+	},
+}
+
+// serverResizeCmd represents the hard stop server command
+var serverResizeCmd = &cobra.Command{
+	Use:   "resize",
+	Short: "Resize a server",
+	Long: `
+Resize a server.
+Use: bizfly server resize <server-id> --flavor <flavor name>
+`,
+	Run: func(cmd *cobra.Command, args []string) {
+		if len(args) < 1 {
+			fmt.Println("You need to specify server-id in the command. Use bizfly server resize <server-id> --flavor")
+			os.Exit(1)
+		}
+		serverID := args[0]
+		client, ctx := getApiClient(cmd)
+		_, err := client.Server.Resize(ctx, serverID, flavorName)
+		if err != nil {
+			fmt.Printf("Resize server error %v\n", err)
+			os.Exit(1)
+		}
+		fmt.Printf("Resizing server: %s\n", serverID)
 
 	},
 }
@@ -261,4 +336,10 @@ func init() {
 	serverCmd.AddCommand(serverCreateCmd)
 	serverCmd.AddCommand(serverRebootCmd)
 	serverCmd.AddCommand(serverHardRebootCmd)
+	serverCmd.AddCommand(serverStopCmd)
+	serverCmd.AddCommand(serverStartCmd)
+
+	serverResizeCmd.PersistentFlags().StringVar(&flavorName, "flavor", "", "Name of flavor.")
+	cobra.MarkFlagRequired(serverResizeCmd.PersistentFlags(), "flavor")
+	serverCmd.AddCommand(serverResizeCmd)
 }
