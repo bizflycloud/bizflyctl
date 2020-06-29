@@ -19,6 +19,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"os"
 	"strconv"
 	"strings"
 
@@ -29,6 +30,7 @@ import (
 
 var (
 	snapshotHeaderList = []string{"ID", "Name", "Status", "Size", "Type", "Created At", "Volume ID"}
+	snapshotName       string
 )
 
 // snapshotCmd represents the snapshot command
@@ -46,9 +48,27 @@ var createSnapshotCmd = &cobra.Command{
 	Use:   "create",
 	Short: "Create a new snapshot",
 	Long: `Create a new snapshot
-Exmaple: bizfly snapshot create <volume_id>.`,
+Exmaple: bizfly snapshot create <volume_id> --name snapshot-name`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("create called")
+		if len(args) < 1 {
+			fmt.Println("You need to specify volume-id in the command. Use bizfly snapshot create <volume-id> --name <snapshot-name>")
+			os.Exit(1)
+		}
+		volumeID := args[0]
+		client, ctx := getApiClient(cmd)
+		scr := gobizfly.SnapshotCreateRequest{
+			Name: snapshotName,
+			VolumeId: volumeID,
+			Force: true,
+		}
+		snap, err := client.Snapshot.Create(ctx, &scr)
+		if err != nil {
+			fmt.Printf("Create snapshot for volume %s error %v", volumeID, err)
+			os.Exit(1)
+		}
+		var data [][]string
+		data = append(data, []string{snap.Id, snap.Name, snap.Status, strconv.Itoa(snap.Size), snap.VolumeTypeId, snap.CreateAt, snap.VolumeId})
+		formatter.Output(snapshotHeaderList, data)
 	},
 }
 
@@ -122,8 +142,11 @@ Example: bizfly snapshot list
 
 func init() {
 	rootCmd.AddCommand(snapshotCmd)
+	createSnapshotCmd.PersistentFlags().StringVar(&snapshotName, "name", "", "Volume snapshot name")
+	cobra.MarkFlagRequired(createSnapshotCmd.PersistentFlags(), "name")
 	snapshotCmd.AddCommand(createSnapshotCmd)
 	snapshotCmd.AddCommand(deleteSnapshotCmd)
 	snapshotCmd.AddCommand(getSnapshotCmd)
 	snapshotCmd.AddCommand(listSnapshotCmd)
+
 }
