@@ -143,7 +143,7 @@ Example: bizfly snapshot list
 func init() {
 	rootCmd.AddCommand(snapshotCmd)
 	createSnapshotCmd.PersistentFlags().StringVar(&snapshotName, "name", "", "Volume snapshot name")
-	cobra.MarkFlagRequired(createSnapshotCmd.PersistentFlags(), "name")
+	_ = cobra.MarkFlagRequired(createSnapshotCmd.PersistentFlags(), "name")
 	snapshotCmd.AddCommand(createSnapshotCmd)
 	snapshotCmd.AddCommand(deleteSnapshotCmd)
 	snapshotCmd.AddCommand(getSnapshotCmd)

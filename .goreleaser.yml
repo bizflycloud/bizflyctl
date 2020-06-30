@@ -1,0 +1,55 @@
+env:
+  - GO111MODULE=on
+before:
+  hooks:
+    - go mod download
+builds:
+- env:
+    - CGO_ENABLED=0
+  goos:
+    - linux
+    - windows
+    - darwin
+  goarch:
+    - 386
+    - amd64
+    - arm
+    - arm64
+  ignore:
+    - goos: darwin
+      goarch: 386
+  main: main.go
+  binary: bizflyctl
+  hooks:
+      pre: make build
+checksum:
+  name_template: '{{ .ProjectName }}_checksums.txt'
+changelog:
+  sort: asc
+  filters:
+    exclude:
+    - '^docs:'
+    - '^test:'
+    - Merge pull request
+    - Merge branch
+archives:
+  - name_template: '{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}'
+    replacements:
+      darwin: Darwin
+      linux: Linux
+      windows: Windows
+      386: i386
+      amd64: x86_64
+    format_overrides:
+    - goos: windows
+      format: zip
+source:
+  enabled: true
+  name_template: '{{ .ProjectName }}'
+  format: 'tar'
+release:
+  github:
+    owner: bizflycloud
+    name: bizflyctl
+  prerelease: auto
+  name_template: "{{.ProjectName}}-v{{.Version}} {{.Env.USER}}"

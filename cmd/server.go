@@ -320,17 +320,17 @@ func init() {
 
 	scpf := serverCreateCmd.PersistentFlags()
 	scpf.StringVar(&serverName, "name", "", "Name of server")
-	cobra.MarkFlagRequired(scpf, "name")
+	_ = cobra.MarkFlagRequired(scpf, "name")
 	scpf.StringVar(&imageID, "image-id", "", "ID of OS image. Create a root disk using this image ID")
 	scpf.StringVar(&volumeID, "volume-id", "", "ID of volume. Create a server using an existing root disk volume.")
 	scpf.StringVar(&snapshotID, "snapshot-id", "", "ID of snapshot. Create a server from a snapshot ID.")
 	scpf.StringVar(&flavorName, "flavor", "", "Name of flavor. Flavor for create a server. Using 'bizfly flavor list' to get a list of flavors")
-	cobra.MarkFlagRequired(scpf, "flavor")
+	_ = cobra.MarkFlagRequired(scpf, "flavor")
 	scpf.StringVar(&serverCategory, "category", "premium", "Server category: basic, premium or enterprise.")
 	scpf.StringVar(&availabilityZone, "availability-zone", "HN1", "Availability Zone of server.")
 	scpf.StringVar(&rootDiskType, "rootdisk-type", "HDD", "Type of root disk: HDD or SSD.")
 	scpf.IntVar(&rootDiskSize, "rootdisk-size", 0, "Size of root disk in Gigabyte. Minimum is 20GB")
-	cobra.MarkFlagRequired(scpf, "rootdisk-size")
+	_ = cobra.MarkFlagRequired(scpf, "rootdisk-size")
 	scpf.StringVar(&sshKey, "ssh-key", "", "SSH key")
 
 	serverCmd.AddCommand(serverCreateCmd)
@@ -340,6 +340,6 @@ func init() {
 	serverCmd.AddCommand(serverStartCmd)
 
 	serverResizeCmd.PersistentFlags().StringVar(&flavorName, "flavor", "", "Name of flavor.")
-	cobra.MarkFlagRequired(serverResizeCmd.PersistentFlags(), "flavor")
+	_ = cobra.MarkFlagRequired(serverResizeCmd.PersistentFlags(), "flavor")
 	serverCmd.AddCommand(serverResizeCmd)
 }
