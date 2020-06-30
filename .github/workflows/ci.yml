@@ -1,23 +1,18 @@
 on: [push, pull_request]
 name: Test
 jobs:
-  lint:
-    strategy:
-      matrix:
-        go-version: [1.13.x, 1.14.x]
-        platform: [ubuntu-latest, windows-latest, macos-latest]
-    runs-on: ${{ matrix.platform }}
+  Lint:
+    runs-on: ubuntu-latest
+    name: Lint
     steps:
-      - name: Install Go
-        uses: actions/setup-go@v1
-        with:
-          go-version: ${{ matrix.go-version }}
       - name: Checkout code
-        uses: actions/checkout@v2
-      - name: Install golangci-lint
-        run: curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | bash -s -- -b ./bin/ v1.18.0
-      - name: Run golangci-lint
-        run: bin/golangci-lint run ./...
+        uses: actions/checkout@v1
+
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v1
+        with:
+          version: v1.26
+
   test-with-module:
     strategy:
       matrix:

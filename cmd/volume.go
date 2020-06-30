@@ -247,11 +247,11 @@ func init() {
 
 	vcpf := volumeCreateCmd.PersistentFlags()
 	vcpf.StringVar(&volumeName, "name", "", "Volume name")
-	cobra.MarkFlagRequired(vcpf, "name")
+	_ = cobra.MarkFlagRequired(vcpf, "name")
 	vcpf.StringVar(&volumeType, "type", "HDD", "Volume type: SSD or HDD.")
 	vcpf.StringVar(&volumeCategory, "category", "premium", "Volume category: premium, enterprise or basic.")
 	vcpf.IntVar(&volumeSize, "size", 0, "Volume size")
-	cobra.MarkFlagRequired(vcpf, "size")
+	_ = cobra.MarkFlagRequired(vcpf, "size")
 	vcpf.StringVar(&availabilityZone, "availability-zone", "HN1", "Avaialability Zone of volume.")
 	vcpf.StringVar(&snapshotID, "snapshot-id", "", "Creae a volume from a snapshot")
 	vcpf.StringVar(&serverID, "server-id", "", "Create a new volume and attach to a server")
@@ -262,6 +262,6 @@ func init() {
 	volumeCmd.AddCommand(volumeDetachCmd)
 
 	extendVolumeCmd.PersistentFlags().IntVar(&volumeSize, "size", 0, "Volume size")
-	cobra.MarkFlagRequired(extendVolumeCmd.PersistentFlags(), "size")
+	_ = cobra.MarkFlagRequired(extendVolumeCmd.PersistentFlags(), "size")
 	volumeCmd.AddCommand(extendVolumeCmd)
 }
