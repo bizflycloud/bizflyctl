@@ -225,7 +225,7 @@ Extend size of a volume
 Use: bizfly volume extend <volume-id> --size <new-size>
 `,
 	Run: func(cmd *cobra.Command, args []string) {
-		if len(args) < 1{
+		if len(args) < 1 {
 			fmt.Println("You need to specify the volume-id in the command. Use: bizfly volume extend <volume-id> --size <new size>")
 			os.Exit(1)
 		}
