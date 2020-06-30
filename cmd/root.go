@@ -121,7 +121,7 @@ func getApiClient(cmd *cobra.Command) (*gobizfly.Client, context.Context) {
 		log.Fatal("Password is required")
 	}
 
-	client, err := gobizfly.NewClient(gobizfly.WithTenantName(email))
+	client, err := gobizfly.NewClient(gobizfly.WithTenantName(email)) // nolint:staticcheck
 
 	if err != nil {
 		log.Fatal(err)
