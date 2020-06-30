@@ -19,7 +19,7 @@ builds:
     - goos: darwin
       goarch: 386
   main: main.go
-  binary: bizflyctl
+  binary: bizfly
   hooks:
       pre: make build
 checksum:

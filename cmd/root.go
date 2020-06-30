@@ -63,16 +63,10 @@ func init() {
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.bizfly.yaml)")
 
 	rootCmd.PersistentFlags().StringVar(&email, "email", os.Getenv("BIZFLY_CLOUD_EMAIL"), "Your BizFly Cloud Email")
-	err := rootCmd.MarkFlagRequired("email")
-	if err != nil {
-		log.Fatal(err)
-	}
+	_ = rootCmd.MarkFlagRequired("email")
 
 	rootCmd.PersistentFlags().StringVar(&password, "password", os.Getenv("BIZFLY_CLOUD_PASSWORD"), "Your BizFly CLoud Password")
-	err = rootCmd.MarkFlagRequired("password")
-	if err != nil {
-		log.Fatal(err)
-	}
+	_ = rootCmd.MarkFlagRequired("password")
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
