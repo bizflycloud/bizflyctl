@@ -35,6 +35,10 @@ var (
 		"telegram",
 		"email",
 	}
+	alarmLoadBalancersTarget = []string{
+		"frontend",
+		"backend",
+	}
 	// Use generate tables
 	alarmListHeader    = table.Row{"ID", "Name", "Alarm Type", "Enable"}
 	historyListHeader  = table.Row{"ID", "Resource", "Alarm ID", "Alarm Type", "State", "When"}
@@ -52,7 +56,7 @@ var (
 	alarmHTTPExpectedCode int
 	alarmHTTPURL          string
 	alarmInstances        []string
-	alarmLoadBalancer     string
+	alarmLoadBalancers    []string
 	alarmName             string
 	alarmReceivers        []string
 	alarmResourceType     string
@@ -86,6 +90,7 @@ func init() {
 	alarmCreateFlags.IntVar(&alarmAlertInterval, "alert-interval", 300, "Time to do sent alert again")
 	alarmCreateFlags.IntVar(&alarmHTTPExpectedCode, "http-expected-code", 200, "Expected response status code from API need monitor")
 	alarmCreateFlags.StringArrayVarP(&alarmInstances, "instances", "i", []string{}, "Instances need monitor. Example:\n --instances instance-id --instances instance-id-2\nfor multiple instances")
+	alarmCreateFlags.StringArrayVarP(&alarmLoadBalancers, "loadbalancers", "l", []string{}, "Load Balancers need monitor. Example:\n --loadbalancers id=fake-id&tgid=fake-target-id&tgtype=frontend\ntgtype maybe:\n - frontend\n - backend")
 	alarmCreateFlags.StringArrayVarP(&alarmReceivers, "receivers", "r", []string{}, "Receivers use to received alert. Example:\n --receivers \"id=receiver-id&methods=email,telegram\" --receivers \"id=receiver-id2&methods=method1,method2\"\nfor multiple receivers")
 	alarmCreateFlags.StringArrayVarP(&alarmVolumes, "volumes", "v", []string{}, "Volumes need monitor. Example:\n --volumes volume-id --volumes volume-id-2\nfor multiple volumes")
 	alarmCreateFlags.StringVar(&alarmClusterID, "cluster-id", "", "Name of cluster use to monitor")
@@ -95,7 +100,6 @@ func init() {
 	alarmCreateFlags.StringVar(&alarmResourceType, "resource-type", "instance", "Type of of resource to alarm. Maybe include:\n - autoscale_group\n - host\n - http\n - instance\n - load_balancer\n - simple_storage\n - volume")
 	alarmCreateFlags.StringVarP(&alarmAutoScaling, "autoscaling", "a", "", "Auto Scaling need monitor. Example:\n --autoscaling id=fake-id&name=fake-name")
 	alarmCreateFlags.StringVarP(&alarmComparison, "comparison", "c", "", "Comparison of alarm. Example:\n --comparison \"{\"measurement\":\"iops\",\"compare_type\":\">=\",\"value\":200,\"range_time\":300}\"\n - 'measurement' value maybe:\n    - cpu_used\n    - net_used\n    - ram_used\n  for 'resource_type' is 'instance', 'autoscale_group'.\n    - disk_used\n    - disk_used_percent\n    - iops\n    - read_bytes\n    - write_bytes\n  for 'resource_type' is 'volume'.\n    - request_per_second\n    - data_transfer\n  for 'resource_type' is 'load_balancer'.")
-	alarmCreateFlags.StringVarP(&alarmLoadBalancer, "loadbalancer", "l", "", "Load Balancers need monitor. Example:\n --loadbalancer id=fake-id&lbname=fake-name&tgid=fake-target-id&tgname=fake-target-name&tgtype=frontend\ntgtype maybe:\n - frontend\n - backend")
 	alarmCreateFlags.StringVarP(&alarmName, "name", "n", "", "Name of alarm")
 	alarmCreateCmd.MarkFlagRequired("name")
 	alarmCreateCmd.MarkFlagRequired("receivers")
@@ -106,6 +110,7 @@ func init() {
 	alarmUpdateFlags.IntVar(&alarmAlertInterval, "alert-interval", 300, "Time to do sent alert again")
 	alarmUpdateFlags.IntVar(&alarmHTTPExpectedCode, "http-expected-code", 200, "Expected response status code from API need monitor")
 	alarmUpdateFlags.StringArrayVarP(&alarmInstances, "instances", "i", []string{}, "Instances need monitor. Example:\n --instances instance-id --instances instance-id-2\nfor multiple instances")
+	alarmUpdateFlags.StringArrayVarP(&alarmLoadBalancers, "loadbalancers", "l", []string{}, "Load Balancers need monitor. Example:\n --loadbalancers id=fake-id&tgid=fake-target-id&tgtype=frontend\ntgtype maybe:\n - frontend\n - backend")
 	alarmUpdateFlags.StringArrayVarP(&alarmReceivers, "receivers", "r", []string{}, "Receivers use to received alert. Example:\n --receivers \"id=receiver-id&methods=email,telegram\" --receivers \"id=receiver-id2&methods=method1,method2\"\nfor multiple receivers")
 	alarmUpdateFlags.StringArrayVarP(&alarmVolumes, "volumes", "v", []string{}, "Volumes need monitor. Example:\n --volumes volume-id --volumes volume-id-2\nfor multiple volumes")
 	alarmUpdateFlags.StringVar(&alarmClusterID, "cluster-id", "", "Name of cluster use to monitor")
@@ -115,7 +120,6 @@ func init() {
 	alarmUpdateFlags.StringVar(&alarmResourceType, "resource-type", "", "Type of of resource to alarm. Maybe include:\n - autoscale_group\n - host\n - http\n - instance\n - load_balancer\n - simple_storage\n - volume")
 	alarmUpdateFlags.StringVarP(&alarmAutoScaling, "autoscaling", "a", "", "Auto Scaling need monitor. Example:\n --autoscaling id=fake-id&name=fake-name")
 	alarmUpdateFlags.StringVarP(&alarmComparison, "comparison", "c", "", "Comparison of alarm. Example:\n --comparison \"{\"measurement\":\"iops\",\"compare_type\":\">=\",\"value\":200,\"range_time\":300}\"\n - 'measurement' value maybe:\n    - cpu_used\n    - net_used\n    - ram_used\n  for 'resource_type' is 'instance', 'autoscale_group'.\n    - disk_used\n    - disk_used_percent\n    - iops\n    - read_bytes\n    - write_bytes\n  for 'resource_type' is 'volume'.\n    - request_per_second\n    - data_transfer\n  for 'resource_type' is 'load_balancer'.")
-	alarmUpdateFlags.StringVarP(&alarmLoadBalancer, "loadbalancer", "l", "", "Load Balancers need monitor. Example:\n --loadbalancer id=fake-id&lbname=fake-name&tgid=fake-target-id&tgname=fake-target-name&tgtype=frontend\ntgtype maybe:\n - frontend\n - backend")
 	alarmUpdateFlags.StringVarP(&alarmName, "name", "n", "", "Name of alarm")
 	alarmCmd.AddCommand(alarmSetCmd)
 
@@ -155,7 +159,7 @@ func init() {
 
 	// Receivers unset
 	receiverUnSetFlags := receiverUnSetCmd.Flags()
-	receiverUnSetFlags.StringArrayVarP(&receiverMethods, "methods", "a", []string{}, "Specify a method to remove")
+	receiverUnSetFlags.StringArrayVarP(&receiverMethods, "methods", "a", []string{}, "Specify a method to remove. Method maybe include: \n - slack \n - autoscaling \n - emailaddress \n - phone \n - telegram \n - webhook")
 	receiverUnSetCmd.MarkFlagRequired("methods")
 	receiverCmd.AddCommand(receiverUnSetCmd)
 
@@ -247,8 +251,7 @@ var historyListCmd = &cobra.Command{
 	Long:  "List 26 latest history in your account",
 	Run: func(cmd *cobra.Command, args []string) {
 		client, ctx := getApiClient(cmd)
-		filters := "sort=-_created"
-		histories, err := client.Alert.Histories().List(ctx, &filters)
+		histories, err := client.Alert.Histories().List(ctx, nil)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -455,6 +458,76 @@ var alarmCreateCmd = &cobra.Command{
 			alarmCreateReceivers = append(alarmCreateReceivers, acr)
 		}
 
+		if len(alarmLoadBalancers) > 1 {
+			log.Fatal("UNSUPPORTED multiple load balancers")
+		}
+		var rawLoadBalancers = []map[string]interface{}{}
+		for _, alarmLoadBalancer := range alarmLoadBalancers {
+			var rawLoadBalancer = make(map[string]interface{})
+			ss := strings.Split(strings.ReplaceAll(alarmLoadBalancer, " ", ""), "&")
+			for _, parentValue := range ss {
+				z := strings.Split(parentValue, "=")
+				// Validate data from input
+				if z[0] == "" {
+					log.Fatal("Not found keyword for: ", z[1])
+				}
+				if len(z[1]) == 0 {
+					log.Fatal("Have error value for: ", z[0])
+				}
+
+				if strings.Contains(z[1], ",") {
+					rawLoadBalancer[z[0]] = strings.Split(z[1], ",")
+				} else {
+					rawLoadBalancer[z[0]] = z[1]
+				}
+			}
+			if _, ok := rawLoadBalancer["id"]; !ok {
+				log.Fatal("id of load balancer is required")
+			}
+			if _, ok := rawLoadBalancer["tgid"]; !ok {
+				log.Fatal("id of backend/frontend of load balancer is required")
+			}
+			if _, ok := rawLoadBalancer["tgtype"]; !ok {
+				log.Fatal("type of tgid is required")
+			}
+			if _, ok := SliceContains(alarmLoadBalancersTarget, rawLoadBalancer["tgtype"]); !ok {
+				log.Fatal("type of tgid is unsupported")
+			}
+			rawLoadBalancers = append(rawLoadBalancers, rawLoadBalancer)
+
+		}
+		var alarmLoadBalancersMonitors = []*gobizfly.AlarmLoadBalancersMonitor{}
+		for _, rawLoadBalancer := range rawLoadBalancers {
+			lb, err := client.LoadBalancer.Get(ctx, rawLoadBalancer["id"].(string))
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			var albm = gobizfly.AlarmLoadBalancersMonitor{
+				LoadBalancerID:   lb.ID,
+				LoadBalancerName: lb.Name,
+				TargetID:         rawLoadBalancer["tgid"].(string),
+				TargetType:       rawLoadBalancer["tgtype"].(string),
+			}
+
+			// Validate frontend/backend of loadbalancer
+			if rawLoadBalancer["tgtype"] == "frontend" {
+				frontend, err := client.Listener.Get(ctx, rawLoadBalancer["tgid"].(string))
+				if err != nil {
+					log.Fatal(err)
+				}
+				albm.TargetName = frontend.Name
+			} else {
+				backend, err := client.Pool.Get(ctx, rawLoadBalancer["tgid"].(string))
+				if err != nil {
+					log.Fatal(err)
+				}
+				albm.TargetName = backend.Name
+			}
+
+			alarmLoadBalancersMonitors = append(alarmLoadBalancersMonitors, &albm)
+		}
+
 		var alarmCreateRequest = gobizfly.AlarmCreateRequest{
 			AlertInterval:    alarmAlertInterval,
 			ClusterID:        alarmClusterID,
@@ -464,6 +537,7 @@ var alarmCreateCmd = &cobra.Command{
 			HTTPURL:          alarmHTTPURL,
 			Name:             alarmName,
 			Receivers:        alarmCreateReceivers,
+			LoadBalancers:    alarmLoadBalancersMonitors,
 			ResourceType:     alarmResourceType,
 		}
 
@@ -751,6 +825,81 @@ var alarmSetCmd = &cobra.Command{
 		if alarmResourceType == "" {
 			alarmResourceType = oldAlarm.ResourceType
 		}
+
+		var alarmLoadBalancersMonitors = []*gobizfly.AlarmLoadBalancersMonitor{}
+		if len(alarmLoadBalancers) > 0 {
+			if len(alarmLoadBalancers) > 1 {
+				log.Fatal("UNSUPPORTED multiple load balancers")
+			}
+			var rawLoadBalancers = []map[string]interface{}{}
+			for _, alarmLoadBalancer := range alarmLoadBalancers {
+				var rawLoadBalancer = make(map[string]interface{})
+				ss := strings.Split(strings.ReplaceAll(alarmLoadBalancer, " ", ""), "&")
+				for _, parentValue := range ss {
+					z := strings.Split(parentValue, "=")
+					// Validate data from input
+					if z[0] == "" {
+						log.Fatal("Not found keyword for: ", z[1])
+					}
+					if len(z[1]) == 0 {
+						log.Fatal("Have error value for: ", z[0])
+					}
+
+					if strings.Contains(z[1], ",") {
+						rawLoadBalancer[z[0]] = strings.Split(z[1], ",")
+					} else {
+						rawLoadBalancer[z[0]] = z[1]
+					}
+				}
+				if _, ok := rawLoadBalancer["id"]; !ok {
+					log.Fatal("id of load balancer is required")
+				}
+				if _, ok := rawLoadBalancer["tgid"]; !ok {
+					log.Fatal("id of backend/frontend of load balancer is required")
+				}
+				if _, ok := rawLoadBalancer["tgtype"]; !ok {
+					log.Fatal("type of tgid is required")
+				}
+				if _, ok := SliceContains(alarmLoadBalancersTarget, rawLoadBalancer["tgtype"]); !ok {
+					log.Fatal("type of tgid is unsupported")
+				}
+				rawLoadBalancers = append(rawLoadBalancers, rawLoadBalancer)
+
+			}
+			for _, rawLoadBalancer := range rawLoadBalancers {
+				lb, err := client.LoadBalancer.Get(ctx, rawLoadBalancer["id"].(string))
+				if err != nil {
+					log.Fatal(err)
+				}
+
+				var albm = gobizfly.AlarmLoadBalancersMonitor{
+					LoadBalancerID:   lb.ID,
+					LoadBalancerName: lb.Name,
+					TargetID:         rawLoadBalancer["tgid"].(string),
+					TargetType:       rawLoadBalancer["tgtype"].(string),
+				}
+
+				// Validate frontend/backend of loadbalancer
+				if rawLoadBalancer["tgtype"] == "frontend" {
+					frontend, err := client.Listener.Get(ctx, rawLoadBalancer["tgid"].(string))
+					if err != nil {
+						log.Fatal(err)
+					}
+					albm.TargetName = frontend.Name
+				} else {
+					backend, err := client.Pool.Get(ctx, rawLoadBalancer["tgid"].(string))
+					if err != nil {
+						log.Fatal(err)
+					}
+					albm.TargetName = backend.Name
+				}
+
+				alarmLoadBalancersMonitors = append(alarmLoadBalancersMonitors, &albm)
+			}
+		} else {
+			alarmLoadBalancersMonitors = oldAlarm.LoadBalancers
+		}
+
 		var alarmUpdateRequest = gobizfly.AlarmUpdateRequest{
 			AlertInterval:    alarmAlertInterval,
 			ClusterID:        alarmClusterID,
@@ -761,6 +910,7 @@ var alarmSetCmd = &cobra.Command{
 			Name:             alarmName,
 			Receivers:        &alarmCreateReceivers,
 			ResourceType:     alarmResourceType,
+			LoadBalancers:    alarmLoadBalancersMonitors,
 		}
 
 		if alarmComparison != "" {
