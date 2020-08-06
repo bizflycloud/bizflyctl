@@ -926,7 +926,7 @@ var alarmSetCmd = &cobra.Command{
 
 		if alarmComparison != "" {
 			comparison := make(map[string]interface{})
-			err = json.Unmarshal([]byte(alarmComparison), &comparison)
+			err := json.Unmarshal([]byte(alarmComparison), &comparison)
 			if err != nil {
 				log.Fatal(err)
 			}

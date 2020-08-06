@@ -30,7 +30,7 @@ func ProcessDataTables(data []table.Row, parsingData map[string]interface{}) []t
 		case map[string]interface{}:
 			for childKey, childValue := range parentValue {
 				value = value + fmt.Sprintf("%v: %v", childKey, childValue)
-				if value[len(value)-1:len(value)] != "\n" {
+				if value[len(value)-1:] != "\n" {
 					value = value + "\n"
 				}
 			}
@@ -43,7 +43,7 @@ func ProcessDataTables(data []table.Row, parsingData map[string]interface{}) []t
 				}
 				value = value + "\n"
 			}
-			if value[len(value)-1:len(value)] == "\n" {
+			if value[len(value)-1:] == "\n" {
 				value = value[:len(value)-1]
 			}
 			row := table.Row{parentKey, value}
