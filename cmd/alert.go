@@ -630,8 +630,9 @@ var receiverCreateCmd = &cobra.Command{
 		var rcr = gobizfly.ReceiverCreateRequest{}
 		client, ctx := getApiClient(cmd)
 
-		if len(receiverSlack) > 0 {
-		}
+		// current not need handle
+		// if len(receiverSlack) > 0 {
+		// }
 		if len(receiverAutoScaling) > 0 {
 			// Parse autoscaling from raw input
 			var rawAutoScaling = make(map[string]string)
@@ -736,6 +737,9 @@ var alarmSetCmd = &cobra.Command{
 		}
 		client, ctx := getApiClient(cmd)
 		oldAlarm, err := client.Alert.Alarms().Get(ctx, args[0])
+		if err != nil {
+			log.Fatal(err)
+		}
 
 		var alarmCreateReceivers = []gobizfly.AlarmReceiversUse{}
 		if len(alarmReceivers) > 0 {
@@ -1021,8 +1025,9 @@ var receiverSetCmd = &cobra.Command{
 		}
 
 		var rcr = gobizfly.ReceiverCreateRequest{}
-		if len(receiverSlack) > 0 {
-		}
+		// current not need handle
+		// if len(receiverSlack) > 0 {
+		// }
 		if len(receiverAutoScaling) > 0 {
 			// Parse autoscaling from raw input
 			var rawAutoScaling = make(map[string]string)
@@ -1130,8 +1135,9 @@ var receiverUnSetCmd = &cobra.Command{
 			WebhookURL:     oldReceiver.WebhookURL,
 		}
 		for _, method := range receiverMethods {
-			if method == "slack" {
-			}
+			// current not need handle
+			// if method == "slack" {
+			// }
 
 			if method == "autoscaling" {
 				rcr.AutoScale = nil
