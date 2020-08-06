@@ -47,7 +47,6 @@ var (
 
 	// Command alarm flags
 	alarmAlertInterval    int
-	alarmEnable           bool
 	alarmAutoScaling      string
 	alarmClusterID        string
 	alarmClusterName      string
@@ -101,8 +100,14 @@ func init() {
 	alarmCreateFlags.StringVarP(&alarmAutoScaling, "autoscaling", "a", "", "Auto Scaling need monitor. Example:\n --autoscaling id=fake-id&name=fake-name")
 	alarmCreateFlags.StringVarP(&alarmComparison, "comparison", "c", "", "Comparison of alarm. Example:\n --comparison \"{\"measurement\":\"iops\",\"compare_type\":\">=\",\"value\":200,\"range_time\":300}\"\n - 'measurement' value maybe:\n    - cpu_used\n    - net_used\n    - ram_used\n  for 'resource_type' is 'instance', 'autoscale_group'.\n    - disk_used\n    - disk_used_percent\n    - iops\n    - read_bytes\n    - write_bytes\n  for 'resource_type' is 'volume'.\n    - request_per_second\n    - data_transfer\n  for 'resource_type' is 'load_balancer'.")
 	alarmCreateFlags.StringVarP(&alarmName, "name", "n", "", "Name of alarm")
-	alarmCreateCmd.MarkFlagRequired("name")
-	alarmCreateCmd.MarkFlagRequired("receivers")
+	err := alarmCreateCmd.MarkFlagRequired("name")
+	if err != nil {
+		log.Fatal(err)
+	}
+	err = alarmCreateCmd.MarkFlagRequired("receivers")
+	if err != nil {
+		log.Fatal(err)
+	}
 	alarmCmd.AddCommand(alarmCreateCmd)
 
 	// Alarms set
@@ -131,7 +136,10 @@ func init() {
 
 	receiverGetVerificationLink := receiverGetVerificationLinkCmd.Flags()
 	receiverGetVerificationLink.StringVarP(&receiverType, "type", "t", "", "Type of method being received link verification.\nMaybe include: email, sms, telegram")
-	receiverGetVerificationLinkCmd.MarkFlagRequired("type")
+	err = receiverGetVerificationLinkCmd.MarkFlagRequired("type")
+	if err != nil {
+		log.Fatal(err)
+	}
 	receiverCmd.AddCommand(receiverGetVerificationLinkCmd)
 
 	// Receivers create
@@ -143,7 +151,10 @@ func init() {
 	receiverCreateFlags.StringVarP(&receiverPhoneNumber, "phone", "p", "", "Specify a phone number")
 	receiverCreateFlags.StringVarP(&receiverTelegramChatID, "telegram", "t", "", "Specify a telegram chat id")
 	receiverCreateFlags.StringVarP(&receiverWebhook, "webhook", "w", "", "Specify a webhook to do trigger")
-	receiverCreateCmd.MarkFlagRequired("name")
+	err = receiverCreateCmd.MarkFlagRequired("name")
+	if err != nil {
+		log.Fatal(err)
+	}
 	receiverCmd.AddCommand(receiverCreateCmd)
 
 	// Receivers set
@@ -160,7 +171,10 @@ func init() {
 	// Receivers unset
 	receiverUnSetFlags := receiverUnSetCmd.Flags()
 	receiverUnSetFlags.StringArrayVarP(&receiverMethods, "methods", "a", []string{}, "Specify a method to remove. Method maybe include: \n - slack \n - autoscaling \n - emailaddress \n - phone \n - telegram \n - webhook")
-	receiverUnSetCmd.MarkFlagRequired("methods")
+	err = receiverUnSetCmd.MarkFlagRequired("methods")
+	if err != nil {
+		log.Fatal(err)
+	}
 	receiverCmd.AddCommand(receiverUnSetCmd)
 
 	// Histories
@@ -370,12 +384,6 @@ var receiverDeleteCmd = &cobra.Command{
 	},
 }
 
-// Create
-type receiverParse struct {
-	ID      string   `json:"id"`
-	Methods []string `json:"methods,omitempty"`
-}
-
 var alarmCreateCmd = &cobra.Command{
 	Use:   "create",
 	Short: "Create an alarm",
@@ -543,7 +551,10 @@ var alarmCreateCmd = &cobra.Command{
 
 		if alarmComparison != "" {
 			comparison := make(map[string]interface{})
-			json.Unmarshal([]byte(alarmComparison), &comparison)
+			err := json.Unmarshal([]byte(alarmComparison), &comparison)
+			if err != nil {
+				log.Fatal(err)
+			}
 
 			rangetime, err := strconv.Atoi(fmt.Sprintf("%v", comparison["range_time"]))
 			if err != nil {
@@ -915,7 +926,10 @@ var alarmSetCmd = &cobra.Command{
 
 		if alarmComparison != "" {
 			comparison := make(map[string]interface{})
-			json.Unmarshal([]byte(alarmComparison), &comparison)
+			err = json.Unmarshal([]byte(alarmComparison), &comparison)
+			if err != nil {
+				log.Fatal(err)
+			}
 
 			rangetime, err := strconv.Atoi(fmt.Sprintf("%v", comparison["range_time"]))
 			if err != nil {
