@@ -32,6 +32,7 @@ var (
 	cfgFile  string
 	email    string
 	password string
+	region   string
 )
 
 // rootCmd represents the base command when called without any subcommands
@@ -62,11 +63,14 @@ func init() {
 
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.bizfly.yaml)")
 
-	rootCmd.PersistentFlags().StringVar(&email, "email", os.Getenv("BIZFLY_CLOUD_EMAIL"), "Your BizFly Cloud Email")
-	_ = rootCmd.MarkFlagRequired("email")
 
-	rootCmd.PersistentFlags().StringVar(&password, "password", os.Getenv("BIZFLY_CLOUD_PASSWORD"), "Your BizFly CLoud Password")
-	_ = rootCmd.MarkFlagRequired("password")
+	rootCmd.PersistentFlags().StringVar(&email, "email", "", "Your BizFly Cloud Email. Read environment variable BIZFLY_CLOUD_EMAIL")
+	rootCmd.MarkFlagRequired("email")
+
+	rootCmd.PersistentFlags().StringVar(&password, "password", "", "Your BizFly CLoud Password. Read environment variable BIZFLY_CLOUD_PASSWORD")
+	rootCmd.MarkFlagRequired("password")
+
+	rootCmd.PersistentFlags().StringVar(&region, "region", "HN", "Region you want to access the resource.")
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
@@ -100,22 +104,32 @@ func initConfig() {
 }
 
 func getApiClient(cmd *cobra.Command) (*gobizfly.Client, context.Context) {
-	email, err := cmd.Flags().GetString("email")
-	if err != nil {
-		log.Fatal(err)
+
+
+	email = viper.GetString("email")
+	if email == "" {
+		email, _ = cmd.Flags().GetString("email")
 	}
 	if email == "" {
 		log.Fatal("Email is required")
 	}
-	password, err := cmd.Flags().GetString("password")
-	if err != nil {
-		log.Fatal(err)
+
+	password = viper.GetString("password")
+	if password == "" {
+		password, _ = cmd.Flags().GetString("password")
 	}
 	if password == "" {
 		log.Fatal("Password is required")
 	}
 
-	client, err := gobizfly.NewClient(gobizfly.WithTenantName(email)) // nolint:staticcheck
+	region = viper.GetString("region")
+	if region == "" {
+		region, _ = cmd.Flags().GetString("region")
+	}
+	if region == "" {
+		region = "HN"
+	}
+	client, err := gobizfly.NewClient(gobizfly.WithTenantName(email), gobizfly.WithRegionName(region))
 
 	if err != nil {
 		log.Fatal(err)
