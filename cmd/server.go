@@ -290,7 +290,7 @@ Use: bizfly server start <server-id>
 		}
 		serverID := args[0]
 		client, ctx := getApiClient(cmd)
-		_, err := client.Server.Stop(ctx, serverID)
+		_, err := client.Server.Start(ctx, serverID)
 		if err != nil {
 			fmt.Printf("Start server error %v\n", err)
 			os.Exit(1)
