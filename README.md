@@ -1,14 +1,45 @@
 # bizflyctl
 
+Command line to interact with BizFly Cloud 
+
 ### Install
 
-Coming soon
+There are two ways to install the bizflyctl.
 
-### Build
+#### Build from source code
+
+- Clone the source code 
+
+```shell script
+git clone https://github.com/bizflycloud/bizflyctl
+```
+
+- Install golang
+
+- Build 
 
 ```shell script
 go build -o bizfly main.go
 ```
+
+#### Download the latest release in Github release pages
+
+- Navigate to [release page](https://github.com/bizflycloud/bizflyctl/releases). Download the tar.gz file with your platform (Linux, Windows and MacOS).
+
+- Extract the tar.gz file
+
+
+#### Install and configure
+
+- Copy bizfly binary to `/usr/local/bin` with Linux and MacOS
+
+- Configure user name and password. Create a file `.bizfly.yaml` in your `$HOME` directory
+
+```
+email: <your email>
+password: <your password>
+```
+
 
 ### Example
 
