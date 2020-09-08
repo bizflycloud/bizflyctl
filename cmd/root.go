@@ -105,30 +105,24 @@ func initConfig() {
 
 func getApiClient(cmd *cobra.Command) (*gobizfly.Client, context.Context) {
 
-
-	email = viper.GetString("email")
 	if email == "" {
-		email, _ = cmd.Flags().GetString("email")
+		email = viper.GetString("email")
 	}
 	if email == "" {
 		log.Fatal("Email is required")
 	}
 
-	password = viper.GetString("password")
 	if password == "" {
-		password, _ = cmd.Flags().GetString("password")
+		password = viper.GetString("password")
 	}
 	if password == "" {
 		log.Fatal("Password is required")
 	}
 
-	region = viper.GetString("region")
-	if region == "" {
-		region, _ = cmd.Flags().GetString("region")
+	if viper.GetString("region") != "" {
+		region = viper.GetString("region")
 	}
-	if region == "" {
-		region = "HN"
-	}
+
 	client, err := gobizfly.NewClient(gobizfly.WithTenantName(email), gobizfly.WithRegionName(region))
 
 	if err != nil {
