@@ -35,6 +35,7 @@ var (
 	fwRuleProtocol  string
 	fwRuleCIDR      string
 	fwPortRange     string
+	fwName          string
 )
 
 var firewallCmd = &cobra.Command{
@@ -153,14 +154,24 @@ Example: bizfly firewall server remove <firewall ID> <server ID 1> <server ID 2>
 	},
 }
 
-//  TODO create firewall
-//var firewallCreateCmd = &cobra.Command{
-//	Use: "create",
-//	Short: "Create a new firewall",
-//	Long: `Create a new firewall in your account
-//Example:
-//`
-//}
+var firewallCreateCmd = &cobra.Command{
+	Use:   "create",
+	Short: "Create a new firewall",
+	Long: `Create a new firewall in your account
+Example:
+`,
+	Run: func(cmd *cobra.Command, args []string) {
+		client, ctx := getApiClient(cmd)
+		firewall, err := client.Firewall.Create(ctx, &gobizfly.FirewallCreateRequest{Name: fwName})
+		if err != nil {
+			log.Fatal(err)
+		}
+		var data [][]string
+		fw := []string{firewall.ID, firewall.Name, firewall.Description, strconv.Itoa(firewall.RulesCount), strconv.Itoa(firewall.ServersCount), firewall.CreatedAt}
+		data = append(data, fw)
+		formatter.Output(firewallListHeader, data)
+	},
+}
 
 var firewallRuleCmd = &cobra.Command{
 	Use: "rule",
@@ -273,5 +284,10 @@ func init() {
 	frcf.StringVar(&fwRuleProtocol, "protocol", "", "Protocol, one of tcp and udp")
 	_ = cobra.MarkFlagRequired(frcf, "protocol")
 	frcf.StringVar(&fwPortRange, "port-range", "", "Port or Port range. You can specify only one port or port range. Example: 80 and 80-90.")
+
+	firewallCmd.AddCommand(firewallCreateCmd)
+	fcf := firewallCreateCmd.PersistentFlags()
+	fcf.StringVar(&fwName, "name", "", "Firewall name")
+	_ = cobra.MarkFlagRequired(fcf, "name")
 
 }
