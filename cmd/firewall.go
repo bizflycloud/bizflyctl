@@ -27,8 +27,14 @@ import (
 )
 
 var (
-	firewallListHeader = []string{"ID", "Name", "Description", "Rules Count", "Servers Count", "Created at"}
+	firewallListHeader           = []string{"ID", "Name", "Description", "Rules Count", "Servers Count", "Created at"}
 	firewallAppliedServersHeader = []string{"ID", "Name", "Firewall ID"}
+	firewallRuleHeader           = []string{"ID", "Description", "Direction", "Type", "Ether Type", "Protocol", "CIDR", "Port Range", "Remote IP Prefix"}
+
+	fwRuleDirection string
+	fwRuleProtocol  string
+	fwRuleCIDR      string
+	fwPortRange     string
 )
 
 var firewallCmd = &cobra.Command{
@@ -133,7 +139,6 @@ Example: bizfly firewall server remove <firewall ID> <server ID 1> <server ID 2>
 		frsr := gobizfly.FirewallRemoveServerRequest{
 			Servers: args[1:],
 		}
-		fmt.Println(frsr)
 		_, err := client.Firewall.RemoveServer(ctx, args[0], &frsr)
 		if err != nil {
 			if errors.Is(err, gobizfly.ErrNotFound) {
@@ -148,6 +153,106 @@ Example: bizfly firewall server remove <firewall ID> <server ID 1> <server ID 2>
 	},
 }
 
+//  TODO create firewall
+//var firewallCreateCmd = &cobra.Command{
+//	Use: "create",
+//	Short: "Create a new firewall",
+//	Long: `Create a new firewall in your account
+//Example:
+//`
+//}
+
+var firewallRuleCmd = &cobra.Command{
+	Use: "rule",
+}
+
+var firewallRuleListCmd = &cobra.Command{
+	Use:   "list",
+	Short: "List all rules in the firewall",
+	Long: `List all rules in the firewall
+Example: bizfly firewall rule list <firwall id>
+`,
+	Run: func(cmd *cobra.Command, args []string) {
+		if len(args) != 1 {
+			log.Fatal("You need to specify firewall ID in the command")
+		}
+		client, ctx := getApiClient(cmd)
+		firewall, err := client.Firewall.Get(ctx, args[0])
+		if err != nil {
+			if errors.Is(err, gobizfly.ErrNotFound) {
+				fmt.Printf("Firewall %s is not found", serverID)
+				return
+			} else {
+				log.Fatal(err)
+			}
+		}
+		var data [][]string
+		for _, rule := range firewall.InBound {
+			data = append(data, []string{rule.ID, rule.Description, rule.Direction, rule.Type, rule.EtherType, rule.Protocol, rule.CIDR, rule.PortRange, rule.RemoteIPPrefix})
+		}
+		for _, rule := range firewall.OutBound {
+			data = append(data, []string{rule.ID, rule.Description, rule.Direction, rule.Type, rule.EtherType, rule.Protocol, rule.CIDR, rule.PortRange, rule.RemoteIPPrefix})
+		}
+		formatter.Output(firewallRuleHeader, data)
+	},
+}
+
+var firewallRuleDeleteCmd = &cobra.Command{
+	Use:   "delete",
+	Short: "Delete a rule in a firewall",
+	Long: `Delete a rule in a firewall
+Example: bizfly firewall rule delete <firewall ID> <rule ID>
+`,
+	Run: func(cmd *cobra.Command, args []string) {
+		if len(args) != 2 {
+			log.Fatal("You need to specify firewall ID and rule ID in the command")
+		}
+		client, ctx := getApiClient(cmd)
+		_, err := client.Firewall.Get(ctx, args[0])
+		if err != nil {
+			if errors.Is(err, gobizfly.ErrNotFound) {
+				fmt.Printf("Firewall %s is not found", serverID)
+				return
+			} else {
+				log.Fatal(err)
+			}
+		}
+		resp, err := client.Firewall.DeleteRule(ctx, args[1])
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Println(resp.Message)
+		return
+	},
+}
+
+var firewallRuleCreateCmd = &cobra.Command{
+	Use:   "create",
+	Short: "Create a new firewall rule",
+	Long: `Create a new rule in your firewall
+Example: bizfly firewall rule create <firewall ID> --direction <ingress|egress> --protocol <tcp|udp> --port-range <port range> --cidr <CIDR>
+`,
+	Run: func(cmd *cobra.Command, args []string) {
+		if len(args) != 1 {
+			log.Fatal("You need to specify the fireewall ID in the command")
+		}
+		client, ctx := getApiClient(cmd)
+		resp, err := client.Firewall.CreateRule(ctx, args[0], &gobizfly.FirewallSingleRuleCreateRequest{
+			Direction: fwRuleDirection,
+			FirewallRuleCreateRequest: gobizfly.FirewallRuleCreateRequest{
+				Protocol:  fwRuleProtocol,
+				CIDR:      fwRuleCIDR,
+				PortRange: fwPortRange,
+				Type:      "CUSTOM",
+			},
+		})
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Printf("Created new firewall rule with ID %s", resp.ID)
+	},
+}
+
 func init() {
 	rootCmd.AddCommand(firewallCmd)
 
@@ -157,4 +262,16 @@ func init() {
 
 	firewallServerCmd.AddCommand(firewallServerRemove)
 	firewallServerCmd.AddCommand(firewallServerList)
+
+	firewallCmd.AddCommand(firewallRuleCmd)
+	firewallRuleCmd.AddCommand(firewallRuleListCmd)
+	firewallRuleCmd.AddCommand(firewallRuleDeleteCmd)
+	firewallRuleCmd.AddCommand(firewallRuleCreateCmd)
+	frcf := firewallRuleCreateCmd.PersistentFlags()
+	frcf.StringVar(&fwRuleDirection, "direction", "", "Direction, ingress or egress")
+	_ = cobra.MarkFlagRequired(frcf, "direction")
+	frcf.StringVar(&fwRuleProtocol, "protocol", "", "Protocol, one of tcp and udp")
+	_ = cobra.MarkFlagRequired(frcf, "protocol")
+	frcf.StringVar(&fwPortRange, "port-range", "", "Port or Port range. You can specify only one port or port range. Example: 80 and 80-90.")
+
 }

@@ -3,7 +3,7 @@ module github.com/bizflycloud/bizflyctl
 go 1.14
 
 require (
-	github.com/bizflycloud/gobizfly v0.0.0-20200909070223-acadc1d59320
+	github.com/bizflycloud/gobizfly v0.0.0-20200911095255-b972b7e9ebd9
 	github.com/go-openapi/strfmt v0.19.5 // indirect
 	github.com/jedib0t/go-pretty v4.3.0+incompatible
 	github.com/mitchellh/go-homedir v1.1.0
