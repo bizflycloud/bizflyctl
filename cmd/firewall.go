@@ -150,7 +150,6 @@ Example: bizfly firewall server remove <firewall ID> <server ID 1> <server ID 2>
 			}
 		}
 		fmt.Println("Removed servers from a fitirewall completed")
-		return
 	},
 }
 
@@ -233,7 +232,6 @@ Example: bizfly firewall rule delete <firewall ID> <rule ID>
 			log.Fatal(err)
 		}
 		fmt.Println(resp.Message)
-		return
 	},
 }
 
