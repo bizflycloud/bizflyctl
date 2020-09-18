@@ -196,7 +196,7 @@ var serverCreateCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		fmt.Printf("Creating server with task id: %v\n", svrTask)
+		fmt.Printf("Creating server with task id: %v\n", svrTask.Task[0])
 	},
 }
 

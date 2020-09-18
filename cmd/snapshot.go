@@ -57,9 +57,9 @@ Exmaple: bizfly snapshot create <volume_id> --name snapshot-name`,
 		volumeID := args[0]
 		client, ctx := getApiClient(cmd)
 		scr := gobizfly.SnapshotCreateRequest{
-			Name: snapshotName,
+			Name:     snapshotName,
 			VolumeId: volumeID,
-			Force: true,
+			Force:    true,
 		}
 		snap, err := client.Snapshot.Create(ctx, &scr)
 		if err != nil {

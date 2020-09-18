@@ -63,7 +63,6 @@ func init() {
 
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.bizfly.yaml)")
 
-
 	rootCmd.PersistentFlags().StringVar(&email, "email", "", "Your BizFly Cloud Email. Read environment variable BIZFLY_CLOUD_EMAIL")
 	rootCmd.MarkFlagRequired("email")
 
