@@ -64,10 +64,10 @@ func init() {
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.bizfly.yaml)")
 
 	rootCmd.PersistentFlags().StringVar(&email, "email", "", "Your BizFly Cloud Email. Read environment variable BIZFLY_CLOUD_EMAIL")
-	rootCmd.MarkFlagRequired("email")
+	_ = rootCmd.MarkFlagRequired("email")
 
 	rootCmd.PersistentFlags().StringVar(&password, "password", "", "Your BizFly CLoud Password. Read environment variable BIZFLY_CLOUD_PASSWORD")
-	rootCmd.MarkFlagRequired("password")
+	_ = rootCmd.MarkFlagRequired("password")
 
 	rootCmd.PersistentFlags().StringVar(&region, "region", "HN", "Region you want to access the resource.")
 
@@ -122,7 +122,7 @@ func getApiClient(cmd *cobra.Command) (*gobizfly.Client, context.Context) {
 		region = viper.GetString("region")
 	}
 
-	client, err := gobizfly.NewClient(gobizfly.WithTenantName(email), gobizfly.WithRegionName(region))
+	client, err := gobizfly.NewClient(gobizfly.WithTenantName(email), gobizfly.WithRegionName(region)) // nolint
 
 	if err != nil {
 		log.Fatal(err)
