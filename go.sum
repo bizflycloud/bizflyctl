@@ -47,6 +47,8 @@ github.com/bizflycloud/gobizfly v0.0.0-20200925081217-c929a1f56559 h1:U/5x1+bfz+
 github.com/bizflycloud/gobizfly v0.0.0-20200925081217-c929a1f56559/go.mod h1:2otUgZd6PrKezjMrdAw9gy7byEXMrigX9Sm4ujCaFuk=
 github.com/bizflycloud/gobizfly v0.0.0-20200929043248-cad1af7eb914 h1:lp+haoj9QNiuZWlPufFnzKj2baxjUHKRSgWONjsaHN4=
 github.com/bizflycloud/gobizfly v0.0.0-20200929043248-cad1af7eb914/go.mod h1:2otUgZd6PrKezjMrdAw9gy7byEXMrigX9Sm4ujCaFuk=
+github.com/bizflycloud/gobizfly v0.0.0-20201127031313-bc64144b7d2a h1:aGuLmGW5tSLPq8KfBNKdeXeaECaj7BUOOKH4v4oKUxI=
+github.com/bizflycloud/gobizfly v0.0.0-20201127031313-bc64144b7d2a/go.mod h1:dESSbBmjQ5OJBgRPCTgmxAeqxNnRzXIZuRK3CTW2DUs=
 github.com/bketelsen/crypt v0.0.3-0.20200106085610-5cbc8cc4026c/go.mod h1:MKsuJmJgSg28kpZDP6UIiPt0e0Oz0kqKNGyRaWEPv84=
 github.com/cespare/xxhash v1.1.0/go.mod h1:XrSqR1VqqWfGrhpAt58auRo0WTKS1nRRg3ghfAqPWnc=
 github.com/client9/misspell v0.3.4/go.mod h1:qj6jICC3Q7zFZvVWo7KLAzC3yx5G7kyvSDkc90ppPyw=

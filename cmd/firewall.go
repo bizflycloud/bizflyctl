@@ -161,7 +161,7 @@ Example:
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 		client, ctx := getApiClient(cmd)
-		firewall, err := client.Firewall.Create(ctx, &gobizfly.FirewallCreateRequest{Name: fwName})
+		firewall, err := client.Firewall.Create(ctx, &gobizfly.FirewallRequestPayload{Name: fwName})
 		if err != nil {
 			log.Fatal(err)
 		}
