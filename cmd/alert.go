@@ -40,10 +40,12 @@ var (
 		"backend",
 	}
 	// Use generate tables
+	agentListHeader    = table.Row{"ID", "Name", "Runtime", "Online"}
 	alarmListHeader    = table.Row{"ID", "Name", "Alarm Type", "Enable"}
 	historyListHeader  = table.Row{"ID", "Resource", "Alarm ID", "Alarm Type", "State", "When"}
 	receiverListHeader = table.Row{"ID", "Name"}
 	resourceGetHeader  = table.Row{"Field", "Value"}
+	secretListHeader   = table.Row{"ID", "Name"}
 
 	// Command alarm flags
 	alarmAlertInterval    int
@@ -71,18 +73,27 @@ var (
 	receiverTelegramChatID string
 	receiverType           string
 	receiverWebhook        string
+
+	// Command secret flags
+	secretName string
 )
 
 func init() {
 	rootCmd.AddCommand(alertServiceCmd)
 
+	// Agents
+	alertServiceCmd.AddCommand(agentCmd)
+	agentCmd.AddCommand(agentDeleteCmd)
+	agentCmd.AddCommand(agentListCmd)
+	agentCmd.AddCommand(agentShowCmd)
+
 	// Alarms
 	alertServiceCmd.AddCommand(alarmCmd)
+	alarmCmd.AddCommand(alarmDeleteCmd)
+	alarmCmd.AddCommand(alarmDisableCmd)
+	alarmCmd.AddCommand(alarmEnableCmd)
 	alarmCmd.AddCommand(alarmListCmd)
 	alarmCmd.AddCommand(alarmShowCmd)
-	alarmCmd.AddCommand(alarmDeleteCmd)
-	alarmCmd.AddCommand(alarmEnableCmd)
-	alarmCmd.AddCommand(alarmDisableCmd)
 
 	// Alarms create
 	alarmCreateFlags := alarmCreateCmd.Flags()
@@ -130,9 +141,9 @@ func init() {
 
 	// Receivers
 	alertServiceCmd.AddCommand(receiverCmd)
+	receiverCmd.AddCommand(receiverDeleteCmd)
 	receiverCmd.AddCommand(receiverListCmd)
 	receiverCmd.AddCommand(receiverShowCmd)
-	receiverCmd.AddCommand(receiverDeleteCmd)
 
 	receiverGetVerificationLink := receiverGetVerificationLinkCmd.Flags()
 	receiverGetVerificationLink.StringVarP(&receiverType, "type", "t", "", "Type of method being received link verification.\nMaybe include: email, sms, telegram")
@@ -180,24 +191,123 @@ func init() {
 	// Histories
 	alertServiceCmd.AddCommand(historyCmd)
 	historyCmd.AddCommand(historyListCmd)
+
+	// Secret
+	alertServiceCmd.AddCommand(secretCmd)
+	secretCmd.AddCommand(secretDeleteCmd)
+	secretCmd.AddCommand(secretListCmd)
+	secretCmd.AddCommand(secretShowCmd)
+
+	// Secret create
+	secretCreateFlags := secretCreateCmd.Flags()
+	secretCreateFlags.StringVarP(&secretName, "name", "n", "", "Specify name of secret")
+	err = secretCreateCmd.MarkFlagRequired("name")
+	if err != nil {
+		log.Fatal(err)
+	}
+	secretCmd.AddCommand(secretCreateCmd)
 }
 
 var alertServiceCmd = &cobra.Command{
-	Use:   "alert",
-	Short: "BizFly Cloud Alert Interaction",
-	Long:  `Interact with Alert Service. Allow do CRUD alarms, receivers, ...`,
+	Use:   "cloudwatcher",
+	Short: "BizFly Cloud Watcher Interaction",
+	Long:  `Interact with Cloud Watcher Service. Allow do CRUD alarms, receivers, ...`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Interacting with alert service")
+		fmt.Println("Interacting with cloud watcher service")
 	},
 }
 
-// List
+// ===========================================================================
+// Start block interaction for agents
+// ===========================================================================
+// Sub-command agent
+var agentCmd = &cobra.Command{
+	Use:   "agent",
+	Short: "BizFly Cloud Watcher Interaction with agent resources",
+	Long:  `Interact with Cloud Watcher Service. Allow do CRUD alarms, agents, ...`,
+	Run: func(cmd *cobra.Command, args []string) {
+		fmt.Println("Interacting with cloud watcher service")
+	},
+}
+
+var agentListCmd = &cobra.Command{
+	Use:   "list",
+	Short: "List agents",
+	Long:  "List agents in your account",
+	Run: func(cmd *cobra.Command, args []string) {
+		client, ctx := getApiClient(cmd)
+		agents, err := client.CloudWatcher.Agents().List(ctx, nil)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		var data []table.Row
+		for _, agent := range agents {
+			s := table.Row{agent.ID, agent.Name, agent.Runtime, agent.Online}
+			data = append(data, s)
+		}
+		formatter.SimpleOutput(agentListHeader, data)
+	},
+}
+
+var agentShowCmd = &cobra.Command{
+	Use:   "show",
+	Short: "Show detail agent",
+	Long:  "Show detail agent by agent ID",
+	Run: func(cmd *cobra.Command, args []string) {
+		if len(args) > 1 {
+			fmt.Printf("Unknow variable %s", strings.Join(args[1:], ""))
+		}
+		client, ctx := getApiClient(cmd)
+		agent, err := client.CloudWatcher.Agents().Get(ctx, args[0])
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		var jsonSecretData = make(map[string]interface{})
+		byteData, err := json.Marshal(agent)
+		if err != nil {
+			log.Fatal(err)
+		}
+		err = json.Unmarshal(byteData, &jsonSecretData)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		var data []table.Row
+		data = ProcessDataTables(data, jsonSecretData)
+		formatter.SimpleOutput(resourceGetHeader, data)
+	},
+}
+
+var agentDeleteCmd = &cobra.Command{
+	Use:   "delete",
+	Short: "Delete a agent",
+	Long:  "Delete a agent by agent ID",
+	Run: func(cmd *cobra.Command, args []string) {
+		if len(args) > 1 {
+			fmt.Printf("Unknow variable %s", strings.Join(args[1:], ""))
+		}
+		client, ctx := getApiClient(cmd)
+		err := client.CloudWatcher.Agents().Delete(ctx, args[0])
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		log.Printf("Doing delete agent with ID: %v", args[0])
+	},
+}
+
+// ===========================================================================
+// Start block interaction for alarms
+// ===========================================================================
+// Sub-command alarm
 var alarmCmd = &cobra.Command{
 	Use:   "alarm",
-	Short: "BizFly Cloud Alert Interaction with alarm resources",
-	Long:  `Interact with Alert Service. Allow do CRUD alarms, receivers, ...`,
+	Short: "BizFly Cloud Watcher Interaction with alarm resources",
+	Long:  `Interact with Cloud Watcher Service. Allow do CRUD alarms, receivers, ...`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Interacting with alert service")
+		fmt.Println("Interacting with cloud watcher service")
 	},
 }
 
@@ -207,7 +317,7 @@ var alarmListCmd = &cobra.Command{
 	Long:  "List alarms in your account",
 	Run: func(cmd *cobra.Command, args []string) {
 		client, ctx := getApiClient(cmd)
-		alarms, err := client.Alert.Alarms().List(ctx, nil)
+		alarms, err := client.CloudWatcher.Alarms().List(ctx, nil)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -218,169 +328,6 @@ var alarmListCmd = &cobra.Command{
 			data = append(data, s)
 		}
 		formatter.SimpleOutput(alarmListHeader, data)
-	},
-}
-
-var receiverCmd = &cobra.Command{
-	Use:   "receiver",
-	Short: "BizFly Cloud Alert Interaction with receiver resources",
-	Long:  `Interact with Alert Service. Allow do CRUD alarms, receivers, ...`,
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Interacting with alert service")
-	},
-}
-
-var receiverListCmd = &cobra.Command{
-	Use:   "list",
-	Short: "List receivers",
-	Long:  "List receivers in your account",
-	Run: func(cmd *cobra.Command, args []string) {
-		client, ctx := getApiClient(cmd)
-		receivers, err := client.Alert.Receivers().List(ctx, nil)
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		var data []table.Row
-		for _, receiver := range receivers {
-			s := table.Row{receiver.ReceiverID, receiver.Name}
-			data = append(data, s)
-		}
-		formatter.SimpleOutput(receiverListHeader, data)
-	},
-}
-
-var historyCmd = &cobra.Command{
-	Use:   "history",
-	Short: "BizFly Cloud Alert Interaction with history resources",
-	Long:  `Interact with Alert Service. Allow do CRUD alarms, receivers, ...`,
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Interacting with alert service")
-	},
-}
-
-var historyListCmd = &cobra.Command{
-	Use:   "list",
-	Short: "List history",
-	Long:  "List 26 latest history in your account",
-	Run: func(cmd *cobra.Command, args []string) {
-		client, ctx := getApiClient(cmd)
-		histories, err := client.Alert.Histories().List(ctx, nil)
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		var data []table.Row
-		for _, history := range histories {
-			s := table.Row{
-				history.HistoryID,
-				history.Resource.(string),
-				history.AlarmID,
-				history.Alarm.ResourceType,
-				history.State,
-				history.Created,
-			}
-			data = append(data, s)
-		}
-		formatter.SimpleOutput(historyListHeader, data)
-	},
-}
-
-// Show
-var alarmShowCmd = &cobra.Command{
-	Use:   "show",
-	Short: "Show detail alarm",
-	Long:  "Show detail alarm by alarm ID",
-	Run: func(cmd *cobra.Command, args []string) {
-		if len(args) > 1 {
-			fmt.Printf("Unknow variable %s", strings.Join(args[1:], ""))
-		}
-		client, ctx := getApiClient(cmd)
-		alarm, err := client.Alert.Alarms().Get(ctx, args[0])
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		var jsonAlarmData = make(map[string]interface{})
-		byteData, err := json.Marshal(alarm)
-		if err != nil {
-			log.Fatal(err)
-		}
-		err = json.Unmarshal(byteData, &jsonAlarmData)
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		var data []table.Row
-		data = ProcessDataTables(data, jsonAlarmData)
-		formatter.SimpleOutput(resourceGetHeader, data)
-	},
-}
-
-var receiverShowCmd = &cobra.Command{
-	Use:   "show",
-	Short: "Show detail receiver",
-	Long:  "Show detail receiver by receiver ID",
-	Run: func(cmd *cobra.Command, args []string) {
-		if len(args) > 1 {
-			fmt.Printf("Unknow variable %s", strings.Join(args[1:], ""))
-		}
-		client, ctx := getApiClient(cmd)
-		receiver, err := client.Alert.Receivers().Get(ctx, args[0])
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		var jsonReceiverData = make(map[string]interface{})
-		byteData, err := json.Marshal(receiver)
-		if err != nil {
-			log.Fatal(err)
-		}
-		err = json.Unmarshal(byteData, &jsonReceiverData)
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		var data []table.Row
-		data = ProcessDataTables(data, jsonReceiverData)
-		formatter.SimpleOutput(resourceGetHeader, data)
-	},
-}
-
-// Delete
-var alarmDeleteCmd = &cobra.Command{
-	Use:   "delete",
-	Short: "Delete an alarm",
-	Long:  "Delete an alarm by alarm ID",
-	Run: func(cmd *cobra.Command, args []string) {
-		if len(args) > 1 {
-			fmt.Printf("Unknow variable %s", strings.Join(args[1:], ""))
-		}
-		client, ctx := getApiClient(cmd)
-		err := client.Alert.Alarms().Delete(ctx, args[0])
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		log.Printf("Doing delete alarm with ID: %v", args[0])
-	},
-}
-
-var receiverDeleteCmd = &cobra.Command{
-	Use:   "delete",
-	Short: "Delete a receiver",
-	Long:  "Delete a receiver by receiver ID",
-	Run: func(cmd *cobra.Command, args []string) {
-		if len(args) > 1 {
-			fmt.Printf("Unknow variable %s", strings.Join(args[1:], ""))
-		}
-		client, ctx := getApiClient(cmd)
-		err := client.Alert.Receivers().Delete(ctx, args[0])
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		log.Printf("Doing delete receiver with ID: %v", args[0])
 	},
 }
 
@@ -424,7 +371,7 @@ var alarmCreateCmd = &cobra.Command{
 		var alarmCreateReceivers = []gobizfly.AlarmReceiversUse{}
 		client, ctx := getApiClient(cmd)
 		for _, rawReceiver := range rawReceivers {
-			receiver, err := client.Alert.Receivers().Get(ctx, rawReceiver["id"].(string))
+			receiver, err := client.CloudWatcher.Receivers().Get(ctx, rawReceiver["id"].(string))
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -600,11 +547,11 @@ var alarmCreateCmd = &cobra.Command{
 			alarmCreateRequest.Instances = &instancesMonitor
 		}
 
-		response, err := client.Alert.Alarms().Create(ctx, &alarmCreateRequest)
+		response, err := client.CloudWatcher.Alarms().Create(ctx, &alarmCreateRequest)
 		if err != nil {
 			log.Fatal(err)
 		}
-		alarm, _ := client.Alert.Alarms().Get(ctx, response.ID)
+		alarm, _ := client.CloudWatcher.Alarms().Get(ctx, response.ID)
 
 		var jsonAlarmData = make(map[string]interface{})
 		byteData, err := json.Marshal(alarm)
@@ -622,111 +569,54 @@ var alarmCreateCmd = &cobra.Command{
 	},
 }
 
-var receiverCreateCmd = &cobra.Command{
-	Use:   "create",
-	Short: "Create an receiver",
-	Long:  "Create an receiver by specific informations",
+var alarmShowCmd = &cobra.Command{
+	Use:   "show",
+	Short: "Show detail alarm",
+	Long:  "Show detail alarm by alarm ID",
 	Run: func(cmd *cobra.Command, args []string) {
-		var rcr = gobizfly.ReceiverCreateRequest{}
+		if len(args) > 1 {
+			fmt.Printf("Unknow variable %s", strings.Join(args[1:], ""))
+		}
 		client, ctx := getApiClient(cmd)
-
-		// current not need handle
-		// if len(receiverSlack) > 0 {
-		// }
-		if len(receiverAutoScaling) > 0 {
-			// Parse autoscaling from raw input
-			var rawAutoScaling = make(map[string]string)
-			ss := strings.Split(receiverAutoScaling, "&")
-			for _, parentValue := range ss {
-				z := strings.Split(parentValue, "=")
-				// Validate data from input
-				if z[0] == "" {
-					log.Fatal("Not found keyword for: ", z[1])
-				}
-				if len(z[1]) == 0 {
-					log.Fatal("Have error value for: ", z[0])
-				}
-
-				rawAutoScaling[z[0]] = z[1]
-			}
-			if _, ok := rawAutoScaling["type"]; !ok {
-				log.Fatal("action type is required for auto scaling group")
-			}
-			if _, ok := rawAutoScaling["id"]; !ok {
-				log.Fatal("id of for auto scaling group is required")
-			}
-			webhook, err := client.AutoScaling.Webhooks().Get(ctx, rawAutoScaling["id"], rawAutoScaling["type"])
-			if err != nil {
-				log.Fatal(err)
-			}
-			rcr.AutoScale = webhook
-		}
-
-		if len(receiverEmail) > 0 {
-			rcr.EmailAddress = receiverEmail
-		}
-		if len(receiverName) > 0 {
-			rcr.Name = receiverName
-		}
-		if len(receiverPhoneNumber) > 0 {
-			rcr.SMSNumber = receiverPhoneNumber
-		}
-		if len(receiverTelegramChatID) > 0 {
-			rcr.TelegramChatID = receiverTelegramChatID
-		}
-		if len(receiverWebhook) > 0 {
-			rcr.WebhookURL = receiverWebhook
-		}
-
-		response, err := client.Alert.Receivers().Create(ctx, &rcr)
+		alarm, err := client.CloudWatcher.Alarms().Get(ctx, args[0])
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		receiver, err := client.Alert.Receivers().Get(ctx, response.ID)
+		var jsonAlarmData = make(map[string]interface{})
+		byteData, err := json.Marshal(alarm)
 		if err != nil {
 			log.Fatal(err)
 		}
-
-		var jsonReceiverData = make(map[string]interface{})
-		byteData, err := json.Marshal(receiver)
-		if err != nil {
-			log.Fatal(err)
-		}
-		err = json.Unmarshal(byteData, &jsonReceiverData)
+		err = json.Unmarshal(byteData, &jsonAlarmData)
 		if err != nil {
 			log.Fatal(err)
 		}
 
 		var data []table.Row
-		data = ProcessDataTables(data, jsonReceiverData)
+		data = ProcessDataTables(data, jsonAlarmData)
 		formatter.SimpleOutput(resourceGetHeader, data)
 	},
 }
 
-// Get link verify for receiver
-var receiverGetVerificationLinkCmd = &cobra.Command{
-	Use:   "verify",
-	Short: "Get a link verify a method of receiver",
-	Long:  "Get a link verify a method of receiver by specific informations",
+var alarmDeleteCmd = &cobra.Command{
+	Use:   "delete",
+	Short: "Delete an alarm",
+	Long:  "Delete an alarm by alarm ID",
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) > 1 {
-			fmt.Printf("Unknow variable %v", strings.Join(args[1:], ""))
+			fmt.Printf("Unknow variable %s", strings.Join(args[1:], ""))
 		}
-		if _, ok := SliceContains(receiverMethodSupportVerify, receiverType); !ok {
-			log.Fatalf("Method %v is unsupported to get link verification", receiverType)
+		client, ctx := getApiClient(cmd)
+		err := client.CloudWatcher.Alarms().Delete(ctx, args[0])
+		if err != nil {
+			log.Fatal(err)
 		}
 
-		client, ctx := getApiClient(cmd)
-		if err := client.Alert.Receivers().ResendVerificationLink(ctx, args[0], receiverType); err == nil {
-			log.Printf("A link verification was sent to %v of receiver %v", receiverType, args[0])
-		} else {
-			log.Fatalf("Failed to sent link verification to %v of receiver %v", receiverType, args[0])
-		}
+		log.Printf("Doing delete alarm with ID: %v", args[0])
 	},
 }
 
-// Update
 var alarmSetCmd = &cobra.Command{
 	Use:   "set",
 	Short: "Update an alarm",
@@ -736,7 +626,7 @@ var alarmSetCmd = &cobra.Command{
 			fmt.Printf("Unknow variable %v", strings.Join(args[1:], ""))
 		}
 		client, ctx := getApiClient(cmd)
-		oldAlarm, err := client.Alert.Alarms().Get(ctx, args[0])
+		oldAlarm, err := client.CloudWatcher.Alarms().Get(ctx, args[0])
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -776,7 +666,7 @@ var alarmSetCmd = &cobra.Command{
 
 			// Do make []gobizfly.AlarmReceiversUse
 			for _, rawReceiver := range rawReceivers {
-				receiver, err := client.Alert.Receivers().Get(ctx, rawReceiver["id"].(string))
+				receiver, err := client.CloudWatcher.Receivers().Get(ctx, rawReceiver["id"].(string))
 				if err != nil {
 					log.Fatal(err)
 				}
@@ -987,11 +877,11 @@ var alarmSetCmd = &cobra.Command{
 			}
 		}
 
-		response, err := client.Alert.Alarms().Update(ctx, args[0], &alarmUpdateRequest)
+		response, err := client.CloudWatcher.Alarms().Update(ctx, args[0], &alarmUpdateRequest)
 		if err != nil {
 			log.Fatal(err)
 		}
-		alarm, _ := client.Alert.Alarms().Get(ctx, response.ID)
+		alarm, _ := client.CloudWatcher.Alarms().Get(ctx, response.ID)
 
 		var jsonAlarmData = make(map[string]interface{})
 		byteData, err := json.Marshal(alarm)
@@ -1009,6 +899,258 @@ var alarmSetCmd = &cobra.Command{
 	},
 }
 
+var alarmEnableCmd = &cobra.Command{
+	Use:   "enable",
+	Short: "Enable an alarm",
+	Long:  "Enable an alarm",
+	Run: func(cmd *cobra.Command, args []string) {
+		if len(args) > 1 {
+			fmt.Printf("Unknow variable %v", strings.Join(args[1:], ""))
+		}
+		client, ctx := getApiClient(cmd)
+		alarmUpdateRequest := gobizfly.AlarmUpdateRequest{
+			Enable: true,
+		}
+		response, err := client.CloudWatcher.Alarms().Update(ctx, args[0], &alarmUpdateRequest)
+		if err != nil {
+			log.Fatal(err)
+		}
+		alarm, _ := client.CloudWatcher.Alarms().Get(ctx, response.ID)
+
+		var jsonAlarmData = make(map[string]interface{})
+		byteData, err := json.Marshal(alarm)
+		if err != nil {
+			log.Fatal(err)
+		}
+		err = json.Unmarshal(byteData, &jsonAlarmData)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		var data []table.Row
+		data = ProcessDataTables(data, jsonAlarmData)
+		formatter.SimpleOutput(resourceGetHeader, data)
+	},
+}
+
+var alarmDisableCmd = &cobra.Command{
+	Use:   "disable",
+	Short: "Disable an alarm",
+	Long:  "Disable an alarm",
+	Run: func(cmd *cobra.Command, args []string) {
+		if len(args) > 1 {
+			fmt.Printf("Unknow variable %v", strings.Join(args[1:], ""))
+		}
+		client, ctx := getApiClient(cmd)
+		alarmUpdateRequest := gobizfly.AlarmUpdateRequest{
+			Enable: false,
+		}
+		response, err := client.CloudWatcher.Alarms().Update(ctx, args[0], &alarmUpdateRequest)
+		if err != nil {
+			log.Fatal(err)
+		}
+		alarm, _ := client.CloudWatcher.Alarms().Get(ctx, response.ID)
+
+		var jsonAlarmData = make(map[string]interface{})
+		byteData, err := json.Marshal(alarm)
+		if err != nil {
+			log.Fatal(err)
+		}
+		err = json.Unmarshal(byteData, &jsonAlarmData)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		var data []table.Row
+		data = ProcessDataTables(data, jsonAlarmData)
+		formatter.SimpleOutput(resourceGetHeader, data)
+	},
+}
+
+// ===========================================================================
+// Start block interaction for receivers
+// ===========================================================================
+// Sub-command receiver
+var receiverCmd = &cobra.Command{
+	Use:   "receiver",
+	Short: "BizFly Cloud Watcher Interaction with receiver resources",
+	Long:  `Interact with Cloud Watcher Service. Allow do CRUD alarms, receivers, ...`,
+	Run: func(cmd *cobra.Command, args []string) {
+		fmt.Println("Interacting with cloud watcher service")
+	},
+}
+
+var receiverListCmd = &cobra.Command{
+	Use:   "list",
+	Short: "List receivers",
+	Long:  "List receivers in your account",
+	Run: func(cmd *cobra.Command, args []string) {
+		client, ctx := getApiClient(cmd)
+		receivers, err := client.CloudWatcher.Receivers().List(ctx, nil)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		var data []table.Row
+		for _, receiver := range receivers {
+			s := table.Row{receiver.ReceiverID, receiver.Name}
+			data = append(data, s)
+		}
+		formatter.SimpleOutput(receiverListHeader, data)
+	},
+}
+
+var receiverCreateCmd = &cobra.Command{
+	Use:   "create",
+	Short: "Create an receiver",
+	Long:  "Create an receiver by specific informations",
+	Run: func(cmd *cobra.Command, args []string) {
+		var rcr = gobizfly.ReceiverCreateRequest{}
+		client, ctx := getApiClient(cmd)
+
+		// current not need handle
+		// if len(receiverSlack) > 0 {
+		// }
+		if len(receiverAutoScaling) > 0 {
+			// Parse autoscaling from raw input
+			var rawAutoScaling = make(map[string]string)
+			ss := strings.Split(receiverAutoScaling, "&")
+			for _, parentValue := range ss {
+				z := strings.Split(parentValue, "=")
+				// Validate data from input
+				if z[0] == "" {
+					log.Fatal("Not found keyword for: ", z[1])
+				}
+				if len(z[1]) == 0 {
+					log.Fatal("Have error value for: ", z[0])
+				}
+
+				rawAutoScaling[z[0]] = z[1]
+			}
+			if _, ok := rawAutoScaling["type"]; !ok {
+				log.Fatal("action type is required for auto scaling group")
+			}
+			if _, ok := rawAutoScaling["id"]; !ok {
+				log.Fatal("id of for auto scaling group is required")
+			}
+			webhook, err := client.AutoScaling.Webhooks().Get(ctx, rawAutoScaling["id"], rawAutoScaling["type"])
+			if err != nil {
+				log.Fatal(err)
+			}
+			rcr.AutoScale = webhook
+		}
+
+		if len(receiverEmail) > 0 {
+			rcr.EmailAddress = receiverEmail
+		}
+		if len(receiverName) > 0 {
+			rcr.Name = receiverName
+		}
+		if len(receiverPhoneNumber) > 0 {
+			rcr.SMSNumber = receiverPhoneNumber
+		}
+		if len(receiverTelegramChatID) > 0 {
+			rcr.TelegramChatID = receiverTelegramChatID
+		}
+		if len(receiverWebhook) > 0 {
+			rcr.WebhookURL = receiverWebhook
+		}
+
+		response, err := client.CloudWatcher.Receivers().Create(ctx, &rcr)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		receiver, err := client.CloudWatcher.Receivers().Get(ctx, response.ID)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		var jsonReceiverData = make(map[string]interface{})
+		byteData, err := json.Marshal(receiver)
+		if err != nil {
+			log.Fatal(err)
+		}
+		err = json.Unmarshal(byteData, &jsonReceiverData)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		var data []table.Row
+		data = ProcessDataTables(data, jsonReceiverData)
+		formatter.SimpleOutput(resourceGetHeader, data)
+	},
+}
+
+var receiverGetVerificationLinkCmd = &cobra.Command{
+	Use:   "verify",
+	Short: "Get a link verify a method of receiver",
+	Long:  "Get a link verify a method of receiver by specific informations",
+	Run: func(cmd *cobra.Command, args []string) {
+		if len(args) > 1 {
+			fmt.Printf("Unknow variable %v", strings.Join(args[1:], ""))
+		}
+		if _, ok := SliceContains(receiverMethodSupportVerify, receiverType); !ok {
+			log.Fatalf("Method %v is unsupported to get link verification", receiverType)
+		}
+
+		client, ctx := getApiClient(cmd)
+		if err := client.CloudWatcher.Receivers().ResendVerificationLink(ctx, args[0], receiverType); err == nil {
+			log.Printf("A link verification was sent to %v of receiver %v", receiverType, args[0])
+		} else {
+			log.Fatalf("Failed to sent link verification to %v of receiver %v", receiverType, args[0])
+		}
+	},
+}
+
+var receiverShowCmd = &cobra.Command{
+	Use:   "show",
+	Short: "Show detail receiver",
+	Long:  "Show detail receiver by receiver ID",
+	Run: func(cmd *cobra.Command, args []string) {
+		if len(args) > 1 {
+			fmt.Printf("Unknow variable %s", strings.Join(args[1:], ""))
+		}
+		client, ctx := getApiClient(cmd)
+		receiver, err := client.CloudWatcher.Receivers().Get(ctx, args[0])
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		var jsonReceiverData = make(map[string]interface{})
+		byteData, err := json.Marshal(receiver)
+		if err != nil {
+			log.Fatal(err)
+		}
+		err = json.Unmarshal(byteData, &jsonReceiverData)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		var data []table.Row
+		data = ProcessDataTables(data, jsonReceiverData)
+		formatter.SimpleOutput(resourceGetHeader, data)
+	},
+}
+
+var receiverDeleteCmd = &cobra.Command{
+	Use:   "delete",
+	Short: "Delete a receiver",
+	Long:  "Delete a receiver by receiver ID",
+	Run: func(cmd *cobra.Command, args []string) {
+		if len(args) > 1 {
+			fmt.Printf("Unknow variable %s", strings.Join(args[1:], ""))
+		}
+		client, ctx := getApiClient(cmd)
+		err := client.CloudWatcher.Receivers().Delete(ctx, args[0])
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		log.Printf("Doing delete receiver with ID: %v", args[0])
+	},
+}
+
 var receiverSetCmd = &cobra.Command{
 	Use:   "set",
 	Short: "Update an receiver",
@@ -1019,7 +1161,7 @@ var receiverSetCmd = &cobra.Command{
 		}
 
 		client, ctx := getApiClient(cmd)
-		oldReceiver, err := client.Alert.Receivers().Get(ctx, args[0])
+		oldReceiver, err := client.CloudWatcher.Receivers().Get(ctx, args[0])
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -1085,12 +1227,12 @@ var receiverSetCmd = &cobra.Command{
 			rcr.WebhookURL = oldReceiver.WebhookURL
 		}
 
-		response, err := client.Alert.Receivers().Update(ctx, args[0], &rcr)
+		response, err := client.CloudWatcher.Receivers().Update(ctx, args[0], &rcr)
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		receiver, err := client.Alert.Receivers().Get(ctx, response.ID)
+		receiver, err := client.CloudWatcher.Receivers().Get(ctx, response.ID)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -1121,7 +1263,7 @@ var receiverUnSetCmd = &cobra.Command{
 		}
 
 		client, ctx := getApiClient(cmd)
-		oldReceiver, err := client.Alert.Receivers().Get(ctx, args[0])
+		oldReceiver, err := client.CloudWatcher.Receivers().Get(ctx, args[0])
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -1158,12 +1300,12 @@ var receiverUnSetCmd = &cobra.Command{
 			}
 		}
 
-		response, err := client.Alert.Receivers().Update(ctx, args[0], &rcr)
+		response, err := client.CloudWatcher.Receivers().Update(ctx, args[0], &rcr)
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		receiver, err := client.Alert.Receivers().Get(ctx, response.ID)
+		receiver, err := client.CloudWatcher.Receivers().Get(ctx, response.ID)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -1184,72 +1326,161 @@ var receiverUnSetCmd = &cobra.Command{
 	},
 }
 
-// Enable Alarms
-var alarmEnableCmd = &cobra.Command{
-	Use:   "enable",
-	Short: "Enable an alarm",
-	Long:  "Enable an alarm",
+// ===========================================================================
+// Start block interaction for histories
+// ===========================================================================
+// Sub-command history
+var historyCmd = &cobra.Command{
+	Use:   "history",
+	Short: "BizFly Cloud Watcher Interaction with history resources",
+	Long:  `Interact with Cloud Watcher Service. Allow do CRUD alarms, receivers, ...`,
 	Run: func(cmd *cobra.Command, args []string) {
-		if len(args) > 1 {
-			fmt.Printf("Unknow variable %v", strings.Join(args[1:], ""))
-		}
-		client, ctx := getApiClient(cmd)
-		alarmUpdateRequest := gobizfly.AlarmUpdateRequest{
-			Enable: true,
-		}
-		response, err := client.Alert.Alarms().Update(ctx, args[0], &alarmUpdateRequest)
-		if err != nil {
-			log.Fatal(err)
-		}
-		alarm, _ := client.Alert.Alarms().Get(ctx, response.ID)
+		fmt.Println("Interacting with cloud watcher service")
+	},
+}
 
-		var jsonAlarmData = make(map[string]interface{})
-		byteData, err := json.Marshal(alarm)
-		if err != nil {
-			log.Fatal(err)
-		}
-		err = json.Unmarshal(byteData, &jsonAlarmData)
+var historyListCmd = &cobra.Command{
+	Use:   "list",
+	Short: "List history",
+	Long:  "List 26 latest history in your account",
+	Run: func(cmd *cobra.Command, args []string) {
+		client, ctx := getApiClient(cmd)
+		histories, err := client.CloudWatcher.Histories().List(ctx, nil)
 		if err != nil {
 			log.Fatal(err)
 		}
 
 		var data []table.Row
-		data = ProcessDataTables(data, jsonAlarmData)
+		for _, history := range histories {
+			s := table.Row{
+				history.HistoryID,
+				history.Resource.(string),
+				history.AlarmID,
+				history.Alarm.ResourceType,
+				history.State,
+				history.Created,
+			}
+			data = append(data, s)
+		}
+		formatter.SimpleOutput(historyListHeader, data)
+	},
+}
+
+// ===========================================================================
+// Start block interaction for secrets
+// ===========================================================================
+// Sub-command secret
+var secretCmd = &cobra.Command{
+	Use:   "secret",
+	Short: "BizFly Cloud Watcher Interaction with secret resources",
+	Long:  `Interact with Cloud Watcher Service. Allow do CRUD alarms, secrets, ...`,
+	Run: func(cmd *cobra.Command, args []string) {
+		fmt.Println("Interacting with cloud watcher service")
+	},
+}
+
+var secretListCmd = &cobra.Command{
+	Use:   "list",
+	Short: "List secrets",
+	Long:  "List secrets in your account",
+	Run: func(cmd *cobra.Command, args []string) {
+		client, ctx := getApiClient(cmd)
+		secrets, err := client.CloudWatcher.Secrets().List(ctx, nil)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		var data []table.Row
+		for _, secret := range secrets {
+			s := table.Row{secret.ID, secret.Name}
+			data = append(data, s)
+		}
+		formatter.SimpleOutput(secretListHeader, data)
+	},
+}
+
+var secretCreateCmd = &cobra.Command{
+	Use:   "create",
+	Short: "Create an secret",
+	Long:  "Create an secret by specific informations",
+	Run: func(cmd *cobra.Command, args []string) {
+		var scr = gobizfly.SecretsCreateRequest{}
+		client, ctx := getApiClient(cmd)
+
+		if len(secretName) > 0 {
+			scr.Name = secretName
+		}
+
+		response, err := client.CloudWatcher.Secrets().Create(ctx, &scr)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		receiver, err := client.CloudWatcher.Secrets().Get(ctx, response.ID)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		var jsonSecretData = make(map[string]interface{})
+		byteData, err := json.Marshal(receiver)
+		if err != nil {
+			log.Fatal(err)
+		}
+		err = json.Unmarshal(byteData, &jsonSecretData)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		var data []table.Row
+		data = ProcessDataTables(data, jsonSecretData)
 		formatter.SimpleOutput(resourceGetHeader, data)
 	},
 }
 
-// Disable Alarms
-var alarmDisableCmd = &cobra.Command{
-	Use:   "disable",
-	Short: "Disable an alarm",
-	Long:  "Disable an alarm",
+var secretShowCmd = &cobra.Command{
+	Use:   "show",
+	Short: "Show detail secret",
+	Long:  "Show detail secret by secret ID",
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) > 1 {
-			fmt.Printf("Unknow variable %v", strings.Join(args[1:], ""))
+			fmt.Printf("Unknow variable %s", strings.Join(args[1:], ""))
 		}
 		client, ctx := getApiClient(cmd)
-		alarmUpdateRequest := gobizfly.AlarmUpdateRequest{
-			Enable: false,
-		}
-		response, err := client.Alert.Alarms().Update(ctx, args[0], &alarmUpdateRequest)
+		secret, err := client.CloudWatcher.Secrets().Get(ctx, args[0])
 		if err != nil {
 			log.Fatal(err)
 		}
-		alarm, _ := client.Alert.Alarms().Get(ctx, response.ID)
 
-		var jsonAlarmData = make(map[string]interface{})
-		byteData, err := json.Marshal(alarm)
+		var jsonSecretData = make(map[string]interface{})
+		byteData, err := json.Marshal(secret)
 		if err != nil {
 			log.Fatal(err)
 		}
-		err = json.Unmarshal(byteData, &jsonAlarmData)
+		err = json.Unmarshal(byteData, &jsonSecretData)
 		if err != nil {
 			log.Fatal(err)
 		}
 
 		var data []table.Row
-		data = ProcessDataTables(data, jsonAlarmData)
+		data = ProcessDataTables(data, jsonSecretData)
 		formatter.SimpleOutput(resourceGetHeader, data)
+	},
+}
+
+var secretDeleteCmd = &cobra.Command{
+	Use:   "delete",
+	Short: "Delete a secret",
+	Long:  "Delete a secret by secret ID",
+	Run: func(cmd *cobra.Command, args []string) {
+		if len(args) > 1 {
+			fmt.Printf("Unknow variable %s", strings.Join(args[1:], ""))
+		}
+		client, ctx := getApiClient(cmd)
+		err := client.CloudWatcher.Secrets().Delete(ctx, args[0])
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		log.Printf("Doing delete secret with ID: %v", args[0])
 	},
 }
