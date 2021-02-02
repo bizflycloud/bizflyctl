@@ -363,7 +363,7 @@ Use: bizfly server resize <server-id> --flavor <flavor name>
 }
 
 var serverAddVPCCmd = &cobra.Command{
-	Use:   "add_vpc",
+	Use:   "add-vpc",
 	Short: "Add VPC to Server",
 	Long:  "Add VPC to Server.\nUse: bizfly server add_vpc <server-id> --vpc-ids <vpc_ids>\n",
 	Run: func(cmd *cobra.Command, args []string) {
@@ -383,7 +383,7 @@ var serverAddVPCCmd = &cobra.Command{
 }
 
 var serverRemoveVPCCmd = &cobra.Command{
-	Use:   "remove_vpc",
+	Use:   "remove-vpc",
 	Short: "Remove VPC to Server",
 	Long:  "Remove VPC to Server.\nUse: bizfly server remove_vpc <server-id> --vpc-ids <vpc_ids>\n",
 	Run: func(cmd *cobra.Command, args []string) {
@@ -393,7 +393,7 @@ var serverRemoveVPCCmd = &cobra.Command{
 		}
 		serverID := args[0]
 		client, ctx := getApiClient(cmd)
-		_, err := client.Server.AddVPC(ctx, serverID, vpcIDs)
+		_, err := client.Server.RemoveVPC(ctx, serverID, vpcIDs)
 		if err != nil {
 			fmt.Printf("Remove VPC to server error %v\n", err)
 			os.Exit(1)
