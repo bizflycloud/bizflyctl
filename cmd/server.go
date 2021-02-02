@@ -365,7 +365,8 @@ Use: bizfly server resize <server-id> --flavor <flavor name>
 var serverAddVPCCmd = &cobra.Command{
 	Use:   "add-vpc",
 	Short: "Add VPC to Server",
-	Long:  "Add VPC to Server.\nUse: bizfly server add_vpc <server-id> --vpc-ids <vpc_ids>\n",
+	Long:  "Add VPC to Server.\nUse: bizfly server add_vpc <server-id> --vpc-ids <vpc_ids>\n" +
+		"Example: /bizfly server add-vpc {server-id} --vpc-ids {vpc-id1} --vpc-ids {vpc-id2}\n",
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) < 1 {
 			fmt.Println("You need to specify server-id in the command. Use bizfly server add_vpc <server-id> --vpc-ids")
@@ -385,7 +386,8 @@ var serverAddVPCCmd = &cobra.Command{
 var serverRemoveVPCCmd = &cobra.Command{
 	Use:   "remove-vpc",
 	Short: "Remove VPC to Server",
-	Long:  "Remove VPC to Server.\nUse: bizfly server remove_vpc <server-id> --vpc-ids <vpc_ids>\n",
+	Long:  "Remove VPC to Server.\nUse: bizfly server remove_vpc <server-id> --vpc-ids <vpc_ids>\n" +
+		"Example: /bizfly server remove-vpc {server-id} --vpc-ids {vpc-id1} --vpc-ids {vpc-id2}\n",
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) < 1 {
 			fmt.Println("You need to specify server-id in the command. Use bizfly server remove_vpc <server-id> --vpc-ids")
@@ -440,5 +442,4 @@ func init() {
 	serverRemoveVPCCmd.PersistentFlags().StringArrayVar(&vpcIDs, "vpc-ids", []string{}, "The VPC IDs")
 	_ = cobra.MarkFlagRequired(serverRemoveVPCCmd.PersistentFlags(), "vpc-ids")
 	serverCmd.AddCommand(serverRemoveVPCCmd)
-
 }
