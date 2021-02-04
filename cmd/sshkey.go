@@ -17,11 +17,14 @@ limitations under the License.
 package cmd
 
 import (
+	"bufio"
 	"fmt"
 	"github.com/bizflycloud/bizflyctl/formatter"
 	"github.com/bizflycloud/gobizfly"
 	"github.com/spf13/cobra"
+	"io/ioutil"
 	"log"
+	"net/http"
 	"os"
 )
 
@@ -69,7 +72,10 @@ var sshKeyDeleteCmd = &cobra.Command{
 			os.Exit(1)
 		}
 		client, ctx := getApiClient(cmd)
-		client.SSHKey.Delete(ctx, args[0])
+		_, err := client.SSHKey.Delete(ctx, args[0])
+		if err != nil {
+			log.Fatal(err)
+		}
 		fmt.Println("Deleted the SSH key")
 	},
 }
@@ -77,9 +83,30 @@ var sshKeyDeleteCmd = &cobra.Command{
 var sshKeyCreateCmd = &cobra.Command{
 	Use:   "create",
 	Short: "Create a SSH Key",
-	Long:  "Create a SSH Key using name and public key",
+	Long: `Create a SSH Key using name and public key
+Example 1: bizfly ssh-key create --name abcxyz --public-key your-pub-key
+Example 2: bizfly ssh-key create --name abcxyz --public-key prompt-url => Then type your URL which contains your public key
+Example 3: bizfly ssh-key create --name abcxyz --public-key prompt => Paste your public key, and then send EOF (Ctrl + D in *nix; Ctrl + Z in Windows)`,
 	Run: func(cmd *cobra.Command, args []string) {
 		client, ctx := getApiClient(cmd)
+		if publicKey == "prompt-url" {
+			var key string
+			fmt.Scanln(&key)
+			fmt.Println(key)
+			resp, err := http.Get(key)
+			if err != nil {
+				log.Fatal(err)
+			}
+			body, err := ioutil.ReadAll(resp.Body)
+			if err != nil {
+				log.Fatal(err)
+			}
+			publicKey = string(body)
+		} else if publicKey == "prompt" {
+			scanner := bufio.NewScanner(os.Stdin)
+			line := scanner.Text()
+			publicKey = line
+		}
 		key, err := client.SSHKey.Create(ctx, &gobizfly.SSHKeyCreateRequest{
 			Name:      sshKeyName,
 			PublicKey: publicKey,
