@@ -48,6 +48,8 @@ var (
 	// ssh key
 	sshKey         string
 	deleteRootDisk bool
+	// vpc ids
+	vpcIDs []string
 )
 
 //type responseMessage struct {
@@ -102,7 +104,7 @@ Example: bizfly server delete fd554aac-9ab1-11ea-b09d-bbaf82f02f58 f5869e9c-9ab2
 				if errors.Is(err, gobizfly.ErrNotFound) {
 					fmt.Printf("Server %s is not found", serverID)
 					continue
-				} else  {
+				} else {
 					fmt.Printf("Error when delete server %v", err)
 					return
 				}
@@ -360,6 +362,48 @@ Use: bizfly server resize <server-id> --flavor <flavor name>
 	},
 }
 
+var serverAddVPCCmd = &cobra.Command{
+	Use:   "add-vpc",
+	Short: "Add VPC to Server",
+	Long:  "Add VPC to Server.\nUse: bizfly server add_vpc <server-id> --vpc-ids <vpc_ids>\n" +
+		"Example: /bizfly server add-vpc {server-id} --vpc-ids {vpc-id1} --vpc-ids {vpc-id2}\n",
+	Run: func(cmd *cobra.Command, args []string) {
+		if len(args) < 1 {
+			fmt.Println("You need to specify server-id in the command. Use bizfly server add_vpc <server-id> --vpc-ids")
+			os.Exit(1)
+		}
+		serverID := args[0]
+		client, ctx := getApiClient(cmd)
+		_, err := client.Server.AddVPC(ctx, serverID, vpcIDs)
+		if err != nil {
+			fmt.Printf("Add VPC to server error %v\n", err)
+			os.Exit(1)
+		}
+		fmt.Printf("Adding VPC to server: %s\n", serverID)
+	},
+}
+
+var serverRemoveVPCCmd = &cobra.Command{
+	Use:   "remove-vpc",
+	Short: "Remove VPC to Server",
+	Long:  "Remove VPC to Server.\nUse: bizfly server remove_vpc <server-id> --vpc-ids <vpc_ids>\n" +
+		"Example: /bizfly server remove-vpc {server-id} --vpc-ids {vpc-id1} --vpc-ids {vpc-id2}\n",
+	Run: func(cmd *cobra.Command, args []string) {
+		if len(args) < 1 {
+			fmt.Println("You need to specify server-id in the command. Use bizfly server remove_vpc <server-id> --vpc-ids")
+			os.Exit(1)
+		}
+		serverID := args[0]
+		client, ctx := getApiClient(cmd)
+		_, err := client.Server.RemoveVPC(ctx, serverID, vpcIDs)
+		if err != nil {
+			fmt.Printf("Remove VPC to server error %v\n", err)
+			os.Exit(1)
+		}
+		fmt.Printf("Removing VPC to server: %s\n", serverID)
+	},
+}
+
 func init() {
 	rootCmd.AddCommand(serverCmd)
 	serverCmd.AddCommand(serverListCmd)
@@ -391,4 +435,11 @@ func init() {
 	serverResizeCmd.PersistentFlags().StringVar(&flavorName, "flavor", "", "Name of flavor.")
 	_ = cobra.MarkFlagRequired(serverResizeCmd.PersistentFlags(), "flavor")
 	serverCmd.AddCommand(serverResizeCmd)
+
+	serverAddVPCCmd.PersistentFlags().StringArrayVar(&vpcIDs, "vpc-ids", []string{}, "The VPC IDs")
+	_ = cobra.MarkFlagRequired(serverAddVPCCmd.PersistentFlags(), "vpc-ids")
+	serverCmd.AddCommand(serverAddVPCCmd)
+	serverRemoveVPCCmd.PersistentFlags().StringArrayVar(&vpcIDs, "vpc-ids", []string{}, "The VPC IDs")
+	_ = cobra.MarkFlagRequired(serverRemoveVPCCmd.PersistentFlags(), "vpc-ids")
+	serverCmd.AddCommand(serverRemoveVPCCmd)
 }
