@@ -28,12 +28,12 @@ import (
 )
 
 var (
-	vpcListHeader = []string{"ID", "Name", "MTU", "Description", "Tags", "CreatedAt", "IsDefault"}
-	vpcName     string
-	vpcID       string
-	description string
-	cidr        string
-	isDefault   bool
+	vpcListHeader = []string{"ID", "Name", "MTU", "CIDR", "Description", "Tags", "CreatedAt", "IsDefault"}
+	vpcName       string
+	vpcID         string
+	description   string
+	cidr          string
+	isDefault     bool
 )
 
 var vpcCmd = &cobra.Command{
@@ -70,9 +70,9 @@ Example: bizfly vpc delete fd554aac-9ab1-11ea-b09d-bbaf82f02f58`,
 }
 
 var vpcListCmd = &cobra.Command{
-	Use: "list",
+	Use:   "list",
 	Short: "List all vpcs in your account",
-	Long: "List all vpcs in your account",
+	Long:  "List all vpcs in your account",
 	Run: func(cmd *cobra.Command, args []string) {
 		client, ctx := getApiClient(cmd)
 		vpcs, err := client.VPC.List(ctx)
@@ -81,7 +81,7 @@ var vpcListCmd = &cobra.Command{
 		}
 		var data [][]string
 		for _, vpc := range vpcs {
-			s := []string {vpc.ID, vpc.Name, strconv.Itoa(vpc.MTU), vpc.Description,
+			s := []string{vpc.ID, vpc.Name, strconv.Itoa(vpc.MTU), vpc.Subnets[0].CIDR, vpc.Description,
 				strings.Join(vpc.Tags, ", "), vpc.CreatedAt, strconv.FormatBool(vpc.IsDefault)}
 			data = append(data, s)
 		}
@@ -90,7 +90,7 @@ var vpcListCmd = &cobra.Command{
 }
 
 var vpcGetCmd = &cobra.Command{
-	Use: "get",
+	Use:   "get",
 	Short: "Get a VPC",
 	Long: `Get detail a VPC with VPC ID as input
 Example: bizfly vpc get fd554aac-9ab1-11ea-b09d-bbaf82f02f58`,
@@ -108,7 +108,7 @@ Example: bizfly vpc get fd554aac-9ab1-11ea-b09d-bbaf82f02f58`,
 			log.Fatal(err)
 		}
 		var data [][]string
-		s := []string {vpc.ID, vpc.Name, strconv.Itoa(vpc.MTU), vpc.Description,
+		s := []string{vpc.ID, vpc.Name, strconv.Itoa(vpc.MTU), vpc.Subnets[0].CIDR, vpc.Description,
 			strings.Join(vpc.Tags, ", "), vpc.CreatedAt, strconv.FormatBool(vpc.IsDefault)}
 		data = append(data, s)
 		formatter.Output(vpcListHeader, data)
@@ -116,18 +116,18 @@ Example: bizfly vpc get fd554aac-9ab1-11ea-b09d-bbaf82f02f58`,
 }
 
 var vpcCreateCmd = &cobra.Command{
-	Use: "create",
+	Use:   "create",
 	Short: "Create a VPC",
-	Long: "Create a new VPC, return its properties",
+	Long:  "Create a new VPC, return its properties",
 	Run: func(cmd *cobra.Command, args []string) {
 		if vpcName == "" {
 			fmt.Println("You need to specify VPC name to create a new VPC")
 		}
-		cvpl := gobizfly.CreateVPCPayload {
-			Name: vpcName,
+		cvpl := gobizfly.CreateVPCPayload{
+			Name:        vpcName,
 			Description: description,
-			CIDR: cidr,
-			IsDefault: isDefault,
+			CIDR:        cidr,
+			IsDefault:   isDefault,
 		}
 		client, ctx := getApiClient(cmd)
 		vpc, err := client.VPC.Create(ctx, &cvpl)
@@ -135,28 +135,29 @@ var vpcCreateCmd = &cobra.Command{
 			fmt.Printf("Create VPC error: %v", err)
 			os.Exit(1)
 		}
+		fmt.Printf("%v", &vpc)
 		fmt.Printf("Create VPC successfully")
 		var data [][]string
-		s := []string {vpc.ID, vpc.Name, strconv.Itoa(vpc.MTU), vpc.Description,
+		s := []string{vpc.ID, vpc.Name, strconv.Itoa(vpc.MTU), vpc.Subnets[0].CIDR, vpc.Description,
 			strings.Join(vpc.Tags, ", "), vpc.CreatedAt, strconv.FormatBool(vpc.IsDefault)}
 		data = append(data, s)
 		formatter.Output(vpcListHeader, data)
 	},
 }
 
-var vpcUpdateCmd = &cobra.Command {
-	Use: "update",
+var vpcUpdateCmd = &cobra.Command{
+	Use:   "update",
 	Short: "Update a VPC",
-	Long: "Update a VPC",
+	Long:  "Update a VPC",
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) < 1 {
 			fmt.Println("You need to specify vpc-id in the command. Use bizfly vpc update <vpc-id> ...")
 		}
-		uvpl := gobizfly.UpdateVPCPayload {
-			Name: vpcName,
+		uvpl := gobizfly.UpdateVPCPayload{
+			Name:        vpcName,
 			Description: description,
-			CIDR: cidr,
-			IsDefault: isDefault,
+			CIDR:        cidr,
+			IsDefault:   isDefault,
 		}
 		client, ctx := getApiClient(cmd)
 		vpc, err := client.VPC.Update(ctx, args[0], &uvpl)
@@ -166,7 +167,7 @@ var vpcUpdateCmd = &cobra.Command {
 		}
 		fmt.Printf("Create VPC successfully")
 		var data [][]string
-		s := []string {vpc.ID, vpc.Name, strconv.Itoa(vpc.MTU), vpc.Description,
+		s := []string{vpc.ID, vpc.Name, strconv.Itoa(vpc.MTU), vpc.Subnets[0].CIDR, vpc.Description,
 			strings.Join(vpc.Tags, ", "), vpc.CreatedAt, strconv.FormatBool(vpc.IsDefault)}
 		data = append(data, s)
 		formatter.Output(vpcListHeader, data)
