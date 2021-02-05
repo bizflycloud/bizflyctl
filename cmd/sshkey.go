@@ -24,8 +24,8 @@ import (
 	"github.com/spf13/cobra"
 	"io/ioutil"
 	"log"
-	"net/http"
 	"os"
+	"strings"
 )
 
 var (
@@ -84,28 +84,24 @@ var sshKeyCreateCmd = &cobra.Command{
 	Use:   "create",
 	Short: "Create a SSH Key",
 	Long: `Create a SSH Key using name and public key
-Example 1: bizfly ssh-key create --name abcxyz --public-key your-pub-key
-Example 2: bizfly ssh-key create --name abcxyz --public-key prompt-url => Then type your URL which contains your public key
-Example 3: bizfly ssh-key create --name abcxyz --public-key prompt => Paste your public key, and then send EOF (Ctrl + D in *nix; Ctrl + Z in Windows)`,
+Example 1: bizfly ssh-key create --name abcxyz --public-key path/to/public-key
+Example 2: bizfly ssh-key create --name abcxyz --public-key prompt => Paste your public key, and then send EOF (Ctrl + D in *nix; Ctrl + Z in Windows)`,
 	Run: func(cmd *cobra.Command, args []string) {
 		client, ctx := getApiClient(cmd)
-		if publicKey == "prompt-url" {
-			var key string
-			fmt.Scanln(&key)
-			fmt.Println(key)
-			resp, err := http.Get(key)
-			if err != nil {
-				log.Fatal(err)
-			}
-			body, err := ioutil.ReadAll(resp.Body)
-			if err != nil {
-				log.Fatal(err)
-			}
-			publicKey = string(body)
-		} else if publicKey == "prompt" {
+		content, err := ioutil.ReadFile(publicKey)
+		if err == nil {
+			publicKey = string(content)
+		}
+		if publicKey == "prompt" {
+			fmt.Println("Type your SSH-Key:")
 			scanner := bufio.NewScanner(os.Stdin)
-			line := scanner.Text()
-			publicKey = line
+			var lines []string
+			for scanner.Scan() {
+				line := scanner.Text()
+				lines = append(lines, line)
+			}
+			publicKey = strings.Join(lines, "")
+			fmt.Println("\nYour public key you typed is: ", publicKey)
 		}
 		key, err := client.SSHKey.Create(ctx, &gobizfly.SSHKeyCreateRequest{
 			Name:      sshKeyName,
@@ -113,6 +109,7 @@ Example 3: bizfly ssh-key create --name abcxyz --public-key prompt => Paste your
 		})
 		if err != nil {
 			log.Fatal(err)
+
 		}
 		data := [][]string{{key.Name, key.FingerPrint}}
 		formatter.Output(sshListHeader, data)
