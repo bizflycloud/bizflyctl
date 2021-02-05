@@ -85,7 +85,10 @@ var sshKeyCreateCmd = &cobra.Command{
 	Short: "Create a SSH Key",
 	Long: `Create a SSH Key using name and public key
 Example 1: bizfly ssh-key create --name abcxyz --public-key path/to/public-key
-Example 2: bizfly ssh-key create --name abcxyz --public-key prompt => Paste your public key, and then send EOF (Ctrl + D in *nix; Ctrl + Z in Windows)`,
+Example 2: bizfly ssh-key create --name test1312 --public-key "your-public-key"
+Example 2: bizfly ssh-key create --name abcxyz --public-key prompt => Paste your public key, and then send EOF (Ctrl + D in *nix; Ctrl + Z in Windows)
+`,
+
 	Run: func(cmd *cobra.Command, args []string) {
 		client, ctx := getApiClient(cmd)
 		content, err := ioutil.ReadFile(publicKey)
