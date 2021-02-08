@@ -26,7 +26,6 @@ import (
 
 var (
 	customImageHeader = []string{"ID", "Name", "Description", "ContainerFormat", "Size", "Status", "Visibility"}
-	customImageID     string
 	imageURL          string
 	diskFormat        string
 	customImageName   string
