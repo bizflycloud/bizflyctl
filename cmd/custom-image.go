@@ -21,6 +21,8 @@ import (
 	"github.com/bizflycloud/gobizfly"
 	"github.com/spf13/cobra"
 	"log"
+	"net/http"
+	"os"
 	"strconv"
 )
 
@@ -29,6 +31,7 @@ var (
 	imageURL          string
 	diskFormat        string
 	customImageName   string
+	filePath          string
 )
 
 var customImageCmd = &cobra.Command{
@@ -65,20 +68,60 @@ var customImageCreate = &cobra.Command{
 	Long: `Create a new custom image with name, image URL
 Example: bizfly custom-image create --name xyz --disk-format raw --description abcxyz --image-url http://xyz.abc`,
 	Run: func(cmd *cobra.Command, args []string) {
-		client, ctx := getApiClient(cmd)
-		image, err := client.Server.CreateCustomImage(ctx, &gobizfly.CreateCustomImagePayload{
-			Name:        customImageName,
-			DiskFormat:  diskFormat,
-			Description: description,
-			ImageURL:    imageURL,
-		})
-		if err != nil {
-			log.Fatal(err)
+		if imageURL == "" && filePath == "" {
+			log.Fatal("Invalid arguments. You need to specify image-url or file-path")
+		} else if imageURL != "" && filePath != "" {
+			log.Fatal("Invalid arguments. You need to specify image-url or file-path")
 		}
-		var data [][]string
-		data = append(data, []string{image.ID, image.Name, image.Description,
-			image.ContainerFormat, strconv.Itoa(image.Size), image.Status, image.Visibility})
-		formatter.Output(customImageHeader, data)
+		client, ctx := getApiClient(cmd)
+		if imageURL != "" {
+			resp, err := client.Server.CreateCustomImage(ctx, &gobizfly.CreateCustomImagePayload{
+				Name:        customImageName,
+				DiskFormat:  diskFormat,
+				Description: description,
+				ImageURL:    imageURL,
+			})
+			if err != nil {
+				log.Fatal(err)
+			}
+			image := resp.Image
+			var data [][]string
+			data = append(data, []string{image.ID, image.Name, image.Description,
+				image.ContainerFormat, strconv.Itoa(image.Size), image.Status, image.Visibility})
+			formatter.Output(customImageHeader, data)
+		} else {
+			resp, err := client.Server.CreateCustomImage(ctx, &gobizfly.CreateCustomImagePayload{
+				Name:        customImageName,
+				DiskFormat:  diskFormat,
+				Description: description,
+			})
+			if err != nil {
+				log.Fatal(err)
+			}
+			file, err := os.Open(filePath)
+			if err != nil {
+				log.Fatal(err)
+			}
+			fmt.Println(resp.UploadURI)
+			r, err := http.NewRequest("PUT", resp.UploadURI, file)
+
+			if err != nil {
+				log.Fatal(err)
+			}
+			r.Header.Set("X-Auth-Token", resp.Token)
+			r.Header.Set("Content-Type", "application/octet-stream")
+			client := &http.Client{}
+			response, err := client.Do(r)
+			if err != nil {
+				log.Fatal(err)
+			}
+			defer response.Body.Close()
+			image := resp.Image
+			var data [][]string
+			data = append(data, []string{image.ID, image.Name, image.Description,
+				image.ContainerFormat, strconv.Itoa(image.Size), image.Status, image.Visibility})
+			formatter.Output(customImageHeader, data)
+		}
 	},
 }
 
@@ -110,6 +153,7 @@ func init() {
 	ccpf.StringVar(&diskFormat, "disk-format", "", "Disk format of image")
 	ccpf.StringVar(&description, "description", "", "Description")
 	ccpf.StringVar(&imageURL, "image-url", "", "Image URL")
+	ccpf.StringVar(&filePath, "file-path", "", "Upload file path")
 	_ = cobra.MarkFlagRequired(ccpf, "name")
 	_ = cobra.MarkFlagRequired(ccpf, "disk-format")
 	customImageCmd.AddCommand(customImageCreate)
