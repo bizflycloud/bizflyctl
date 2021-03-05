@@ -179,6 +179,9 @@ var customImageDownload = &cobra.Command{
 			}
 			defer resp.Body.Close()
 			size, err := io.Copy(file, resp.Body)
+			if err != nil {
+				log.Fatal(err)
+			}
 			defer file.Close()
 			fmt.Printf("Downloaded a file %s with size %d Bytes\n", fileName, size)
 
