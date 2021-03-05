@@ -20,9 +20,11 @@ import (
 	"github.com/bizflycloud/bizflyctl/formatter"
 	"github.com/bizflycloud/gobizfly"
 	"github.com/spf13/cobra"
+	"io"
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strconv"
 )
 
@@ -32,6 +34,7 @@ var (
 	diskFormat        string
 	customImageName   string
 	filePath          string
+	downloadPath      string
 )
 
 var customImageCmd = &cobra.Command{
@@ -143,6 +146,52 @@ var customImageDelete = &cobra.Command{
 	},
 }
 
+var customImageDownload = &cobra.Command{
+	Use:   "download",
+	Short: "Download a custom image",
+	Long:  "Download a custom image using its ID",
+	Run: func(cmd *cobra.Command, args []string) {
+		client, ctx := getApiClient(cmd)
+		resp, err := client.Server.GetCustomImage(ctx, args[0])
+		if err != nil {
+			log.Fatal(err)
+		}
+		var data [][]string
+		image := resp.Image
+		token := resp.Token
+
+		if image.ID == args[0] {
+			downloadURL := image.File
+			fileName := fmt.Sprintf("%s.%s", image.Name, image.ContainerFormat)
+			file, err := os.Create(filepath.Join(downloadPath, fileName))
+			if err != nil {
+				log.Fatal(err)
+			}
+			client := http.Client{}
+			req, err := http.NewRequest(http.MethodGet, downloadURL, nil)
+			if err != nil {
+				log.Fatal(err)
+			}
+			req.Header.Set("X-Auth-Token", token)
+			resp, err := client.Do(req)
+			if err != nil {
+				log.Fatal(err)
+			}
+			defer resp.Body.Close()
+			size, err := io.Copy(file, resp.Body)
+			if err != nil {
+				log.Fatal(err)
+			}
+			defer file.Close()
+			fmt.Printf("Downloaded a file %s with size %d Bytes\n", fileName, size)
+
+			data = append(data, []string{image.ID, image.Name, image.Description,
+				image.ContainerFormat, strconv.Itoa(image.Size), image.Status, image.Visibility})
+		}
+		formatter.Output(customImageHeader, data)
+	},
+}
+
 func init() {
 	rootCmd.AddCommand(customImageCmd)
 	customImageCmd.AddCommand(customImageList)
@@ -156,5 +205,9 @@ func init() {
 	ccpf.StringVar(&filePath, "file-path", "", "Upload file path")
 	_ = cobra.MarkFlagRequired(ccpf, "name")
 	_ = cobra.MarkFlagRequired(ccpf, "disk-format")
+
 	customImageCmd.AddCommand(customImageCreate)
+	customImageCmd.AddCommand(customImageDownload)
+	cdpf := customImageDownload.PersistentFlags()
+	cdpf.StringVar(&downloadPath, "output-path", ".", "Output file path")
 }
