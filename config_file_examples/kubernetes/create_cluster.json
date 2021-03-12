@@ -1,0 +1,40 @@
+{
+  "name": "tung491-test-k8s_24",
+  "version": "5f7d3a91d857155ad4993a32",
+  "vpc_network_id": "145bed1f-a7f7-4f88-ab3d-ce2fc95a4e71",
+  "tags": [
+    "tag"
+  ],
+  "worker_pools": [
+    {
+      "name": "pool-j9ngr550sssss",
+      "flavor": "nix.2c_2g",
+      "profile_type": "premium",
+      "volume_type": "PREMIUM-HDD1",
+      "volume_size": 40,
+      "availability_zone": "HN1",
+      "desired_size": 1,
+      "enable_autoscaling": true,
+      "min_size": 1,
+      "max_size": 3,
+      "tags": [
+        "ssss"
+      ]
+    },
+    {
+      "name": "pool-j9ngr55ssss3",
+      "flavor": "nix.2c_2g",
+      "profile_type": "premium",
+      "volume_type": "PREMIUM-HDD1",
+      "volume_size": 40,
+      "availability_zone": "HN1",
+      "desired_size": 1,
+      "enable_autoscaling": true,
+      "min_size": 1,
+      "max_size": 3,
+      "tags": [
+        "ssss"
+      ]
+    }
+  ]
+}

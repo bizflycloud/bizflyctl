@@ -141,7 +141,7 @@ var customImageDelete = &cobra.Command{
 		if err != nil {
 			log.Fatal(err)
 		} else {
-			fmt.Println("Delete the custom image sucessfully")
+			fmt.Println("Delete the custom image successfully")
 		}
 	},
 }
