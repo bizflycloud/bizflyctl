@@ -34,7 +34,6 @@ import (
 var (
 	kubernetesClusterHeader    = []string{"ID", "Name", "VPCNetworkID", "WorkerPoolsCount", "ClusterStatus", "Tags"}
 	kubernetesWorkerPoolHeader = []string{"ID", "Name", "Version", "Flavor", "VolumeSize", "VolumeType", "EnabledAutoScaling", "MinSize", "MaxSize"}
-	nodeID                     string
 	clusterName                string
 	clusterVersion             string
 	autoUpgrade                bool
