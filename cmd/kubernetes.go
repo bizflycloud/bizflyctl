@@ -84,6 +84,7 @@ var clusterCreate = &cobra.Command{
 - Using config file example: ./bizflycloud kubernetes create --config-file create_cluster.json`,
 	Run: func(cmd *cobra.Command, args []string) {
 		client, ctx := getApiClient(cmd)
+		var data [][]string
 		if inputConfigFile != "" {
 			fileBytes, err := ioutil.ReadFile(inputConfigFile)
 			if err != nil {
@@ -97,7 +98,6 @@ var clusterCreate = &cobra.Command{
 			if err != nil {
 				log.Fatal(err)
 			}
-			var data [][]string
 			data = append(data, []string{cluster.UID, cluster.Name, cluster.VPCNetworkID, strconv.Itoa(cluster.WorkerPoolsCount),
 				cluster.ClusterStatus, strings.Join(cluster.Tags, ", ")})
 			formatter.Output(kubernetesClusterHeader, data)
@@ -118,7 +118,6 @@ var clusterCreate = &cobra.Command{
 			if err != nil {
 				log.Fatal(err)
 			}
-			var data [][]string
 			data = append(data, []string{cluster.UID, cluster.Name, cluster.VPCNetworkID, strconv.Itoa(cluster.WorkerPoolsCount),
 				cluster.ClusterStatus, strings.Join(cluster.Tags, ", ")})
 			formatter.Output(kubernetesClusterHeader, data)
@@ -166,6 +165,7 @@ var addWorkerPool = &cobra.Command{
 - Using config file example: ./bizflycloud kubernetes add-workerpool 55viixy9ma6yaiwu --config-file add_pools.json`,
 	Run: func(cmd *cobra.Command, args []string) {
 		client, ctx := getApiClient(cmd)
+		var data [][]string
 		if inputConfigFile != "" {
 			fileBytes, err := ioutil.ReadFile(inputConfigFile)
 			if err != nil {
@@ -179,7 +179,6 @@ var addWorkerPool = &cobra.Command{
 			if err != nil {
 				log.Fatal(err)
 			}
-			var data [][]string
 			for _, workerPool := range workerPools {
 				data = append(data, []string{workerPool.UID, workerPool.Name, workerPool.Version, workerPool.Flavor,
 					strconv.Itoa(workerPool.VolumeSize), workerPool.VolumeType, strconv.FormatBool(workerPool.EnableAutoScaling),
@@ -198,7 +197,6 @@ var addWorkerPool = &cobra.Command{
 			if err != nil {
 				log.Fatal(err)
 			}
-			var data [][]string
 			for _, workerPool := range workerPools {
 				data = append(data, []string{workerPool.UID, workerPool.Name, workerPool.Version, workerPool.Flavor,
 					strconv.Itoa(workerPool.VolumeSize), workerPool.VolumeType, strconv.FormatBool(workerPool.EnableAutoScaling),
