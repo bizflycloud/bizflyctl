@@ -38,9 +38,7 @@ var (
 	kubernetesWorkerPoolHeader = []string{"ID", "Name", "Version", "Flavor", "VolumeSize", "VolumeType", "EnabledAutoScaling", "MinSize", "MaxSize"}
 	clusterName                string
 	clusterVersion             string
-	autoUpgrade                bool
 	vpcNetworkID               string
-	enableCloud                bool
 	tags                       []string
 	workerPools                []string
 	desiredSize                int
@@ -127,9 +125,7 @@ var clusterCreate = &cobra.Command{
 			cluster, err := client.KubernetesEngine.Create(ctx, &gobizfly.ClusterCreateRequest{
 				Name:         clusterName,
 				Version:      clusterVersion,
-				AutoUpgrade:  autoUpgrade,
 				VPCNetworkID: vpcNetworkID,
-				EnableCloud:  enableCloud,
 				WorkerPools:  workerPoolObjs,
 				Tags:         tags,
 			})
@@ -331,6 +327,8 @@ func isIntField(key string) bool {
 }
 func parseWorkerPool(workerPoolStr string) gobizfly.WorkerPool {
 	pairs := strings.Split(workerPoolStr, ",")
+	strRequiredFields := []string{"name", "flavor", "profile_type", "volume_type", "availability_zone"}
+	intRequiredFields := []string{"volume_size", "desired_size", "min_size", "max_size"}
 	strFieldMap := make(map[string]string)
 	intFieldMap := make(map[string]int)
 	isEnableAutoScaling := false
@@ -353,9 +351,18 @@ func parseWorkerPool(workerPoolStr string) gobizfly.WorkerPool {
 			strFieldMap[key] = value
 		}
 	}
+	for _, field := range strRequiredFields {
+		if strFieldMap[field] == "" {
+			log.Fatal("Missing required worker pool field: ", field)
+		}
+	}
+	for _, field := range intRequiredFields {
+		if intFieldMap[field] == 0 {
+			log.Fatal("Missing required worker pool field: ", field)
+		}
+	}
 	workerPool := gobizfly.WorkerPool{
 		Name:              strFieldMap["name"],
-		Version:           strFieldMap["version"],
 		Flavor:            strFieldMap["flavor"],
 		ProfileType:       strFieldMap["profile_type"],
 		VolumeType:        strFieldMap["volume_type"],
@@ -388,9 +395,7 @@ func init() {
 	kccq.StringVar(&inputConfigFile, "config-file", "", "Input config file")
 	kccq.StringVar(&clusterName, "name", "", "Name of cluster")
 	kccq.StringVar(&clusterVersion, "version", "", "Version of cluster")
-	kccq.BoolVar(&autoUpgrade, "auto-upgrade", false, "Auto Upgrade")
 	kccq.StringVar(&vpcNetworkID, "vpc-network-id", "", "VPC Network ID")
-	kccq.BoolVar(&enableCloud, "enable-cloud", false, "Enable Cloud")
 	kccq.StringArrayVar(&tags, "tag", []string{}, "Tags of cluster")
 	kccq.StringArrayVar(&workerPools, "worker-pool", []string{}, "Worker pools")
 	kubernetesCmd.AddCommand(clusterCreate)
