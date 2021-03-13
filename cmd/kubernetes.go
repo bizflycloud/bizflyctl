@@ -1,5 +1,5 @@
 /*
-Copyright © 2020 BizFly Cloud
+Copyright © 2021 BizFly Cloud
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -17,11 +17,8 @@ limitations under the License.
 package cmd
 
 import (
-	"encoding/json"
 	"fmt"
-	"github.com/bizflycloud/bizflyctl/formatter"
-	"github.com/bizflycloud/gobizfly"
-	"github.com/spf13/cobra"
+	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"log"
 	"os"
@@ -29,6 +26,11 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+
+	"github.com/spf13/cobra"
+
+	"github.com/bizflycloud/bizflyctl/formatter"
+	"github.com/bizflycloud/gobizfly"
 )
 
 var (
@@ -57,6 +59,23 @@ var kubernetesCmd = &cobra.Command{
 		fmt.Println("kubernetes engine called")
 	},
 }
+
+var kubernetesWorkerPoolCmd = &cobra.Command{
+	Use:   "worker-pool",
+	Short: "Bizfly Kubernetes Engine Worker Pool Interaction",
+	Run: func(cmd *cobra.Command, args []string) {
+		fmt.Println("worker pool called")
+	},
+}
+
+var kubernetesNodeCmd = &cobra.Command{
+	Use:   "node",
+	Short: "Bizfly Kubernetes Engine Node Interaction",
+	Run: func(cmd *cobra.Command, args []string) {
+		fmt.Println("node called")
+	},
+}
+
 var clusterList = &cobra.Command{
 	Use:   "list",
 	Short: "List your Kubernetes cluster",
@@ -79,8 +98,8 @@ var clusterCreate = &cobra.Command{
 	Use:   "create",
 	Short: "Create Kubernetes cluster with worker pool",
 	Long: `Create Kubernetes cluster with worker pool using file or flags (Sample config file in example)
-- Using flag example: ./bizflycloud kubernetes create --name test_cli --version 5f7d3a91d857155ad4993a32 --vpc-network-id 145bed1f-a7f7-4f88-ab3d-ce2fc95a4e71 -tag abc -tag xyz --worker-pool name=testworkerpool,flavor=nix.3c_6g,profile_type=premium,volume_type=PREMIUM-HDD1,volume_size=40,availability_zone=HN1,desired_size=1,min_size=1,max_size=10
-- Using config file example: ./bizflycloud kubernetes create --config-file create_cluster.json`,
+- Using flag example: ./bizfly kubernetes create --name test_cli --version 5f7d3a91d857155ad4993a32 --vpc-network-id 145bed1f-a7f7-4f88-ab3d-ce2fc95a4e71 -tag abc -tag xyz --worker-pool name=testworkerpool,flavor=nix.3c_6g,profile_type=premium,volume_type=PREMIUM-HDD1,volume_size=40,availability_zone=HN1,desired_size=1,min_size=1,max_size=10
+- Using config file example: ./bizfly kubernetes create --config-file create_cluster.yml`,
 	Run: func(cmd *cobra.Command, args []string) {
 		client, ctx := getApiClient(cmd)
 		var data [][]string
@@ -90,7 +109,7 @@ var clusterCreate = &cobra.Command{
 				log.Fatal(err)
 			}
 			var ccr *gobizfly.ClusterCreateRequest
-			if err := json.Unmarshal(fileBytes, &ccr); err != nil {
+			if err := yaml.Unmarshal(fileBytes, &ccr); err != nil {
 				log.Fatal(err)
 			}
 			cluster, err := client.KubernetesEngine.Create(ctx, ccr)
@@ -152,16 +171,16 @@ var clusterDelete = &cobra.Command{
 		if err != nil {
 			log.Fatal(err)
 		}
-		fmt.Printf("Delete the Kubernetes cluster successfully")
+		fmt.Printf("Cluster is in the process of being deleted")
 	},
 }
 
 var addWorkerPool = &cobra.Command{
-	Use:   "add-workerpools",
+	Use:   "add",
 	Short: "Add worker pool into cluster",
 	Long: `Add Kubernetes worker pool using file or flags (Sample config file in example)
-- Using flag example: ./bizflycloud kubernetes add-workerpool xfbxsws38dcs8o94 --worker-pool name=testworkerpool,flavor=nix.3c_6g,profile_type=premium,volume_type=PREMIUM-HDD1,volume_size=40,availability_zone=HN1,desired_size=1,min_size=1,max_size=10
-- Using config file example: ./bizflycloud kubernetes add-workerpool 55viixy9ma6yaiwu --config-file add_pools.json`,
+- Using flag example: ./bizfly kubernetes add-workerpool xfbxsws38dcs8o94 --worker-pool name=testworkerpool,flavor=nix.3c_6g,profile_type=premium,volume_type=PREMIUM-HDD1,volume_size=40,availability_zone=HN1,desired_size=1,min_size=1,max_size=10
+- Using config file example: ./bizfly kubernetes add-workerpool 55viixy9ma6yaiwu --config-file add_pools.yml`,
 	Run: func(cmd *cobra.Command, args []string) {
 		client, ctx := getApiClient(cmd)
 		var data [][]string
@@ -171,7 +190,7 @@ var addWorkerPool = &cobra.Command{
 				log.Fatal(err)
 			}
 			var awpr *gobizfly.AddWorkerPoolsRequest
-			if err := json.Unmarshal(fileBytes, &awpr); err != nil {
+			if err := yaml.Unmarshal(fileBytes, &awpr); err != nil {
 				log.Fatal(err)
 			}
 			workerPools, err := client.KubernetesEngine.AddWorkerPools(ctx, args[0], awpr)
@@ -208,7 +227,7 @@ var addWorkerPool = &cobra.Command{
 }
 
 var recycleNode = &cobra.Command{
-	Use:   "recycle-node",
+	Use:   "recycle",
 	Short: "Recycle Node",
 	Run: func(cmd *cobra.Command, args []string) {
 		client, ctx := getApiClient(cmd)
@@ -221,7 +240,7 @@ var recycleNode = &cobra.Command{
 }
 
 var deleteWorkerPool = &cobra.Command{
-	Use:   "delete-workerpool",
+	Use:   "delete",
 	Short: "Delete worker pool",
 	Run: func(cmd *cobra.Command, args []string) {
 		client, ctx := getApiClient(cmd)
@@ -229,12 +248,12 @@ var deleteWorkerPool = &cobra.Command{
 		if err != nil {
 			log.Fatal(err)
 		}
-		fmt.Println("Delete worker pool successfully")
+		fmt.Println("Node is recycling now")
 	},
 }
 
 var getWorkerPool = &cobra.Command{
-	Use:   "get-workerpool",
+	Use:   "get",
 	Short: "Get worker pool",
 	Run: func(cmd *cobra.Command, args []string) {
 		client, ctx := getApiClient(cmd)
@@ -251,7 +270,7 @@ var getWorkerPool = &cobra.Command{
 }
 
 var updateWorkerPool = &cobra.Command{
-	Use:   "update-workerpool",
+	Use:   "update",
 	Short: "Update worker pool",
 	Run: func(cmd *cobra.Command, args []string) {
 		client, ctx := getApiClient(cmd)
@@ -265,12 +284,12 @@ var updateWorkerPool = &cobra.Command{
 		if err != nil {
 			log.Fatal(err)
 		}
-		fmt.Println("Update worker pool successfully")
+		fmt.Println("Worker pool is updating now")
 	},
 }
 
 var deleteWorkerPoolNode = &cobra.Command{
-	Use:   "delete-node",
+	Use:   "delete",
 	Short: "Delete node",
 	Run: func(cmd *cobra.Command, args []string) {
 		client, ctx := getApiClient(cmd)
@@ -278,7 +297,7 @@ var deleteWorkerPoolNode = &cobra.Command{
 		if err != nil {
 			log.Fatal(err)
 		}
-		fmt.Println("Delete worker pool node successfully")
+		fmt.Println("Worker pool is in the process of being deleted")
 	},
 }
 
@@ -353,13 +372,17 @@ func parseWorkerPool(workerPoolStr string) gobizfly.WorkerPool {
 
 func init() {
 	rootCmd.AddCommand(kubernetesCmd)
+	kubernetesCmd.AddCommand(kubernetesWorkerPoolCmd)
+	kubernetesWorkerPoolCmd.AddCommand(kubernetesNodeCmd)
+
 	kubernetesCmd.AddCommand(clusterList)
 	kubernetesCmd.AddCommand(clusterDelete)
 	kubernetesCmd.AddCommand(clusterGet)
-	kubernetesCmd.AddCommand(recycleNode)
-	kubernetesCmd.AddCommand(deleteWorkerPool)
-	kubernetesCmd.AddCommand(getWorkerPool)
-	kubernetesCmd.AddCommand(deleteWorkerPoolNode)
+	kubernetesWorkerPoolCmd.AddCommand(deleteWorkerPool)
+	kubernetesWorkerPoolCmd.AddCommand(getWorkerPool)
+
+	kubernetesWorkerPoolCmd.AddCommand(deleteWorkerPoolNode)
+	kubernetesWorkerPoolCmd.AddCommand(recycleNode)
 
 	kccq := clusterCreate.PersistentFlags()
 	kccq.StringVar(&inputConfigFile, "config-file", "", "Input config file")
@@ -375,15 +398,15 @@ func init() {
 	awp := addWorkerPool.PersistentFlags()
 	awp.StringVar(&inputConfigFile, "config-file", "", "Input config file")
 	awp.StringArrayVar(&workerPools, "worker-pool", []string{}, "Worker pools")
-	kubernetesCmd.AddCommand(addWorkerPool)
+	kubernetesWorkerPoolCmd.AddCommand(addWorkerPool)
 
 	uwp := updateWorkerPool.PersistentFlags()
 	uwp.IntVar(&desiredSize, "desired-size", 0, "Desired size")
 	uwp.BoolVar(&enableAutoScaling, "autoscaling", false, "Enable Auto scaling")
 	uwp.IntVar(&minSize, "min-size", 0, "Min size")
 	uwp.IntVar(&maxSize, "max-size", 0, "Max size")
-	kubernetesCmd.AddCommand(updateWorkerPool)
+	kubernetesWorkerPoolCmd.AddCommand(updateWorkerPool)
 
-	getKubeConfig.PersistentFlags().StringVar(&outputKubeConfigFilePath, "output-path", ".", "Output path")
+	getKubeConfig.PersistentFlags().StringVar(&outputKubeConfigFilePath, "output", ".", "Output path")
 	kubernetesCmd.AddCommand(getKubeConfig)
 }
