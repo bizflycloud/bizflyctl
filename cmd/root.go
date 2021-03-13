@@ -29,10 +29,11 @@ import (
 )
 
 var (
-	cfgFile  string
-	email    string
-	password string
-	region   string
+	cfgFile     string
+	email       string
+	password    string
+	region      string
+	projectName string
 )
 
 // rootCmd represents the base command when called without any subcommands
@@ -70,6 +71,7 @@ func init() {
 	_ = rootCmd.MarkFlagRequired("password")
 
 	rootCmd.PersistentFlags().StringVar(&region, "region", "HN", "Region you want to access the resource.")
+	rootCmd.PersistentFlags().StringVar(&projectName, "project-name", "", "Your Bizfly Cloud Project Name")
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
@@ -122,6 +124,10 @@ func getApiClient(cmd *cobra.Command) (*gobizfly.Client, context.Context) {
 		region = viper.GetString("region")
 	}
 
+	if viper.GetString("project_name") != "" {
+		projectName = viper.GetString("project_name")
+	}
+
 	client, err := gobizfly.NewClient(gobizfly.WithTenantName(email), gobizfly.WithRegionName(region)) // nolint
 
 	if err != nil {
@@ -130,7 +136,7 @@ func getApiClient(cmd *cobra.Command) (*gobizfly.Client, context.Context) {
 	ctx, cancelFunc := context.WithTimeout(context.Background(), time.Second*10)
 	defer cancelFunc()
 	//TODO Get token from cache
-	tok, err := client.Token.Create(ctx, &gobizfly.TokenCreateRequest{AuthMethod: "password", Username: email, Password: password})
+	tok, err := client.Token.Create(ctx, &gobizfly.TokenCreateRequest{AuthMethod: "password", Username: email, Password: password, ProjectName: projectName})
 	if err != nil {
 		log.Fatal(err)
 	}
