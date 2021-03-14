@@ -59,10 +59,18 @@ var kubernetesCmd = &cobra.Command{
 }
 
 var kubernetesWorkerPoolCmd = &cobra.Command{
-	Use:   "worker-pool",
+	Use:   "workerpool",
 	Short: "Bizfly Kubernetes Engine Worker Pool Interaction",
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("worker pool called")
+	},
+}
+
+var kubernetesKubeConfigCmd = &cobra.Command{
+	Use:   "kubeconfig",
+	Short: "Bizfly Kubernetes Engine Kubeconfig Interaction",
+	Run: func(cmd *cobra.Command, args []string) {
+		fmt.Println("kubeconfig called")
 	},
 }
 
@@ -175,7 +183,7 @@ var addWorkerPool = &cobra.Command{
 	Use:   "add",
 	Short: "Add worker pool into cluster",
 	Long: `Add Kubernetes worker pool using file or flags (Sample config file in example)
-- Using flag example: ./bizfly kubernetes add-workerpool xfbxsws38dcs8o94 --worker-pool name=testworkerpool,flavor=nix.3c_6g,profile_type=premium,volume_type=PREMIUM-HDD1,volume_size=40,availability_zone=HN1,desired_size=1,min_size=1,max_size=10
+- Using flag example: ./bizfly kubernetes workerpool add xfbxsws38dcs8o94 --worker-pool name=testworkerpool,flavor=nix.3c_6g,profile_type=premium,volume_type=PREMIUM-HDD1,volume_size=40,availability_zone=HN1,desired_size=1,min_size=1,max_size=10
 - Using config file example: ./bizfly kubernetes add-workerpool 55viixy9ma6yaiwu --config-file add_pools.yml`,
 	Run: func(cmd *cobra.Command, args []string) {
 		client, ctx := getApiClient(cmd)
@@ -298,7 +306,7 @@ var deleteWorkerPoolNode = &cobra.Command{
 }
 
 var getKubeConfig = &cobra.Command{
-	Use:   "get-kubeconfig",
+	Use:   "get",
 	Short: "Get kubeconfig",
 	Run: func(cmd *cobra.Command, args []string) {
 		client, ctx := getApiClient(cmd)
@@ -381,6 +389,7 @@ func init() {
 	rootCmd.AddCommand(kubernetesCmd)
 	kubernetesCmd.AddCommand(kubernetesWorkerPoolCmd)
 	kubernetesWorkerPoolCmd.AddCommand(kubernetesNodeCmd)
+	kubernetesCmd.AddCommand(kubernetesKubeConfigCmd)
 
 	kubernetesCmd.AddCommand(clusterList)
 	kubernetesCmd.AddCommand(clusterDelete)
@@ -413,5 +422,5 @@ func init() {
 	kubernetesWorkerPoolCmd.AddCommand(updateWorkerPool)
 
 	getKubeConfig.PersistentFlags().StringVar(&outputKubeConfigFilePath, "output", ".", "Output path")
-	kubernetesCmd.AddCommand(getKubeConfig)
+	kubernetesKubeConfigCmd.AddCommand(getKubeConfig)
 }
