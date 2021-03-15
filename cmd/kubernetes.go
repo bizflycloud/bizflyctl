@@ -151,6 +151,9 @@ var clusterGet = &cobra.Command{
 	Use:   "get",
 	Short: "Get Kubernetes cluster with worker pool",
 	Run: func(cmd *cobra.Command, args []string) {
+		if len(args) != 1 {
+			log.Fatal("Invalid arguments")
+		}
 		client, ctx := getApiClient(cmd)
 		cluster, err := client.KubernetesEngine.Get(ctx, args[0])
 		if err != nil {
@@ -186,6 +189,9 @@ var addWorkerPool = &cobra.Command{
 - Using flag example: ./bizfly kubernetes workerpool add xfbxsws38dcs8o94 --worker-pool name=testworkerpool,flavor=nix.3c_6g,profile_type=premium,volume_type=PREMIUM-HDD1,volume_size=40,availability_zone=HN1,desired_size=1,min_size=1,max_size=10
 - Using config file example: ./bizfly kubernetes add-workerpool 55viixy9ma6yaiwu --config-file add_pools.yml`,
 	Run: func(cmd *cobra.Command, args []string) {
+		if len(args) != 1 {
+			log.Fatal("Invalid arguments")
+		}
 		client, ctx := getApiClient(cmd)
 		var data [][]string
 		if inputConfigFile != "" {
@@ -234,6 +240,9 @@ var recycleNode = &cobra.Command{
 	Use:   "recycle",
 	Short: "Recycle Node",
 	Run: func(cmd *cobra.Command, args []string) {
+		if len(args) != 3 {
+			log.Fatal("Invalid arguments")
+		}
 		client, ctx := getApiClient(cmd)
 		err := client.KubernetesEngine.RecycleNode(ctx, args[0], args[1], args[2])
 		if err != nil {
@@ -247,6 +256,9 @@ var deleteWorkerPool = &cobra.Command{
 	Use:   "delete",
 	Short: "Delete worker pool",
 	Run: func(cmd *cobra.Command, args []string) {
+		if len(args) != 2 {
+			log.Fatal("Invalid arguments")
+		}
 		client, ctx := getApiClient(cmd)
 		err := client.KubernetesEngine.DeleteClusterWorkerPool(ctx, args[0], args[1])
 		if err != nil {
@@ -260,6 +272,9 @@ var getWorkerPool = &cobra.Command{
 	Use:   "get",
 	Short: "Get worker pool",
 	Run: func(cmd *cobra.Command, args []string) {
+		if len(args) != 2 {
+			log.Fatal("Invalid arguments")
+		}
 		client, ctx := getApiClient(cmd)
 		workerPool, err := client.KubernetesEngine.GetClusterWorkerPool(ctx, args[0], args[1])
 		if err != nil {
@@ -277,6 +292,9 @@ var updateWorkerPool = &cobra.Command{
 	Use:   "update",
 	Short: "Update worker pool",
 	Run: func(cmd *cobra.Command, args []string) {
+		if len(args) != 2 {
+			log.Fatal("Invalid arguments")
+		}
 		client, ctx := getApiClient(cmd)
 		uwr := &gobizfly.UpdateWorkerPoolRequest{
 			DesiredSize:       desiredSize,
@@ -296,6 +314,9 @@ var deleteWorkerPoolNode = &cobra.Command{
 	Use:   "delete",
 	Short: "Delete node",
 	Run: func(cmd *cobra.Command, args []string) {
+		if len(args) != 3 {
+			log.Fatal("Invalid arguments")
+		}
 		client, ctx := getApiClient(cmd)
 		err := client.KubernetesEngine.DeleteClusterWorkerPoolNode(ctx, args[0], args[1], args[2])
 		if err != nil {
@@ -309,6 +330,9 @@ var getKubeConfig = &cobra.Command{
 	Use:   "get",
 	Short: "Get kubeconfig",
 	Run: func(cmd *cobra.Command, args []string) {
+		if len(args) != 1 {
+			log.Fatal("Invalid arguments")
+		}
 		client, ctx := getApiClient(cmd)
 		resp, err := client.KubernetesEngine.GetKubeConfig(ctx, args[0])
 		if err != nil {
