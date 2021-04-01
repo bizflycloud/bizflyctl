@@ -34,8 +34,8 @@ import (
 )
 
 var (
-	kubernetesClusterHeader    = []string{"ID", "Name", "VPCNetworkID", "WorkerPoolsCount", "ClusterStatus", "Tags"}
-	kubernetesWorkerPoolHeader = []string{"ID", "Name", "Version", "Flavor", "VolumeSize", "VolumeType", "EnabledAutoScaling", "MinSize", "MaxSize"}
+	kubernetesClusterHeader    = []string{"ID", "Name", "VPCNetworkID", "WorkerPoolsCount", "ClusterStatus", "Tags", "CreatedAt"}
+	kubernetesWorkerPoolHeader = []string{"ID", "Name", "Version", "Flavor", "VolumeSize", "VolumeType", "EnabledAutoScaling", "MinSize", "MaxSize", "CreatedAt"}
 	clusterName                string
 	clusterVersion             string
 	vpcNetworkID               string
@@ -95,7 +95,7 @@ var clusterList = &cobra.Command{
 		var data [][]string
 		for _, cluster := range clusters {
 			data = append(data, []string{cluster.UID, cluster.Name, cluster.VPCNetworkID, strconv.Itoa(cluster.WorkerPoolsCount),
-				cluster.ClusterStatus, strings.Join(cluster.Tags, ", ")})
+				cluster.ClusterStatus, strings.Join(cluster.Tags, ", "), cluster.CreatedAt})
 		}
 		formatter.Output(kubernetesClusterHeader, data)
 	}}
@@ -123,7 +123,7 @@ var clusterCreate = &cobra.Command{
 				log.Fatal(err)
 			}
 			data = append(data, []string{cluster.UID, cluster.Name, cluster.VPCNetworkID, strconv.Itoa(cluster.WorkerPoolsCount),
-				cluster.ClusterStatus, strings.Join(cluster.Tags, ", ")})
+				cluster.ClusterStatus, strings.Join(cluster.Tags, ", "), cluster.CreatedAt})
 			formatter.Output(kubernetesClusterHeader, data)
 		} else {
 			workerPoolObjs := make([]gobizfly.WorkerPool, 0)
@@ -141,7 +141,7 @@ var clusterCreate = &cobra.Command{
 				log.Fatal(err)
 			}
 			data = append(data, []string{cluster.UID, cluster.Name, cluster.VPCNetworkID, strconv.Itoa(cluster.WorkerPoolsCount),
-				cluster.ClusterStatus, strings.Join(cluster.Tags, ", ")})
+				cluster.ClusterStatus, strings.Join(cluster.Tags, ", "), cluster.CreatedAt})
 			formatter.Output(kubernetesClusterHeader, data)
 		}
 	},
@@ -161,7 +161,7 @@ var clusterGet = &cobra.Command{
 		}
 		var data [][]string
 		data = append(data, []string{cluster.UID, cluster.Name, cluster.VPCNetworkID, strconv.Itoa(cluster.WorkerPoolsCount),
-			cluster.ClusterStatus, strings.Join(cluster.Tags, ", ")})
+			cluster.ClusterStatus, strings.Join(cluster.Tags, ", "), cluster.CreatedAt})
 		formatter.Output(kubernetesClusterHeader, data)
 	},
 }
@@ -210,7 +210,7 @@ var addWorkerPool = &cobra.Command{
 			for _, workerPool := range workerPools {
 				data = append(data, []string{workerPool.UID, workerPool.Name, workerPool.Version, workerPool.Flavor,
 					strconv.Itoa(workerPool.VolumeSize), workerPool.VolumeType, strconv.FormatBool(workerPool.EnableAutoScaling),
-					strconv.Itoa(workerPool.MinSize), strconv.Itoa(workerPool.MaxSize)})
+					strconv.Itoa(workerPool.MinSize), strconv.Itoa(workerPool.MaxSize), workerPool.CreatedAt})
 			}
 			formatter.Output(kubernetesWorkerPoolHeader, data)
 
@@ -228,7 +228,7 @@ var addWorkerPool = &cobra.Command{
 			for _, workerPool := range workerPools {
 				data = append(data, []string{workerPool.UID, workerPool.Name, workerPool.Version, workerPool.Flavor,
 					strconv.Itoa(workerPool.VolumeSize), workerPool.VolumeType, strconv.FormatBool(workerPool.EnableAutoScaling),
-					strconv.Itoa(workerPool.MinSize), strconv.Itoa(workerPool.MaxSize)})
+					strconv.Itoa(workerPool.MinSize), strconv.Itoa(workerPool.MaxSize), workerPool.CreatedAt})
 
 				formatter.Output(kubernetesWorkerPoolHeader, data)
 			}
@@ -283,7 +283,7 @@ var getWorkerPool = &cobra.Command{
 		var data [][]string
 		data = append(data, []string{workerPool.UID, workerPool.Name, workerPool.Version, workerPool.Flavor,
 			strconv.Itoa(workerPool.VolumeSize), workerPool.VolumeType, strconv.FormatBool(workerPool.EnableAutoScaling),
-			strconv.Itoa(workerPool.MinSize), strconv.Itoa(workerPool.MaxSize)})
+			strconv.Itoa(workerPool.MinSize), strconv.Itoa(workerPool.MaxSize), workerPool.CreatedAt})
 		formatter.Output(kubernetesWorkerPoolHeader, data)
 	},
 }
