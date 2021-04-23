@@ -19,6 +19,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"os"
 	"strconv"
 	"strings"
 
@@ -31,6 +32,23 @@ var (
 	lbListHeader       = []string{"ID", "Name", "Network Type", "IP Address", "Operating Status", "Type"}
 	poolListHeader     = []string{"ID", "Name", "Algorithm", "Protocol", "Operating Status"}
 	listenerListHeader = []string{"ID", "Name", "Protocol", "Protocol Port", "Operating Status", "Default Pool ID"}
+
+	// loadbalancer create variable
+	lbName        string
+	lbType        string
+	lbNetworkType string
+	lbDescription string
+
+	// listener create variable
+	lbListenerName         string
+	lbListenerProtocol     string
+	lbListenerProtocolPort int
+
+	// pool create variable
+	lbPoolName       string
+	lbPoolListenerId string
+	lbPoolAlgorithm  string
+	lbPoolProtocol   string
 )
 
 // serverCmd represents the server command
@@ -276,6 +294,78 @@ Example: bizfly loadbalancer listener get fd554aac-9ab1-11ea-b09d-bbaf82f02f58
 	},
 }
 
+var lbCreateCmd = &cobra.Command{
+	Use:   "create",
+	Short: "create a new load balancer",
+	Long:  "create a new load balancer, return load balancer id",
+	Run: func(cmd *cobra.Command, args []string) {
+		client, ctx := getApiClient(cmd)
+		lbcr := gobizfly.LoadBalancerCreateRequest{
+			Name:        lbName,
+			Type:        lbType,
+			NetworkType: lbNetworkType,
+			Description: lbDescription,
+		}
+		lb, err := client.LoadBalancer.Create(ctx, &lbcr)
+		if err != nil {
+			fmt.Printf("Error when create load balancer %v\n", err)
+			return
+		}
+		fmt.Printf("Creating loadbalancer %s  with id %s\n", lbName, lb.ID)
+	},
+}
+
+var lbListenerCreateCmd = &cobra.Command{
+	Use:   "create",
+	Short: "create a new listener for loadbalancer.",
+	Long:  "create a new listener for loadbalancer. Example: bizfly loadbalancer listener create --protocol HTTP --protocol-port 80 <loadbalancer_id>",
+	Run: func(cmd *cobra.Command, args []string) {
+		if len(args) < 1 {
+			fmt.Println("You need to specify loadbalancer-id in the command. Use: bizfly loadbalancer listener create --protocol <HTTP|TCP> --protocol-port <port> <loadbalancer_id>")
+			os.Exit(1)
+		}
+		lbID := args[0]
+		client, ctx := getApiClient(cmd)
+		lblcr := gobizfly.ListenerCreateRequest{
+			Name:         &lbListenerName,
+			Protocol:     lbListenerProtocol,
+			ProtocolPort: lbListenerProtocolPort,
+		}
+		l, err := client.Listener.Create(ctx, lbID, &lblcr)
+		if err != nil {
+			fmt.Printf("Error when create listener for loadbalancer %s: %v\n", lbID, err)
+			return
+		}
+		fmt.Printf("Creating listener %s for loadbalancer %s\n", l.ID, lbID)
+	},
+}
+
+var lbPoolCreateCmd = &cobra.Command{
+	Use:   "create",
+	Short: "create a new pool for loadbalancer",
+	Long:  "create a new pool for loadbalancer. Example: bizfly loadbalancer pool create ",
+	Run: func(cmd *cobra.Command, args []string) {
+		if len(args) < 1 {
+			fmt.Println("You need to specify loadbalancer-id in the command. Use: bizfly loadbalancer listener create --protocol <HTTP|TCP> --protocol-port <port> <loadbalancer_id>")
+			os.Exit(1)
+		}
+		lbID := args[0]
+		client, ctx := getApiClient(cmd)
+		lbpc := gobizfly.PoolCreateRequest{
+			Name:        &lbPoolName,
+			ListenerID:  &lbPoolListenerId,
+			LBAlgorithm: lbPoolAlgorithm,
+			Protocol:    lbPoolProtocol,
+		}
+		p, err := client.Pool.Create(ctx, lbID, &lbpc)
+		if err != nil {
+			fmt.Printf("Error when create pool for loadbalancer %s: %v\n", lbID, err)
+			return
+		}
+		fmt.Printf("Creating listener %s for loadbalancer %s\n", p.ID, lbID)
+	},
+}
+
 func init() {
 	rootCmd.AddCommand(lbCmd)
 	lbCmd.AddCommand(lbListCmd)
@@ -292,4 +382,28 @@ func init() {
 	lbListenerCmd.AddCommand(lbListenerGetCmd)
 	lbListenerCmd.AddCommand(lbListenerDeleteCmd)
 	lbListenerCmd.AddCommand(lbListenerListCmd)
+
+	lbCmd.AddCommand(lbCreateCmd)
+	lbcpf := lbCreateCmd.PersistentFlags()
+	lbcpf.StringVar(&lbName, "name", "", "Name of loadbalancer")
+	_ = cobra.MarkFlagRequired(lbcpf, "name")
+	lbcpf.StringVar(&lbType, "type", "medium", "Type loadbalancer. Avalable: small, medium, large.")
+	lbcpf.StringVar(&lbNetworkType, "network-type", "external", "Network type of load balancer. Available: external and internal")
+	lbcpf.StringVar(&lbDescription, "description", "description", "Description for loadbalancer")
+
+	lbListenerCmd.AddCommand(lbListenerCreateCmd)
+	lcpf := lbListenerCreateCmd.PersistentFlags()
+	lcpf.StringVar(&lbListenerName, "name", "", "Name of listener.")
+	_ = cobra.MarkFlagRequired(lcpf, "name")
+	lcpf.StringVar(&lbListenerProtocol, "protocol", "HTTP", "Protocol for listener. Available: HTTP and TCP.")
+	_ = cobra.MarkFlagRequired(lcpf, "protocol")
+	lcpf.IntVar(&lbListenerProtocolPort, "port", 1, "Port number for listener.")
+	_ = cobra.MarkFlagRequired(lcpf, "port")
+
+	lbPoolCmd.AddCommand(lbPoolCreateCmd)
+	pcpf := lbPoolCreateCmd.PersistentFlags()
+	pcpf.StringVar(&lbPoolName, "name", "", "Name of pool")
+	_ = cobra.MarkFlagRequired(pcpf, "name")
+	pcpf.StringVar(&lbPoolProtocol, "protocol", "HTTP", "The protocol of pool. Available HTTP & TCP")
+
 }
