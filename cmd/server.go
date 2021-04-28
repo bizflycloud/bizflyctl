@@ -151,7 +151,7 @@ var serverListCmd = &cobra.Command{
 				WanIP = append(WanIP, wanv6.Address)
 			}
 			WanIPAddrs := strings.Join(WanIP, ", ")
-			s := []string{server.ID, server.Name, server.KeyName, server.Status, server.Flavor.Name, LanIPAddrs, WanIPAddrs, server.CreatedAt}
+			s := []string{server.ID, server.Name, server.KeyName, server.Status, server.FlavorName, LanIPAddrs, WanIPAddrs, server.CreatedAt}
 			data = append(data, s)
 		}
 		formatter.Output(serverListHeader, data)
