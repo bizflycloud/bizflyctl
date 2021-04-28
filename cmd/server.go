@@ -28,7 +28,7 @@ import (
 )
 
 var (
-	serverListHeader = []string{"ID", "Name", "Availability Zone", "Key Name", "Status", "Flavor", "LAN IP", "WAN IP", "Created at"}
+	serverListHeader = []string{"ID", "Name", "Availability Zone", "Key Name", "Status", "Flavor", "Category", "LAN IP", "WAN IP", "Created at"}
 
 	serverName string
 	// serverOS gobizfly type
@@ -151,7 +151,7 @@ var serverListCmd = &cobra.Command{
 				WanIP = append(WanIP, wanv6.Address)
 			}
 			WanIPAddrs := strings.Join(WanIP, ", ")
-			s := []string{server.ID, server.Name, server.AvailabilityZone, server.KeyName, server.Status, server.FlavorName, LanIPAddrs, WanIPAddrs, server.CreatedAt}
+			s := []string{server.ID, server.Name, server.AvailabilityZone, server.KeyName, server.Status, server.FlavorName, server.Category, LanIPAddrs, WanIPAddrs, server.CreatedAt}
 			data = append(data, s)
 		}
 		formatter.Output(serverListHeader, data)
