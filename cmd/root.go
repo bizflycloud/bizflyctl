@@ -22,7 +22,6 @@ import (
 	"os"
 	"strings"
 	"time"
-	"path/filepath"
 
 	"github.com/bizflycloud/gobizfly"
 	homedir "github.com/mitchellh/go-homedir"
@@ -82,12 +81,12 @@ func init() {
 
 // initConfig reads in config file and ENV variables if set.
 func initConfig() {
-	home, err := homedir.Dir()
 	if cfgFile != "" {
 		// Use config file from the flag.
 		viper.SetConfigFile(cfgFile)
 	} else {
 		// Find home directory.
+		home, err := homedir.Dir()
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
@@ -102,9 +101,7 @@ func initConfig() {
 
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err == nil {
-		configAbsStrPath := home + viper.ConfigFileUsed()
-		configAbsPath, _ := filepath.Abs(configAbsStrPath)
-		fmt.Println("Using config file: " + configAbsPath)
+		fmt.Println("Using config file:", viper.ConfigFileUsed())
 	}
 }
 
