@@ -339,11 +339,17 @@ var getKubeConfig = &cobra.Command{
 			log.Fatal(err)
 		}
 
-		path, _ := os.Getwd()
-		if outputKubeConfigFilePath == "" {
-			outputKubeConfigFilePath = filepath.Join(path, fmt.Sprintf("%s.kubeconfig", args[0]))
-		} else {
-			outputKubeConfigFilePath = filepath.Join(path, outputKubeConfigFilePath)
+		currentDir, _ := os.Getwd()
+
+		defaultFileName := fmt.Sprintf("%s.kubeconfig", args[0])
+
+		stat, err := os.Stat(outputKubeConfigFilePath)
+		fmt.Println(outputKubeConfigFilePath)
+		if err == nil && stat.IsDir() {
+			outputKubeConfigFilePath = filepath.Join(outputKubeConfigFilePath, defaultFileName)
+		} else if !filepath.IsAbs(outputKubeConfigFilePath) {
+			// input path is relative file path
+			outputKubeConfigFilePath = filepath.Join(currentDir, outputKubeConfigFilePath)
 		}
 
 		file, _ := os.Create(outputKubeConfigFilePath)
@@ -452,6 +458,6 @@ func init() {
 	uwp.IntVar(&maxSize, "max-size", 0, "Max size")
 	kubernetesWorkerPoolCmd.AddCommand(updateWorkerPool)
 
-	getKubeConfig.PersistentFlags().StringVar(&outputKubeConfigFilePath, "output", "", "Output path")
+	getKubeConfig.PersistentFlags().StringVar(&outputKubeConfigFilePath, "output", ".", "Output path")
 	kubernetesKubeConfigCmd.AddCommand(getKubeConfig)
 }
