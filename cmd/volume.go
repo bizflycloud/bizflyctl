@@ -248,7 +248,7 @@ Use: bizfly volume restore <volume-id> --snapshot-id <snapshot-id>
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) < 1 {
-			fmt.Println("You need to specify the volume-id in the command. Use: bizfly volume extend <volume-id> --size <new size>")
+			fmt.Println("You need to specify the volume-id in the command. Use: bizfly volume restore <volume-id> --snapshot-id <snapshot-id>")
 			os.Exit(1)
 		}
 		volumeID := args[0]
