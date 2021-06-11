@@ -41,7 +41,7 @@ var (
 var volumeCmd = &cobra.Command{
 	Use:   "volume",
 	Short: "BizFly Cloud Volume Interaction",
-	Long:  `BizFly Cloud Server Action: Create, List, Delete, Extend Volume`,
+	Long:  `BizFly Cloud Volume Action: Create, List, Delete, Extend Volume`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("volume called")
 	},
@@ -239,12 +239,38 @@ Use: bizfly volume extend <volume-id> --size <new-size>
 	},
 }
 
+var restoreVolumeCmd = &cobra.Command{
+	Use:   "restore",
+	Short: "Restore volume by using its snapshot",
+	Long: `
+Restore volume by using its snapshot
+Use: bizfly volume restore <volume-id> --snapshot-id <snapshot-id>
+`,
+	Run: func(cmd *cobra.Command, args []string) {
+		if len(args) < 1 {
+			fmt.Println("You need to specify the volume-id in the command. Use: bizfly volume restore <volume-id> --snapshot-id <snapshot-id>")
+			os.Exit(1)
+		}
+		volumeID := args[0]
+		client, ctx := getApiClient(cmd)
+		_, err := client.Volume.Restore(ctx, volumeID, snapshotID)
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Printf("Restoring volume %s using snapshot %s", volumeID, snapshotID)
+	},
+}
+
 func init() {
 	rootCmd.AddCommand(volumeCmd)
 	volumeCmd.AddCommand(volumeListCmd)
 	volumeCmd.AddCommand(volumeGetCmd)
 	volumeCmd.AddCommand(volumeDeleteCmd)
 
+	vspf := restoreVolumeCmd.PersistentFlags()
+	vspf.StringVar(&snapshotID, "snapshot-id", "", "Restore volume by using snapshot")
+	_ = cobra.MarkFlagRequired(vspf, "snapshot-id")
+	volumeCmd.AddCommand(restoreVolumeCmd)
 	vcpf := volumeCreateCmd.PersistentFlags()
 	vcpf.StringVar(&volumeName, "name", "", "Volume name")
 	_ = cobra.MarkFlagRequired(vcpf, "name")
@@ -253,7 +279,7 @@ func init() {
 	vcpf.IntVar(&volumeSize, "size", 0, "Volume size")
 	_ = cobra.MarkFlagRequired(vcpf, "size")
 	vcpf.StringVar(&availabilityZone, "availability-zone", "HN1", "Avaialability Zone of volume.")
-	vcpf.StringVar(&snapshotID, "snapshot-id", "", "Creae a volume from a snapshot")
+	vcpf.StringVar(&snapshotID, "snapshot-id", "", "Create a volume from a snapshot")
 	vcpf.StringVar(&serverID, "server-id", "", "Create a new volume and attach to a server")
 	volumeCmd.AddCommand(volumeCreateCmd)
 
