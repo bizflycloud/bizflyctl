@@ -28,7 +28,8 @@ import (
 )
 
 var (
-	serverListHeader = []string{"ID", "Name", "Availability Zone", "Key Name", "Status", "Flavor", "Category", "LAN IP", "WAN IP", "Created at"}
+	serverListHeader = []string{"ID", "Name", "Zone", "Key Name", "Status", "Flavor", "Category",
+		"LAN IP", "WAN IP", "Attached Volumes", "Created at"}
 
 	serverName string
 	// serverOS gobizfly type
@@ -151,10 +152,10 @@ var serverListCmd = &cobra.Command{
 				WanIP = append(WanIP, wanv6.Address)
 			}
 			WanIPAddrs := strings.Join(WanIP, ", ")
-			s := []string{server.ID, server.Name, server.AvailabilityZone, server.KeyName, server.Status, server.FlavorName, server.Category, LanIPAddrs, WanIPAddrs, server.CreatedAt}
-			data = append(data, s)
+			data = append(data, []string{server.ID, server.Name, server.AvailabilityZone, server.KeyName, server.Status, server.FlavorName, server.Category, LanIPAddrs, WanIPAddrs, server.CreatedAt})
 		}
-		formatter.Output(serverListHeader, data)
+		listServerListHeader := append(serverListHeader[:len(serverListHeader)-2], serverListHeader[len(serverListHeader)-1])
+		formatter.Output(listServerListHeader, data)
 	},
 }
 
@@ -180,7 +181,25 @@ Example: bizfly server get fd554aac-9ab1-11ea-b09d-bbaf82f02f58
 			log.Fatal(err)
 		}
 		var data [][]string
-		data = append(data, []string{server.ID, server.Name, server.Status})
+		var LanIP []string
+		for _, lan := range server.IPAddresses.LanAddresses {
+			LanIP = append(LanIP, lan.Address)
+		}
+		LanIPAddrs := strings.Join(LanIP, ", ")
+		var WanIP []string
+		for _, wanv4 := range server.IPAddresses.WanV4Addresses {
+			WanIP = append(WanIP, wanv4.Address)
+		}
+		for _, wanv6 := range server.IPAddresses.WanV6Addresses {
+			WanIP = append(WanIP, wanv6.Address)
+		}
+		WanIPAddrs := strings.Join(WanIP, ", ")
+		VolumeIds := []string{}
+		for _, volume := range server.AttachedVolumes {
+			VolumeIds = append(VolumeIds, volume.ID)
+		}
+		VolumesStr := strings.Join(VolumeIds, ", ")
+		data = append(data, []string{server.ID, server.Name, server.AvailabilityZone, server.KeyName, server.Status, server.FlavorName, server.Category, LanIPAddrs, WanIPAddrs, VolumesStr, server.CreatedAt})
 		formatter.Output(serverListHeader, data)
 	},
 }
