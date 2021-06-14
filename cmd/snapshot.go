@@ -127,7 +127,11 @@ Example: bizfly snapshot list
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 		client, ctx := getApiClient(cmd)
-		snapshots, err := client.Snapshot.List(ctx, &gobizfly.ListOptions{})
+		opts := &gobizfly.ListSnasphotsOptions{}
+		if volumeID != "" {
+			opts.VolumeId = volumeID
+		}
+		snapshots, err := client.Snapshot.List(ctx, opts)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -147,6 +151,7 @@ func init() {
 	snapshotCmd.AddCommand(createSnapshotCmd)
 	snapshotCmd.AddCommand(deleteSnapshotCmd)
 	snapshotCmd.AddCommand(getSnapshotCmd)
+	listSnapshotCmd.PersistentFlags().StringVar(&volumeID, "volume-id", "", "Volume Id")
 	snapshotCmd.AddCommand(listSnapshotCmd)
 
 }
