@@ -81,26 +81,17 @@ Example: bizfly server delete fd554aac-9ab1-11ea-b09d-bbaf82f02f58 f5869e9c-9ab2
 		client, ctx := getApiClient(cmd)
 		for _, serverID := range args {
 			fmt.Printf("Deleting server %s \n", serverID)
-			var rootDisk string
-			if deleteRootDisk {
-				// get rootdisk of server
-				server, err := client.Server.Get(ctx, serverID)
-				if err != nil {
-					if errors.Is(err, gobizfly.ErrNotFound) {
-						fmt.Printf("Server %s is not found", serverID)
-						continue
-					} else {
-						fmt.Printf("Error when get server info: %v", err)
-						return
-					}
-				}
-				for _, vol := range server.AttachedVolumes {
-					if vol.AttachedType == "rootdisk" {
-						rootDisk = vol.ID
-					}
+			_, err := client.Server.Get(ctx, serverID)
+			if err != nil {
+				if errors.Is(err, gobizfly.ErrNotFound) {
+					fmt.Printf("Server %s is not found", serverID)
+					continue
+				} else {
+					fmt.Printf("Error when get server info: %v", err)
+					return
 				}
 			}
-			err := client.Server.Delete(ctx, serverID)
+			err = client.Server.Delete(ctx, serverID)
 			if err != nil {
 				if errors.Is(err, gobizfly.ErrNotFound) {
 					fmt.Printf("Server %s is not found", serverID)
@@ -108,18 +99,6 @@ Example: bizfly server delete fd554aac-9ab1-11ea-b09d-bbaf82f02f58 f5869e9c-9ab2
 				} else {
 					fmt.Printf("Error when delete server %v", err)
 					return
-				}
-			}
-			if deleteRootDisk {
-				err := client.Volume.Delete(ctx, rootDisk)
-				if err != nil {
-					if errors.Is(err, gobizfly.ErrNotFound) {
-						fmt.Printf("Volume #{rootDisk} is not found")
-						continue
-					} else {
-						fmt.Printf("Error when delete volume %v", err)
-						return
-					}
 				}
 			}
 		}
@@ -427,7 +406,6 @@ func init() {
 	rootCmd.AddCommand(serverCmd)
 	serverCmd.AddCommand(serverListCmd)
 	serverCmd.AddCommand(serverGetCmd)
-	serverDeleteCmd.PersistentFlags().BoolVar(&deleteRootDisk, "delete-rootdisk", true, "Delete rootdisk of a server")
 	serverCmd.AddCommand(serverDeleteCmd)
 
 	scpf := serverCreateCmd.PersistentFlags()
