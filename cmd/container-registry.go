@@ -26,6 +26,7 @@ import (
 
 var (
 	isPublic bool
+	isPrivate bool
 	repoName string
 	tagName string
 	vulnerabilities string
@@ -118,6 +119,10 @@ var editRepoCmd = &cobra.Command{
 	Use: "edit-repo",
 	Short: "Edit Container Registry repository",
 	Run: func(cmd *cobra.Command, args []string) {
+		if !isPublic && !isPrivate {  // Both two vars don't set
+			log.Fatal("You need to choose is-public or is-private")
+		}
+		isPublic = isPublic || !isPrivate
 		client, ctx := getApiClient(cmd)
 		payload := &gobizfly.EditRepositoryPayload{
 			Public: isPublic,
@@ -198,8 +203,8 @@ func init() {
 	erpf := editRepoCmd.PersistentFlags()
 	erpf.StringVar(&repoName, "repo-name", "", "Repository name")
 	erpf.BoolVar(&isPublic, "is-public", false, "Is public or not")
-	_ = cobra.MarkFlagRequired(rcpf, "repo-name")
-	_ = cobra.MarkFlagRequired(rcpf, "is-public")
+	erpf.BoolVar(&isPrivate, "is-private", false, "Is private or not")
+	_ = cobra.MarkFlagRequired(erpf, "repo-name")
 	containerRegistryCmd.AddCommand(editRepoCmd)
 
 	dtpf := deleteTagCmd.PersistentFlags()
