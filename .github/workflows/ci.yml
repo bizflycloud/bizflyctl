@@ -5,6 +5,9 @@ jobs:
     runs-on: ubuntu-latest
     name: Lint
     steps:
+      - name: Allow unsecurity commands
+        run: |
+          echo "ACTIONS_ALLOW_UNSECURE_COMMANDS=true" >> $GITHUB_ENV
       - name: Checkout code
         uses: actions/checkout@v1
 
