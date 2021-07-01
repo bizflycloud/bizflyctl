@@ -36,6 +36,7 @@ import (
 
 var (
 	kubernetesClusterHeader    = []string{"ID", "Name", "VPCNetworkID", "WorkerPoolsCount", "ClusterStatus", "Tags", "CreatedAt"}
+	detailKubernetesCluster = []string{"ID", "Name", "VPCNetworkID", "WorkerPools", "WorkerPoolsCount", "ClusterStatus", "Tags", "CreatedAt"}
 	kubernetesWorkerPoolHeader = []string{"ID", "Name", "Version", "Flavor", "VolumeSize", "VolumeType", "EnabledAutoScaling", "MinSize", "MaxSize", "CreatedAt"}
 	clusterName                string
 	clusterVersion             string
@@ -161,9 +162,13 @@ var clusterGet = &cobra.Command{
 			log.Fatal(err)
 		}
 		var data [][]string
-		data = append(data, []string{cluster.UID, cluster.Name, cluster.VPCNetworkID, strconv.Itoa(cluster.WorkerPoolsCount),
+		var workerPoolIds []string
+		for _, workerPool := range cluster.WorkerPools {
+			workerPoolIds = append(workerPoolIds, workerPool.UID)
+		}
+		data = append(data, []string{cluster.UID, cluster.Name, cluster.VPCNetworkID, strings.Join(workerPoolIds, "\n"), strconv.Itoa(cluster.WorkerPoolsCount),
 			cluster.ClusterStatus, strings.Join(cluster.Tags, ", "), cluster.CreatedAt})
-		formatter.Output(kubernetesClusterHeader, data)
+		formatter.Output(detailKubernetesCluster, data)
 	},
 }
 
