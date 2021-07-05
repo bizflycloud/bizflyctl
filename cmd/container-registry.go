@@ -22,6 +22,7 @@ import (
 	"github.com/spf13/cobra"
 	"log"
 	"strconv"
+	"strings"
 )
 
 var (
@@ -29,10 +30,13 @@ var (
 	isPrivate bool
 	repoName string
 	tagName string
+	expiresIn int
 	vulnerabilities string
+	scope []string
 	repositoryHeader = []string{"Name", "LastPush", "Pulls", "Public", "CreatedAt"}
 	vulnerabilityHeader = []string{"Package", "Name", "Namespace", "Link", "Severity", "FixedBy"}
 	tagHeader = []string{"Name", "Author", "LastUpdated", "CreatedAt", "LastScan", "ScanStatus", "Vulnerabilities", "Fixes"}
+	tokenHeader = []string{"Token", "ExpiresIn", "IssuedAt"}
 )
 
 var containerRegistryCmd = &cobra.Command{
@@ -179,6 +183,55 @@ var getImageCmd = &cobra.Command{
 	},
 }
 
+var genTokenCmd = &cobra.Command{
+	Use: "gen-token",
+	Short: "Generate token for Container Registry",
+	Long: `Generate token for Container Registry
+Define:
+- expires-in: Token expiration time in seconds, min: 1, max: 604800
+- scope: Scopes which token grant to
+   - actions: Action grant to the token [pull|push]
+   - repository: Repository name or namespace (which ends with /). Leave blank in order to grant token to all repositories
+Example: ./bizfly container-registry gen-token --expires-in 3404 --scope "actions:pull,push;repository:" --scope "actions:push;repository:test"
+`,
+	Run: func(cmd *cobra.Command, args []string) {
+		client, ctx := getApiClient(cmd)
+		payload := &gobizfly.GenerateTokenPayload{
+			ExpiresIn: expiresIn,
+			Scopes: parseScope(scope),
+		}
+		resp, err := client.ContainerRegistry.GenerateToken(ctx, payload)
+		if err != nil {
+			log.Fatal(err)
+		}
+		var data [][]string
+		data = append(data, []string{resp.Token, strconv.Itoa(resp.ExpiresIn), resp.IssuedAt})
+		formatter.Output(tokenHeader, data)
+	},
+}
+
+func parseScope(scopes []string) []gobizfly.Scope {
+	var scopeObjs []gobizfly.Scope
+	for _, scope := range scopes {
+		var scopeObj gobizfly.Scope
+		fragments := strings.Split(scope, ";")
+		for _, fragment := range fragments {
+			keyValue := strings.Split(fragment, ":")
+			key := keyValue[0]
+			value := keyValue[1]
+			switch key {
+			case "actions":
+				actions := strings.Split(value, ",")
+				scopeObj.Action = actions
+			case "repository":
+				scopeObj.Repository = value
+			}
+		}
+		scopeObjs = append(scopeObjs, scopeObj)
+	}
+	return scopeObjs
+}
+
 func init() {
 	rootCmd.AddCommand(containerRegistryCmd)
 
@@ -222,5 +275,10 @@ func init() {
 	_ = cobra.MarkFlagRequired(gipf, "tag-name")
 	containerRegistryCmd.AddCommand(getImageCmd)
 
-
+	gtopf := genTokenCmd.PersistentFlags()
+	gtopf.IntVar(&expiresIn, "expires-in", 0, "Expires in (seconds)")
+	gtopf.StringArrayVar(&scope, "scope", []string{}, "Token Scopes")
+	_ = cobra.MarkFlagRequired(gtopf, "expires-in")
+	_ = cobra.MarkFlagRequired(gtopf, "scope")
+	containerRegistryCmd.AddCommand(genTokenCmd)
 }
