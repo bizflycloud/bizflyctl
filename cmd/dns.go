@@ -99,7 +99,7 @@ var getZoneCommand = &cobra.Command{
 
 var createZoneCommand = &cobra.Command{
 	Use:   "create-zone",
-	Short: "Create Domain",
+	Short: "Create DNS Zone",
 	Run: func(cmd *cobra.Command, args []string) {
 		client, ctx := getApiClient(cmd)
 		payload := &gobizfly.CreateZonePayload{
@@ -163,6 +163,25 @@ var getRecordCommand = &cobra.Command{
 var createRecordCommand = &cobra.Command{
 	Use:   "create-record",
 	Short: "Create new record in a zone",
+	Long: `Create DNS record in a zone
+General arguments:
+  - record-name: Name of the record
+  - record-type: Type of the record
+  - ttl: Time to live
+Type arguments:
+  - Type: Normal (A, AAAA, TXT)
+    + data: IPv4/v6 addresses or domains depends on its type
+    Example: ./bizfly dns create-record --zone-id zone-123 --name test_a_1 --ttl 600 --type A --data "123.123.123.123;7.7.7.7
+  - Type: MX
+    + domain-data: specify the domains and its priority. Format: --domain-data domain:priority
+    Example: ./bizfly dns create-record --zone-id 123-zone --name test_mx_1 --ttl 600 --type MX --domain-data test.com:10 --domain-data test1.com:49
+  - Type: GEOIP
+    + ipv4-policy: Specify IPv4 routing policy in regions (HN, HCM, SG, USA). Format: --ipv4-policy "region_name:<addr1:str>,<addr2:str>" 
+    + ipv6-policy: Specify IPv6 routing policy in regions (HN, HCM, SG, USA). Format: --ipv6-policy "region_name:<addr1:str>,<addr2:str>"
+    + tcp-healthcheck: Specify TCP configuration for healthcheck. Format: --tcp-healthcheck "tcp_port:<port:int>"
+    + http-healthcheck: Specify HTTP configuration for healthcheck. Format: --http-healthcheck "http_port:<port:int>;url_path:<path:str>;ok_codes:<code1:int>,<code2:int>;vhost:<domain:str>;interval:<interval:int>"
+    Example: ./bizfly dns create-record --zone-id zone_123 --name test_policy3 --ttl 600 --type GEOIP --ipv4-policy "HN:1.1.1.1,2.3.4.5" --ipv4-policy "HCM:68.68.79.23" --tcp-healthcheck "tcp_port:100" --http-healthcheck "http_port:1000;url_path:/health;ok_codes:400,404;vhost:test.com;interval:5"
+`,
 	Run: func(cmd *cobra.Command, args []string) {
 		client, ctx := getApiClient(cmd)
 		if checkValidType(recordType, NormalTypes) { // Normal type case
