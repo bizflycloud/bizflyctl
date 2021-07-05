@@ -53,6 +53,8 @@ var (
 	vpcIDs []string
 )
 
+const attachTypeRootDisk = "rootdisk"
+
 //type responseMessage struct {
 //	message string `json:"message"`
 //}
@@ -81,7 +83,7 @@ Example: bizfly server delete fd554aac-9ab1-11ea-b09d-bbaf82f02f58 f5869e9c-9ab2
 		client, ctx := getApiClient(cmd)
 		for _, serverID := range args {
 			fmt.Printf("Deleting server %s \n", serverID)
-			_, err := client.Server.Get(ctx, serverID)
+			server, err := client.Server.Get(ctx, serverID)
 			if err != nil {
 				if errors.Is(err, gobizfly.ErrNotFound) {
 					fmt.Printf("Server %s is not found", serverID)
@@ -91,7 +93,15 @@ Example: bizfly server delete fd554aac-9ab1-11ea-b09d-bbaf82f02f58 f5869e9c-9ab2
 					return
 				}
 			}
-			err = client.Server.Delete(ctx, serverID)
+			var deleteVolumes []string
+			if deleteRootDisk {
+				for _, v := range server.AttachedVolumes {
+					if v.AttachedType == attachTypeRootDisk {
+						deleteVolumes = append(deleteVolumes, v.ID)
+					}
+				}
+			}
+			err = client.Server.Delete(ctx, serverID, deleteVolumes)
 			if err != nil {
 				if errors.Is(err, gobizfly.ErrNotFound) {
 					fmt.Printf("Server %s is not found", serverID)
@@ -406,6 +416,7 @@ func init() {
 	rootCmd.AddCommand(serverCmd)
 	serverCmd.AddCommand(serverListCmd)
 	serverCmd.AddCommand(serverGetCmd)
+	serverDeleteCmd.PersistentFlags().BoolVar(&deleteRootDisk, "delete-rootdisk", true, "Delete rootdisk of a server")
 	serverCmd.AddCommand(serverDeleteCmd)
 
 	scpf := serverCreateCmd.PersistentFlags()
