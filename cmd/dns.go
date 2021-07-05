@@ -460,6 +460,11 @@ func init() {
 	_ = cobra.MarkFlagRequired(czpf, "zone-name")
 	dnsComnmand.AddCommand(createZoneCommand)
 
+	dzpf := deleteZoneCommand.PersistentFlags()
+	dzpf.StringVar(&zoneID, "zone-id", "", "Zone ID")
+	_ = cobra.MarkFlagRequired(dzpf, "zone-id")
+	dnsComnmand.AddCommand(deleteZoneCommand)
+
 	crpf := createRecordCommand.PersistentFlags()
 	crpf.StringVar(&zoneID, "zone-id", "", "Zone ID")
 	crpf.StringVar(&recordName, "name", "", "Name of record")
