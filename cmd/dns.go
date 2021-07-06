@@ -13,7 +13,6 @@ import (
 
 var (
 	zoneID              string
-	zoneName            string
 	required            bool
 	zoneDescription     string
 	recordData          string
@@ -24,7 +23,6 @@ var (
 	ipv4RoutingPolicy   []string
 	ipv6RoutingPolicy   []string
 	TTL                 int
-	recordId            string
 	domainData          []string
 	NormalTypes         = []string{"A", "AAAA", "TXT"}
 	NormalDataHeader    = []string{"Data"}

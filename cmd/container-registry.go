@@ -28,15 +28,12 @@ import (
 var (
 	isPublic bool
 	isPrivate bool
-	repoName string
-	tagName string
 	expiresIn int
 	vulnerabilities string
 	scope []string
 	repositoryHeader = []string{"Name", "Last Push", "Pulls", "Public", "Created At"}
 	vulnerabilityHeader = []string{"Package", "Name", "Namespace", "Link", "Severity", "Fixed By"}
 	tagHeader = []string{"Name", "Author", "Last Updated", "Created At", "Last Scan", "Scan Status", "Vulnerabilities", "Fixes"}
-	tokenHeader = []string{"Token"}
 )
 
 var containerRegistryCmd = &cobra.Command{
