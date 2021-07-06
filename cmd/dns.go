@@ -41,8 +41,7 @@ type recordPayload struct {
 var dnsComnmand = &cobra.Command{
 	Use:   "dns",
 	Short: "BizFly Cloud DNS Interaction",
-	Long: "BizFly Cloud DNS Action: List zones, Create zone, Get zone, Delete zone, Create record, Get record, " +
-		"Update record,  Delete record",
+	Long:  "BizFly Cloud DNS Action: List zones, Create zone, Get zone, Delete zone, Create record, Get record, Delete record",
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("dns called")
 	},
@@ -72,9 +71,14 @@ var listZonesCommand = &cobra.Command{
 var getZoneCommand = &cobra.Command{
 	Use:   "get-zone",
 	Short: "Get a zone",
+	Long: `Get a zone
+Usage: ./bizfly dns get-zone <zone-id>`,
 	Run: func(cmd *cobra.Command, args []string) {
 		client, ctx := getApiClient(cmd)
-		resp, err := client.DNS.GetZone(ctx, zoneID)
+		if len(args) != 1 {
+			log.Fatal("Invalid argument")
+		}
+		resp, err := client.DNS.GetZone(ctx, args[0])
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -100,10 +104,15 @@ var getZoneCommand = &cobra.Command{
 var createZoneCommand = &cobra.Command{
 	Use:   "create-zone",
 	Short: "Create DNS Zone",
+	Long: `Create DNS Zone
+Usage: ./bizfly dns create-zone <zone-name> [flags]`,
 	Run: func(cmd *cobra.Command, args []string) {
 		client, ctx := getApiClient(cmd)
+		if len(args) != 1 {
+			log.Fatal("Invalid argument")
+		}
 		payload := &gobizfly.CreateZonePayload{
-			Name:        zoneName,
+			Name:        args[0],
 			Required:    required,
 			Description: description,
 		}
@@ -133,9 +142,14 @@ var createZoneCommand = &cobra.Command{
 var deleteZoneCommand = &cobra.Command{
 	Use:   "delete-zone",
 	Short: "Delete zone",
+	Long: `Delete zone
+Usage: ./bizfly dns delete zone <zone-id>`,
 	Run: func(cmd *cobra.Command, args []string) {
 		client, ctx := getApiClient(cmd)
-		err := client.DNS.DeleteZone(ctx, zoneID)
+		if len(args) != 1 {
+			log.Fatal("Invalid argument")
+		}
+		err := client.DNS.DeleteZone(ctx, args[0])
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -146,9 +160,14 @@ var deleteZoneCommand = &cobra.Command{
 var getRecordCommand = &cobra.Command{
 	Use:   "get-record",
 	Short: "Get record via ID",
+	Long: `Get DNS record in a zone
+Usage: ./bizfly dns get-record <record-id>`,
 	Run: func(cmd *cobra.Command, args []string) {
 		client, ctx := getApiClient(cmd)
-		recordSet, err := client.DNS.GetRecord(ctx, recordId)
+		if len(args) != 1 {
+			log.Fatal("Invalid argument")
+		}
+		recordSet, err := client.DNS.GetRecord(ctx, args[0])
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -294,9 +313,14 @@ Type arguments:
 var deleteRecordCommand = &cobra.Command{
 	Use:   "delete-record",
 	Short: "Delete DNS record",
+	Long: `Delete DNS record
+Usage: ./bizfly dns delete-record <record-id>`,
 	Run: func(cmd *cobra.Command, args []string) {
 		client, ctx := getApiClient(cmd)
-		err := client.DNS.DeleteRecord(ctx, recordId)
+		if len(args) != 1 {
+			log.Fatal("Invalid argument")
+		}
+		err := client.DNS.DeleteRecord(ctx, args[0])
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -449,20 +473,13 @@ func init() {
 	rootCmd.AddCommand(dnsComnmand)
 	dnsComnmand.AddCommand(listZonesCommand)
 
-	gzpf := getZoneCommand.PersistentFlags()
-	gzpf.StringVar(&zoneID, "zone-id", "", "Zone ID")
-	_ = cobra.MarkFlagRequired(gzpf, "zone-id")
 	dnsComnmand.AddCommand(getZoneCommand)
+
 	czpf := createZoneCommand.PersistentFlags()
-	czpf.StringVar(&zoneName, "zone-name", "", "Zone Name")
 	czpf.BoolVar(&required, "required", false, "Is required")
 	czpf.StringVar(&zoneDescription, "description", "", "Zone description")
-	_ = cobra.MarkFlagRequired(czpf, "zone-name")
 	dnsComnmand.AddCommand(createZoneCommand)
 
-	dzpf := deleteZoneCommand.PersistentFlags()
-	dzpf.StringVar(&zoneID, "zone-id", "", "Zone ID")
-	_ = cobra.MarkFlagRequired(dzpf, "zone-id")
 	dnsComnmand.AddCommand(deleteZoneCommand)
 
 	crpf := createRecordCommand.PersistentFlags()
@@ -482,9 +499,7 @@ func init() {
 	_ = cobra.MarkFlagRequired(crpf, "ttl")
 	dnsComnmand.AddCommand(createRecordCommand)
 
-	deleteRecordCommand.PersistentFlags().StringVar(&recordId, "record-id", "", "Record ID")
 	dnsComnmand.AddCommand(deleteRecordCommand)
 
-	getRecordCommand.PersistentFlags().StringVar(&recordId, "record-id", "", "Record ID")
 	dnsComnmand.AddCommand(getRecordCommand)
 }

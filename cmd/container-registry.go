@@ -33,10 +33,10 @@ var (
 	expiresIn int
 	vulnerabilities string
 	scope []string
-	repositoryHeader = []string{"Name", "LastPush", "Pulls", "Public", "CreatedAt"}
-	vulnerabilityHeader = []string{"Package", "Name", "Namespace", "Link", "Severity", "FixedBy"}
-	tagHeader = []string{"Name", "Author", "LastUpdated", "CreatedAt", "LastScan", "ScanStatus", "Vulnerabilities", "Fixes"}
-	tokenHeader = []string{"Token", "ExpiresIn", "IssuedAt"}
+	repositoryHeader = []string{"Name", "Last Push", "Pulls", "Public", "Created At"}
+	vulnerabilityHeader = []string{"Package", "Name", "Namespace", "Link", "Severity", "Fixed By"}
+	tagHeader = []string{"Name", "Author", "Last Updated", "Created At", "Last Scan", "Scan Status", "Vulnerabilities", "Fixes"}
+	tokenHeader = []string{"Token"}
 )
 
 var containerRegistryCmd = &cobra.Command{
@@ -68,10 +68,19 @@ var repositoryListCmd = &cobra.Command{
 var repositoryCreateCmd = &cobra.Command{
 	Use: "create",
 	Short: "Create Container Registry repository",
+	Long: `Create Container Registry repository
+Usage: ./bizfly container-registry create <repo_name> (--public|--private)`,
 	Run: func(cmd *cobra.Command, args []string) {
 		client, ctx := getApiClient(cmd)
+		if len(args) != 1 {
+			log.Fatal("Invalid argument")
+		}
+		if (!isPrivate && !isPublic) || (isPrivate && isPublic) {
+			log.Fatal("You need to specify repository is public or not")
+		}
+		isPublic = isPublic || !isPrivate
 		payload := &gobizfly.CreateRepositoryPayload{
-			Name: repoName,
+			Name: args[0],
 			Public: isPublic,
 		}
 		err := client.ContainerRegistry.Create(ctx, payload)
@@ -85,9 +94,14 @@ var repositoryCreateCmd = &cobra.Command{
 var repositoryDeleteCmd = &cobra.Command{
 	Use: "delete",
 	Short: "Delete Container Registry repository",
+	Long: `Delete Container Registry repository
+Usage: ./bizfly container-registry delete <repo_name>`,
 	Run: func(cmd *cobra.Command, args []string) {
 		client, ctx := getApiClient(cmd)
-		err := client.ContainerRegistry.Delete(ctx, repoName)
+		if len(args) != 1 {
+			log.Fatal("Invalid argument")
+		}
+		err := client.ContainerRegistry.Delete(ctx, args[0])
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -98,17 +112,17 @@ var repositoryDeleteCmd = &cobra.Command{
 var getTagCmd = &cobra.Command{
 	Use: "get-tags",
 	Short: "Get repository Tags",
+	Long: `Get Repository Tags
+Usage: ./bizfly container-registry get-tags <repo_name>`,
 	Run: func(cmd *cobra.Command, args []string) {
 		client, ctx := getApiClient(cmd)
-		repoTags, err := client.ContainerRegistry.GetTags(ctx, repoName)
+		if len(args) != 1 {
+			log.Fatal("Invalid argument")
+		}
+		repoTags, err := client.ContainerRegistry.GetTags(ctx, args[0])
 		if err != nil {
 			log.Fatal(err)
 		}
-		repo := repoTags.Repository
-		var repoData [][]string
-		repoData = append(repoData, []string{repo.Name, repo.LastPush, strconv.Itoa(repo.Pulls), strconv.FormatBool(repo.Public), repo.CreatedAt})
-		formatter.Output(repositoryHeader, repoData)
-
 		var tagsData [][]string
 		tags := repoTags.Tags
 		for _, tag := range tags {
@@ -122,16 +136,21 @@ var getTagCmd = &cobra.Command{
 var editRepoCmd = &cobra.Command{
 	Use: "edit-repo",
 	Short: "Edit Container Registry repository",
+	Long: `Edit Container Registry repository
+Usage: ./bizfly edit-repo <repo_name> (--public|--private)`,
 	Run: func(cmd *cobra.Command, args []string) {
-		if !isPublic && !isPrivate {  // Both two vars don't set
-			log.Fatal("You need to choose is-public or is-private")
+		if len(args) != 1 {
+			log.Fatal("Invalid argument")
+		}
+		if (!isPrivate && !isPublic) || (isPrivate && isPublic) {
+			log.Fatal("You need to specify repository is public or not")
 		}
 		isPublic = isPublic || !isPrivate
 		client, ctx := getApiClient(cmd)
 		payload := &gobizfly.EditRepositoryPayload{
 			Public: isPublic,
 		}
-		err := client.ContainerRegistry.EditRepo(ctx, repoName, payload)
+		err := client.ContainerRegistry.EditRepo(ctx, args[0], payload)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -142,9 +161,14 @@ var editRepoCmd = &cobra.Command{
 var deleteTagCmd = &cobra.Command{
 	Use: "delete-tag",
 	Short: "Delete Repository Tag",
+	Long: `Delete Repository Tag
+Usage: ./bizfly container-registry delete-tag <repo_name> <tag_name>`,
 	Run: func(cmd *cobra.Command, args []string) {
 		client, ctx := getApiClient(cmd)
-		err := client.ContainerRegistry.DeleteTag(ctx, tagName, repoName)
+		if len(args) != 2 {
+			log.Fatal("Invalid argument")
+		}
+		err := client.ContainerRegistry.DeleteTag(ctx, args[0], args[1])
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -155,23 +179,17 @@ var deleteTagCmd = &cobra.Command{
 var getImageCmd = &cobra.Command{
 	Use: "get-image",
 	Short: "Get repository tag",
+	Long: `Get repository tag
+Usage: ./bizfly container-registry get-image <repo_name> <tag_name> [flags]`,
 	Run: func(cmd *cobra.Command, args []string) {
 		client, ctx := getApiClient(cmd)
-		image, err := client.ContainerRegistry.GetTag(ctx, repoName, tagName, vulnerabilities)
+		if len(args) != 2 {
+			log.Fatal("Invalid arguments")
+		}
+		image, err := client.ContainerRegistry.GetTag(ctx, args[0], args[1], vulnerabilities)
 		if err != nil {
 			log.Fatal(err)
 		}
-		var repoData [][]string
-		repo := image.Repository
-		repoData = append(repoData, []string{repo.Name, repo.LastPush, strconv.Itoa(repo.Pulls), strconv.FormatBool(repo.Public), repo.CreatedAt})
-		formatter.Output(repositoryHeader, repoData)
-		var tagsData [][]string
-
-		tag := image.Tag
-		tagsData = append(tagsData, []string{tag.Name, tag.Author, tag.LastUpdated, tag.CreatedAt, tag.LastScan,
-			tag.ScanStatus, strconv.Itoa(tag.Vulnerabilities), strconv.Itoa(tag.Fixes)})
-		formatter.Output(tagHeader, tagsData)
-
 		vulnerabilities := image.Vulnerabilities
 		var vulnerabilitiesData [][]string
 		for _, vulnerability := range vulnerabilities {
@@ -204,9 +222,7 @@ Example: ./bizfly container-registry gen-token --expires-in 3404 --scope "action
 		if err != nil {
 			log.Fatal(err)
 		}
-		var data [][]string
-		data = append(data, []string{resp.Token, strconv.Itoa(resp.ExpiresIn), resp.IssuedAt})
-		formatter.Output(tokenHeader, data)
+		fmt.Println("Token:", resp.Token)
 	},
 }
 
@@ -215,8 +231,14 @@ func parseScope(scopes []string) []gobizfly.Scope {
 	for _, scope := range scopes {
 		var scopeObj gobizfly.Scope
 		fragments := strings.Split(scope, ";")
+		if len(fragments) == 0 {
+			log.Fatal("Invalid argument: scope")
+		}
 		for _, fragment := range fragments {
 			keyValue := strings.Split(fragment, ":")
+			if len(keyValue) != 2 {
+				log.Fatal("Invalid argument: scope")
+			}
 			key := keyValue[0]
 			value := keyValue[1]
 			switch key {
@@ -238,41 +260,22 @@ func init() {
 	containerRegistryCmd.AddCommand(repositoryListCmd)
 
 	rcpf := repositoryCreateCmd.PersistentFlags()
-	rcpf.StringVar(&repoName, "repo-name", "", "Repository name")
-	rcpf.BoolVar(&isPublic, "is-public", false, "Is public or not")
-	_ = cobra.MarkFlagRequired(rcpf, "repo-name")
+	rcpf.BoolVar(&isPublic, "public", false, "Is public or not")
+	rcpf.BoolVar(&isPrivate, "private", false, "Is private or not")
 	containerRegistryCmd.AddCommand(repositoryCreateCmd)
 
-	rdpf := repositoryDeleteCmd.PersistentFlags()
-	rdpf.StringVar(&repoName, "repo-name", "", "Repository name")
-	_ = cobra.MarkFlagRequired(rdpf, "repo-name")
 	containerRegistryCmd.AddCommand(repositoryDeleteCmd)
 
-	gtpf := getTagCmd.PersistentFlags()
-	gtpf.StringVar(&repoName, "repo-name", "", "Repository name")
-	_ = cobra.MarkFlagRequired(gtpf, "repo-name")
 	containerRegistryCmd.AddCommand(getTagCmd)
 
 	erpf := editRepoCmd.PersistentFlags()
-	erpf.StringVar(&repoName, "repo-name", "", "Repository name")
-	erpf.BoolVar(&isPublic, "is-public", false, "Is public or not")
-	erpf.BoolVar(&isPrivate, "is-private", false, "Is private or not")
-	_ = cobra.MarkFlagRequired(erpf, "repo-name")
+	erpf.BoolVar(&isPublic, "public", false, "Is public or not")
+	erpf.BoolVar(&isPrivate, "private", false, "Is private or not")
 	containerRegistryCmd.AddCommand(editRepoCmd)
 
-	dtpf := deleteTagCmd.PersistentFlags()
-	dtpf.StringVar(&repoName, "repo-name", "", "Repository name")
-	dtpf.StringVar(&tagName, "tag-name", "", "Tag name")
-	_ = cobra.MarkFlagRequired(dtpf, "repo-name")
-	_ = cobra.MarkFlagRequired(dtpf, "tag-name")
 	containerRegistryCmd.AddCommand(deleteTagCmd)
 
-	gipf := getImageCmd.PersistentFlags()
-	gipf.StringVar(&repoName, "repo-name", "", "Repository name")
-	gipf.StringVar(&tagName, "tag-name", "", "Tag name")
-	gipf.StringVar(&vulnerabilities, "vulnerabilities", "", "Vulnerabilities")
-	_ = cobra.MarkFlagRequired(gipf, "repo-name")
-	_ = cobra.MarkFlagRequired(gipf, "tag-name")
+	getImageCmd.PersistentFlags().StringVar(&vulnerabilities, "vulnerabilities", "", "Image vulnerabilities")
 	containerRegistryCmd.AddCommand(getImageCmd)
 
 	gtopf := genTokenCmd.PersistentFlags()

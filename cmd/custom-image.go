@@ -29,7 +29,7 @@ import (
 )
 
 var (
-	customImageHeader = []string{"ID", "Name", "Description", "ContainerFormat", "Size", "Status", "Visibility"}
+	customImageHeader = []string{"ID", "Name", "Description", "Container Format", "Size", "Status", "Visibility"}
 	imageURL          string
 	diskFormat        string
 	customImageName   string

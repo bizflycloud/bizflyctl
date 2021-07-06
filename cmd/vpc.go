@@ -28,7 +28,7 @@ import (
 )
 
 var (
-	vpcListHeader = []string{"ID", "Name", "MTU", "CIDR", "Description", "Tags", "CreatedAt", "IsDefault"}
+	vpcListHeader = []string{"ID", "Name", "MTU", "CIDR", "Description", "Tags", "Created At", "Is Default"}
 	vpcName       string
 	vpcID         string
 	description   string
