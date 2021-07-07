@@ -28,7 +28,7 @@ var (
 	NormalDataHeader    = []string{"Data"}
 	MXDataHeader        = []string{"Domain", "Priority"}
 	PolicyRoutingHeader = []string{"Region", "IPv4", "IPv6"}
-	zonesHeader         = []string{"ID", "Name", "Deleted", "NameServer", "TTL", "Active", "CreatedAt", "UpdateAt"}
+	zonesHeader         = []string{"ID", "Name", "Deleted", "NameServer", "TTL", "Active", "Created At", "Update At"}
 	recordSetHeader     = []string{"ID", "Name", "Type", "TTL"}
 )
 
