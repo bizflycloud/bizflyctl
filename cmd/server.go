@@ -29,7 +29,7 @@ import (
 
 var (
 	serverListHeader = []string{"ID", "Name", "Zone", "Key Name", "Status", "Flavor", "Category",
-		"LAN IP", "WAN IP", "Attached Volumes", "Created at"}
+		"LAN IP", "WAN IP", "Attached Volumes", "Created At"}
 
 	serverName string
 	// serverOS gobizfly type
