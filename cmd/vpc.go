@@ -135,8 +135,7 @@ var vpcCreateCmd = &cobra.Command{
 			fmt.Printf("Create VPC error: %v", err)
 			os.Exit(1)
 		}
-		fmt.Printf("%v", &vpc)
-		fmt.Printf("Create VPC successfully")
+		fmt.Printf("Create VPC successfully\n")
 		var data [][]string
 		s := []string{vpc.ID, vpc.Name, strconv.Itoa(vpc.MTU), vpc.Subnets[0].CIDR, vpc.Description,
 			strings.Join(vpc.Tags, ", "), vpc.CreatedAt, strconv.FormatBool(vpc.IsDefault)}
@@ -165,7 +164,7 @@ var vpcUpdateCmd = &cobra.Command{
 			fmt.Printf("Update VPC error: %v", err)
 			os.Exit(1)
 		}
-		fmt.Printf("Create VPC successfully")
+		fmt.Printf("Update VPC successfully\n")
 		var data [][]string
 		s := []string{vpc.ID, vpc.Name, strconv.Itoa(vpc.MTU), vpc.Subnets[0].CIDR, vpc.Description,
 			strings.Join(vpc.Tags, ", "), vpc.CreatedAt, strconv.FormatBool(vpc.IsDefault)}
