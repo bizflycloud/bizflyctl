@@ -51,6 +51,9 @@ var (
 	deleteRootDisk bool
 	// vpc ids
 	vpcIDs []string
+	networkInterfaces []string
+	firewalls []string
+	networkPlan string
 )
 
 const attachTypeRootDisk = "rootdisk"
@@ -233,6 +236,9 @@ var serverCreateCmd = &cobra.Command{
 			Type:             serverCategory,
 			AvailabilityZone: availabilityZone,
 			OS:               &serverOS,
+			NetworkPlan: networkPlan,
+			Firewalls: firewalls,
+			NetworkInterface: networkInterfaces,
 		}
 		client, ctx := getApiClient(cmd)
 		svrTask, err := client.Server.Create(ctx, &scr)
@@ -426,6 +432,9 @@ func init() {
 	scpf.StringVar(&volumeID, "volume-id", "", "ID of volume. Create a server using an existing root disk volume.")
 	scpf.StringVar(&snapshotID, "snapshot-id", "", "ID of snapshot. Create a server from a snapshot ID.")
 	scpf.StringVar(&flavorName, "flavor", "", "Name of flavor. Flavor for create a server. Using 'bizfly flavor list' to get a list of flavors")
+	scpf.StringVar(&networkPlan, "network-plan", "", "Network plan of server (free_bandwidth|free_datatransfer)")
+	scpf.StringArrayVar(&networkInterfaces, "net-interface", []string{}, "Network interface IDs")
+	scpf.StringArrayVar(&firewalls, "firewall", []string{}, "Firewalls IDs")
 	_ = cobra.MarkFlagRequired(scpf, "flavor")
 	scpf.StringVar(&serverCategory, "category", "premium", "Server category: basic, premium or enterprise.")
 	scpf.StringVar(&availabilityZone, "availability-zone", "HN1", "Availability Zone of server.")
