@@ -29,7 +29,7 @@ import (
 )
 
 var (
-	volumeHeaderList = []string{"ID", "Name", "Status", "Size", "Created At", "Type", "Snapshot ID"}
+	volumeHeaderList = []string{"ID", "Name", "Description", "Status", "Size", "Created At", "Type", "Snapshot ID"}
 	volumeName       string
 	volumeSize       int
 	volumeType       string
@@ -93,7 +93,7 @@ Example: bizfly volume get 9e580b1a-0526-460b-9a6f-d8f80130bda8
 			log.Fatal(err)
 		}
 		var data [][]string
-		data = append(data, []string{volume.ID, volume.Name, volume.Status, strconv.Itoa(volume.Size), volume.CreatedAt, volume.SnapshotID})
+		data = append(data, []string{volume.ID, volume.Name, volume.Description, volume.Status, strconv.Itoa(volume.Size), volume.CreatedAt, volume.SnapshotID})
 		formatter.Output(volumeHeaderList, data)
 	},
 }
@@ -114,7 +114,7 @@ Example: bizfly volume list
 		var data [][]string
 		for _, vol := range volumes {
 			data = append(data, []string{
-				vol.ID, vol.Name, vol.Status, strconv.Itoa(vol.Size), vol.CreatedAt, vol.VolumeType, vol.SnapshotID})
+				vol.ID, vol.Name, vol.Description, vol.Status, strconv.Itoa(vol.Size), vol.CreatedAt, vol.VolumeType, vol.SnapshotID})
 		}
 		formatter.Output(volumeHeaderList, data)
 	},
@@ -138,6 +138,7 @@ Use: bizfly volume create
 			ServerID:         serverID,
 			AvailabilityZone: availabilityZone,
 			VolumeCategory:   volumeCategory,
+			Description: description,
 		}
 		volume, err := client.Volume.Create(ctx, &vcr)
 		if err != nil {
@@ -145,7 +146,7 @@ Use: bizfly volume create
 			os.Exit(1)
 		}
 		var data [][]string
-		data = append(data, []string{volume.ID, volume.Name, volume.Status, strconv.Itoa(volume.Size), volume.CreatedAt, volume.SnapshotID})
+		data = append(data, []string{volume.ID, volume.Name, volume.Description, volume.Status, strconv.Itoa(volume.Size), volume.CreatedAt, volume.SnapshotID})
 		formatter.Output(volumeHeaderList, data)
 	},
 }
@@ -261,6 +262,30 @@ Use: bizfly volume restore <volume-id> --snapshot-id <snapshot-id>
 	},
 }
 
+var patchVolumeCmd = &cobra.Command{
+	Use: "patch",
+	Short: "Patch Volume",
+	Long: `
+Patch volume
+Use: bizfly volume patch <volume-id> [--name <vol_name>] [--description <description>]`,
+	Run: func(cmd *cobra.Command, args []string) {
+		if len(args) < 1 {
+			log.Fatal("You need to specify the volume-id in the command. Use: bizfly volume patch <volume-id> [--name <vol_name>] [--description <description>]")
+		}
+		volumeID := args[0]
+		client, ctx := getApiClient(cmd)
+		req := &gobizfly.VolumePatchRequest{}
+		req.Description = description
+		volume, err := client.Volume.Patch(ctx, volumeID, req)
+		if err != nil {
+			log.Fatal(err)
+		}
+		var data [][]string
+		data = append(data, []string{volume.ID, volume.Name, volume.Description, volume.Status, strconv.Itoa(volume.Size), volume.CreatedAt, volume.SnapshotID})
+		formatter.Output(volumeHeaderList, data)
+	},
+}
+
 func init() {
 	rootCmd.AddCommand(volumeCmd)
 	volumeCmd.AddCommand(volumeListCmd)
@@ -274,6 +299,7 @@ func init() {
 	vcpf := volumeCreateCmd.PersistentFlags()
 	vcpf.StringVar(&volumeName, "name", "", "Volume name")
 	_ = cobra.MarkFlagRequired(vcpf, "name")
+	vcpf.StringVar(&description, "description", "", "Volume description")
 	vcpf.StringVar(&volumeType, "type", "HDD", "Volume type: SSD or HDD.")
 	vcpf.StringVar(&volumeCategory, "category", "premium", "Volume category: premium, enterprise or basic.")
 	vcpf.IntVar(&volumeSize, "size", 0, "Volume size")
@@ -290,4 +316,8 @@ func init() {
 	extendVolumeCmd.PersistentFlags().IntVar(&volumeSize, "size", 0, "Volume size")
 	_ = cobra.MarkFlagRequired(extendVolumeCmd.PersistentFlags(), "size")
 	volumeCmd.AddCommand(extendVolumeCmd)
+	pvpf := patchVolumeCmd.PersistentFlags()
+	pvpf.StringVar(&description, "description", "", "Patched volume description")
+	_ = cobra.MarkFlagRequired(pvpf, "description")
+	volumeCmd.AddCommand(patchVolumeCmd)
 }
