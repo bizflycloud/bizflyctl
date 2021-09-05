@@ -50,10 +50,10 @@ var (
 	sshKey         string
 	deleteRootDisk bool
 	// vpc ids
-	vpcIDs []string
+	vpcIDs            []string
 	networkInterfaces []string
-	firewalls []string
-	networkPlan string
+	firewalls         []string
+	networkPlan       string
 )
 
 const attachTypeRootDisk = "rootdisk"
@@ -236,8 +236,8 @@ var serverCreateCmd = &cobra.Command{
 			Type:             serverCategory,
 			AvailabilityZone: availabilityZone,
 			OS:               &serverOS,
-			NetworkPlan: networkPlan,
-			Firewalls: firewalls,
+			NetworkPlan:      networkPlan,
+			Firewalls:        firewalls,
 			NetworkInterface: networkInterfaces,
 		}
 		client, ctx := getApiClient(cmd)
