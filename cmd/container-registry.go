@@ -26,27 +26,27 @@ import (
 )
 
 var (
-	isPublic bool
-	isPrivate bool
-	expiresIn int
-	vulnerabilities string
-	scope []string
-	repositoryHeader = []string{"Name", "Last Push", "Pulls", "Public", "Created At"}
+	isPublic            bool
+	isPrivate           bool
+	expiresIn           int
+	vulnerabilities     string
+	scope               []string
+	repositoryHeader    = []string{"Name", "Last Push", "Pulls", "Public", "Created At"}
 	vulnerabilityHeader = []string{"Package", "Name", "Namespace", "Link", "Severity", "Fixed By"}
-	tagHeader = []string{"Name", "Author", "Last Updated", "Created At", "Last Scan", "Scan Status", "Vulnerabilities", "Fixes"}
+	tagHeader           = []string{"Name", "Author", "Last Updated", "Created At", "Last Scan", "Scan Status", "Vulnerabilities", "Fixes"}
 )
 
 var containerRegistryCmd = &cobra.Command{
-	Use: "container-registry",
-	Short: "BizFly Cloud Container Registry Interaction",
-	Long: "BizFly CLoud Container Registry Action: List, Create, Delete, Get Tags, Update, Delete Image Tag, Get Image Info",
+	Use:   "container-registry",
+	Short: "Bizfly Cloud Container Registry Interaction",
+	Long:  "Bizfly Cloud Container Registry Action: List, Create, Delete, Get Tags, Update, Delete Image Tag, Get Image Info",
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("container registry called")
 	},
 }
 
 var repositoryListCmd = &cobra.Command{
-	Use: "list",
+	Use:   "list",
 	Short: "List repositories",
 	Run: func(cmd *cobra.Command, args []string) {
 		client, ctx := getApiClient(cmd)
@@ -63,7 +63,7 @@ var repositoryListCmd = &cobra.Command{
 }
 
 var repositoryCreateCmd = &cobra.Command{
-	Use: "create",
+	Use:   "create",
 	Short: "Create Container Registry repository",
 	Long: `Create Container Registry repository
 Usage: ./bizfly container-registry create <repo_name> (--public|--private)`,
@@ -77,7 +77,7 @@ Usage: ./bizfly container-registry create <repo_name> (--public|--private)`,
 		}
 		isPublic = isPublic || !isPrivate
 		payload := &gobizfly.CreateRepositoryPayload{
-			Name: args[0],
+			Name:   args[0],
 			Public: isPublic,
 		}
 		err := client.ContainerRegistry.Create(ctx, payload)
@@ -89,7 +89,7 @@ Usage: ./bizfly container-registry create <repo_name> (--public|--private)`,
 }
 
 var repositoryDeleteCmd = &cobra.Command{
-	Use: "delete",
+	Use:   "delete",
 	Short: "Delete Container Registry repository",
 	Long: `Delete Container Registry repository
 Usage: ./bizfly container-registry delete <repo_name>`,
@@ -107,7 +107,7 @@ Usage: ./bizfly container-registry delete <repo_name>`,
 }
 
 var getTagCmd = &cobra.Command{
-	Use: "get-tags",
+	Use:   "get-tags",
 	Short: "Get repository Tags",
 	Long: `Get Repository Tags
 Usage: ./bizfly container-registry get-tags <repo_name>`,
@@ -131,7 +131,7 @@ Usage: ./bizfly container-registry get-tags <repo_name>`,
 }
 
 var editRepoCmd = &cobra.Command{
-	Use: "edit-repo",
+	Use:   "edit-repo",
 	Short: "Edit Container Registry repository",
 	Long: `Edit Container Registry repository
 Usage: ./bizfly edit-repo <repo_name> (--public|--private)`,
@@ -156,7 +156,7 @@ Usage: ./bizfly edit-repo <repo_name> (--public|--private)`,
 }
 
 var deleteTagCmd = &cobra.Command{
-	Use: "delete-tag",
+	Use:   "delete-tag",
 	Short: "Delete Repository Tag",
 	Long: `Delete Repository Tag
 Usage: ./bizfly container-registry delete-tag <repo_name> <tag_name>`,
@@ -174,7 +174,7 @@ Usage: ./bizfly container-registry delete-tag <repo_name> <tag_name>`,
 }
 
 var getImageCmd = &cobra.Command{
-	Use: "get-image",
+	Use:   "get-image",
 	Short: "Get repository tag",
 	Long: `Get repository tag
 Usage: ./bizfly container-registry get-image <repo_name> <tag_name> [flags]`,
@@ -199,7 +199,7 @@ Usage: ./bizfly container-registry get-image <repo_name> <tag_name> [flags]`,
 }
 
 var genTokenCmd = &cobra.Command{
-	Use: "gen-token",
+	Use:   "gen-token",
 	Short: "Generate token for Container Registry",
 	Long: `Generate token for Container Registry
 Define:
@@ -213,7 +213,7 @@ Example: ./bizfly container-registry gen-token --expires-in 3404 --scope "action
 		client, ctx := getApiClient(cmd)
 		payload := &gobizfly.GenerateTokenPayload{
 			ExpiresIn: expiresIn,
-			Scopes: parseScope(scope),
+			Scopes:    parseScope(scope),
 		}
 		resp, err := client.ContainerRegistry.GenerateToken(ctx, payload)
 		if err != nil {

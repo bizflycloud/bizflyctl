@@ -1,5 +1,5 @@
 /*
-Copyright © 2021 BizFly Cloud
+Copyright © 2021 Bizfly Cloud
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -210,7 +210,7 @@ func init() {
 
 var alertServiceCmd = &cobra.Command{
 	Use:   "cloudwatcher",
-	Short: "BizFly Cloud Watcher Interaction",
+	Short: "Bizfly Cloud Watcher Interaction",
 	Long:  `Interact with Cloud Watcher Service. Allow do CRUD alarms, receivers, ...`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("Interacting with cloud watcher service")
@@ -223,7 +223,7 @@ var alertServiceCmd = &cobra.Command{
 // Sub-command agent
 var agentCmd = &cobra.Command{
 	Use:   "agent",
-	Short: "BizFly Cloud Watcher Interaction with agent resources",
+	Short: "Bizfly Cloud Watcher Interaction with agent resources",
 	Long:  `Interact with Cloud Watcher Service. Allow do CRUD alarms, agents, ...`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("Interacting with cloud watcher service")
@@ -304,7 +304,7 @@ var agentDeleteCmd = &cobra.Command{
 // Sub-command alarm
 var alarmCmd = &cobra.Command{
 	Use:   "alarm",
-	Short: "BizFly Cloud Watcher Interaction with alarm resources",
+	Short: "Bizfly Cloud Watcher Interaction with alarm resources",
 	Long:  `Interact with Cloud Watcher Service. Allow do CRUD alarms, receivers, ...`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("Interacting with cloud watcher service")
@@ -973,7 +973,7 @@ var alarmDisableCmd = &cobra.Command{
 // Sub-command receiver
 var receiverCmd = &cobra.Command{
 	Use:   "receiver",
-	Short: "BizFly Cloud Watcher Interaction with receiver resources",
+	Short: "Bizfly Cloud Watcher Interaction with receiver resources",
 	Long:  `Interact with Cloud Watcher Service. Allow do CRUD alarms, receivers, ...`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("Interacting with cloud watcher service")
@@ -1332,7 +1332,7 @@ var receiverUnSetCmd = &cobra.Command{
 // Sub-command history
 var historyCmd = &cobra.Command{
 	Use:   "history",
-	Short: "BizFly Cloud Watcher Interaction with history resources",
+	Short: "Bizfly Cloud Watcher Interaction with history resources",
 	Long:  `Interact with Cloud Watcher Service. Allow do CRUD alarms, receivers, ...`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("Interacting with cloud watcher service")
@@ -1372,7 +1372,7 @@ var historyListCmd = &cobra.Command{
 // Sub-command secret
 var secretCmd = &cobra.Command{
 	Use:   "secret",
-	Short: "BizFly Cloud Watcher Interaction with secret resources",
+	Short: "Bizfly Cloud Watcher Interaction with secret resources",
 	Long:  `Interact with Cloud Watcher Service. Allow do CRUD alarms, secrets, ...`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("Interacting with cloud watcher service")

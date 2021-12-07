@@ -1,5 +1,5 @@
 /*
-Copyright © 2021 BizFly Cloud
+Copyright © 2021 Bizfly Cloud
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -38,17 +38,17 @@ var (
 	kubernetesClusterHeader    = []string{"ID", "Name", "VPC Network ID", "Worker Pools Count", "Cluster Status", "Tags", "Created At"}
 	kubernetesWorkerPoolHeader = []string{"ID", "Name", "Version", "Flavor", "Volume Size", "Volume Type",
 		"Enabled AutoScaling", "Min Size", "Max Size", "Created At"}
-	clusterName                string
-	clusterVersion             string
-	vpcNetworkID               string
-	tags                       []string
-	workerPools                []string
-	desiredSize                int
-	enableAutoScaling          bool
-	minSize                    int
-	maxSize                    int
-	outputKubeConfigFilePath   string
-	inputConfigFile            string
+	clusterName              string
+	clusterVersion           string
+	vpcNetworkID             string
+	tags                     []string
+	workerPools              []string
+	desiredSize              int
+	enableAutoScaling        bool
+	minSize                  int
+	maxSize                  int
+	outputKubeConfigFilePath string
+	inputConfigFile          string
 )
 
 var kubernetesCmd = &cobra.Command{

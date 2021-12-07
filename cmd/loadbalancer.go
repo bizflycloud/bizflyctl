@@ -1,5 +1,5 @@
 /*
-Copyright © 2021 BizFly Cloud
+Copyright © 2021 Bizfly Cloud
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -36,8 +36,8 @@ var (
 // serverCmd represents the server command
 var lbCmd = &cobra.Command{
 	Use:   "loadbalancer",
-	Short: "BizFly Cloud Load Balancer Interaction",
-	Long:  `BizFly Cloud Load Balancer Action: Create, List, Delete`,
+	Short: "Bizfly Cloud Load Balancer Interaction",
+	Long:  `Bizfly Cloud Load Balancer Action: Create, List, Delete`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("loadbalancer called")
 	},
@@ -45,15 +45,15 @@ var lbCmd = &cobra.Command{
 
 var lbListenerCmd = &cobra.Command{
 	Use:   "listener",
-	Short: "BizFly Cloud Load Balancer Listener Interaction",
-	Long:  "BizFly Cloud Load Balancer Listener Action: Create, List, Delete, Get",
+	Short: "Bizfly Cloud Load Balancer Listener Interaction",
+	Long:  "Bizfly Cloud Load Balancer Listener Action: Create, List, Delete, Get",
 	Run:   func(cmd *cobra.Command, args []string) {},
 }
 
 var lbPoolCmd = &cobra.Command{
 	Use:   "pool",
-	Short: "BizFly Cloud Load Balancer Pool Interaction",
-	Long:  "BizFly Cloud Load Balancer Pool Action: Create, List, Delete, Get",
+	Short: "Bizfly Cloud Load Balancer Pool Interaction",
+	Long:  "Bizfly Cloud Load Balancer Pool Action: Create, List, Delete, Get",
 	Run:   func(cmd *cobra.Command, args []string) {},
 }
 

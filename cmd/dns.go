@@ -38,8 +38,8 @@ type recordPayload struct {
 
 var dnsComnmand = &cobra.Command{
 	Use:   "dns",
-	Short: "BizFly Cloud DNS Interaction",
-	Long:  "BizFly Cloud DNS Action: List zones, Create zone, Get zone, Delete zone, Create record, Get record, Delete record",
+	Short: "Bizfly Cloud DNS Interaction",
+	Long:  "Bizfly Cloud DNS Action: List zones, Create zone, Get zone, Delete zone, Create record, Get record, Delete record",
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("dns called")
 	},

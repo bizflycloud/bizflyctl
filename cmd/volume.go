@@ -1,5 +1,5 @@
 /*
-Copyright © 2021 BizFly Cloud
+Copyright © 2021 Bizfly Cloud
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -40,8 +40,8 @@ var (
 // volumeCmd represents the volume command
 var volumeCmd = &cobra.Command{
 	Use:   "volume",
-	Short: "BizFly Cloud Volume Interaction",
-	Long:  `BizFly Cloud Volume Action: Create, List, Delete, Extend Volume`,
+	Short: "Bizfly Cloud Volume Interaction",
+	Long:  `Bizfly Cloud Volume Action: Create, List, Delete, Extend Volume`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("volume called")
 	},
@@ -102,7 +102,7 @@ Example: bizfly volume get 9e580b1a-0526-460b-9a6f-d8f80130bda8
 var volumeListCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List all volumes in your account",
-	Long: `List all volumes in your BizFly Cloud account
+	Long: `List all volumes in your Bizfly Cloud account
 Example: bizfly volume list
 `,
 	Run: func(cmd *cobra.Command, args []string) {

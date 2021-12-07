@@ -1,5 +1,5 @@
 /*
-Copyright © 2021 BizFly Cloud
+Copyright © 2021 Bizfly Cloud
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -40,8 +40,8 @@ var (
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "bizfly",
-	Short: "BizFly Cloud Command Line",
-	Long:  `BizFly Cloud Command Line`,
+	Short: "Bizfly Cloud Command Line",
+	Long:  `Bizfly Cloud Command Line`,
 	PreRun: func(cmd *cobra.Command, args []string) {
 		fmt.Println("Pre run")
 	},
@@ -65,10 +65,10 @@ func init() {
 
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.bizfly.yaml)")
 
-	rootCmd.PersistentFlags().StringVar(&email, "email", "", "Your BizFly Cloud Email. Read environment variable BIZFLY_CLOUD_EMAIL")
+	rootCmd.PersistentFlags().StringVar(&email, "email", "", "Your Bizfly Cloud Email. Read environment variable BIZFLY_CLOUD_EMAIL")
 	_ = rootCmd.MarkFlagRequired("email")
 
-	rootCmd.PersistentFlags().StringVar(&password, "password", "", "Your BizFly CLoud Password. Read environment variable BIZFLY_CLOUD_PASSWORD")
+	rootCmd.PersistentFlags().StringVar(&password, "password", "", "Your Bizfly Cloud Password. Read environment variable BIZFLY_CLOUD_PASSWORD")
 	_ = rootCmd.MarkFlagRequired("password")
 
 	rootCmd.PersistentFlags().StringVar(&region, "region", "HN", "Region you want to access the resource.")

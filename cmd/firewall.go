@@ -1,5 +1,5 @@
 /*
-Copyright © 2021 BizFly Cloud
+Copyright © 2021 Bizfly Cloud
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -40,8 +40,8 @@ var (
 
 var firewallCmd = &cobra.Command{
 	Use:   "firewall",
-	Short: "BizFly Cloud Firewall Interaction",
-	Long:  "BizFly Cloud Firewall Action: Create, List, Delete, Update, Remove Server from Firewall",
+	Short: "Bizfly Cloud Firewall Interaction",
+	Long:  "Bizfly Cloud Firewall Action: Create, List, Delete, Update, Remove Server from Firewall",
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("firewall called")
 	},
