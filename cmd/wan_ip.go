@@ -163,7 +163,11 @@ var wanIpAttachServerCmd = &cobra.Command{
 			Action:   "attach_server",
 			ServerId: serverID,
 		}
-		wanIp, err := client.WanIP.Action(ctx, args[0], &payload)
+		err := client.WanIP.Action(ctx, args[0], &payload)
+		if err != nil {
+			log.Fatal(err)
+		}
+		wanIp, err := client.WanIP.Get(ctx, args[0])
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -197,7 +201,11 @@ var wanIpDetachServerCmd = &cobra.Command{
 		payload := gobizfly.ActionWanIpPayload{
 			Action: "detach_server",
 		}
-		wanIp, err := client.WanIP.Action(ctx, args[0], &payload)
+		err := client.WanIP.Action(ctx, args[0], &payload)
+		if err != nil {
+			log.Fatal(err)
+		}
+		wanIp, err := client.WanIP.Get(ctx, args[0])
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -231,7 +239,11 @@ var wanIpConvertToPaidCmd = &cobra.Command{
 		payload := gobizfly.ActionWanIpPayload{
 			Action: "convert_to_paid",
 		}
-		wanIp, err := client.WanIP.Action(ctx, args[0], &payload)
+		err := client.WanIP.Action(ctx, args[0], &payload)
+		if err != nil {
+			log.Fatal(err)
+		}
+		wanIp, err := client.WanIP.Get(ctx, args[0])
 		if err != nil {
 			log.Fatal(err)
 		}
