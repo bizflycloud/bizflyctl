@@ -1,5 +1,5 @@
 /*
-Copyright © 2020 BizFly Cloud
+Copyright © 2021 BizFly Cloud
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -138,7 +138,7 @@ Use: bizfly volume create
 			ServerID:         serverID,
 			AvailabilityZone: availabilityZone,
 			VolumeCategory:   volumeCategory,
-			Description: description,
+			Description:      description,
 		}
 		volume, err := client.Volume.Create(ctx, &vcr)
 		if err != nil {
@@ -263,7 +263,7 @@ Use: bizfly volume restore <volume-id> --snapshot-id <snapshot-id>
 }
 
 var patchVolumeCmd = &cobra.Command{
-	Use: "patch",
+	Use:   "patch",
 	Short: "Patch Volume",
 	Long: `
 Patch volume
