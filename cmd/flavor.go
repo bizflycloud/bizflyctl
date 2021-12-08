@@ -12,8 +12,8 @@ var flavorListHeader = []string{"ID", "Name"}
 // flavorCmd represents the flavor command
 var flavorCmd = &cobra.Command{
 	Use:   "flavor",
-	Short: "BizFly Cloud Flavor Interaction",
-	Long:  `BizFly Cloud Flavor Action: List Flavors`,
+	Short: "Bizfly Cloud Flavor Interaction",
+	Long:  `Bizfly Cloud Flavor Action: List Flavors`,
 	Run: func(cmd *cobra.Command, args []string) {
 	},
 }
@@ -21,9 +21,9 @@ var flavorCmd = &cobra.Command{
 // flavorListcmd represents list all flavors
 var flavorListCmd = &cobra.Command{
 	Use:   "list",
-	Short: "List all flavor of BizFly Cloud",
+	Short: "List all flavor of Bizfly Cloud",
 	Long: `
-List all flavor of BizFly Cloud.
+List all flavor of Bizfly Cloud.
 Use: bizfly flavor list
 `,
 	Run: func(cmd *cobra.Command, args []string) {

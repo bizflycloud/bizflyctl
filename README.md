@@ -1,6 +1,6 @@
 # bizflyctl
 
-Command line to interact with BizFly Cloud 
+Command line to interact with Bizfly Cloud 
 
 ### Install
 
@@ -45,22 +45,22 @@ password: <your password>
 
 ```shell script
 ➜  bizflycli git:(master) ✗ bizfly --help
-BizFly Cloud Command Line
+Bizfly Cloud Command Line
 
 Usage:
   bizfly [command]
 
 Available Commands:
   help        Help about any command
-  server      BizFly Cloud Server Interaction
-  snapshot    BizFly Cloud Snapshot Interaction
-  volume      BizFly Cloud Volume Interaction
+  server      Bizfly Cloud Server Interaction
+  snapshot    Bizfly Cloud Snapshot Interaction
+  volume      Bizfly Cloud Volume Interaction
 
 Flags:
       --config string     config file (default is $HOME/.bizfly.yaml)
-      --email string      Your BizFly Cloud Email
+      --email string      Your Bizfly Cloud Email
   -h, --help              help for bizfly
-      --password string   Your BizFly CLoud Password
+      --password string   Your Bizfly Cloud Password
   -t, --toggle            Help message for toggle
 
 Use "bizfly [command] --help" for more information about a command.
