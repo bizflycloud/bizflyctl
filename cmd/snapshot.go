@@ -1,5 +1,5 @@
 /*
-Copyright © 2020 BizFly Cloud
+Copyright © (2020-2021) Bizfly Cloud
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -36,8 +36,8 @@ var (
 // snapshotCmd represents the snapshot command
 var snapshotCmd = &cobra.Command{
 	Use:   "snapshot",
-	Short: "BizFly Cloud Snapshot Interaction",
-	Long:  `BizFly Cloud Server Action: Create, List, Delete, Snapshot`,
+	Short: "Bizfly Cloud Snapshot Interaction",
+	Long:  `Bizfly Cloud Server Action: Create, List, Delete, Snapshot`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("snapshot called")
 	},

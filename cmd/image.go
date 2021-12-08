@@ -11,8 +11,8 @@ var imageListHeader = []string{"ID", "Distribution", "Version"}
 // imageCmd represents the image command
 var imageCmd = &cobra.Command{
 	Use:   "image",
-	Short: "BizFly Cloud Image Interaction",
-	Long:  `BizFly Cloud Image Action: List OS Image, Create a custom image`,
+	Short: "Bizfly Cloud Image Interaction",
+	Long:  `Bizfly Cloud Image Action: List OS Image, Create a custom image`,
 	Run: func(cmd *cobra.Command, args []string) {
 	},
 }
@@ -20,9 +20,9 @@ var imageCmd = &cobra.Command{
 // imageListcmd represents list all os images
 var imageListCmd = &cobra.Command{
 	Use:   "list",
-	Short: "list all os images in BizFly Cloud",
+	Short: "list all os images in Bizfly Cloud",
 	Long: `
-List all os images in BizFly Cloud
+List all os images in Bizfly Cloud
 Use: bizfly image list
 `,
 	Run: func(cmd *cobra.Command, args []string) {

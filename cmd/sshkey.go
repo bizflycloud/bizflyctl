@@ -1,5 +1,5 @@
 /*
-Copyright © 2020 BizFly Cloud
+Copyright © (2020-2021) Bizfly Cloud
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -36,8 +36,8 @@ var (
 
 var sshKeyCmd = &cobra.Command{
 	Use:   "ssh-key",
-	Short: "BizFly Cloud SSH Key Interaction",
-	Long:  `BizFly Cloud SSH Key Action: Create, List, Delete`,
+	Short: "Bizfly Cloud SSH Key Interaction",
+	Long:  `Bizfly Cloud SSH Key Action: Create, List, Delete`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("SSH Key called")
 	},

@@ -1,5 +1,5 @@
 /*
-Copyright © 2020 BizFly Cloud
+Copyright © (2020-2021) Bizfly Cloud
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -65,8 +65,8 @@ const attachTypeRootDisk = "rootdisk"
 // serverCmd represents the server command
 var serverCmd = &cobra.Command{
 	Use:   "server",
-	Short: "BizFly Cloud Server Interaction",
-	Long:  `BizFly Cloud Server Action: Create, List, Delete, Resize, Change Type Server`,
+	Short: "Bizfly Cloud Server Interaction",
+	Long:  `Bizfly Cloud Server Action: Create, List, Delete, Resize, Change Type Server`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("server called")
 	},
