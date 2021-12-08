@@ -119,32 +119,10 @@ Example 2: bizfly ssh-key create --name abcxyz --public-key prompt => Paste your
 	},
 }
 
-var sshKeyGetCmd = &cobra.Command{
-	Use: "get",
-	Short: "Get a SSH Key",
-	Long: `Create a SSH Key using name
-Example 1: bizfly ssh-key get ssh_key_name`,
-	Run: func(cmd *cobra.Command, args []string) {
-		if len(args) != 1 {
-			log.Fatal("Invalid argument")
-		}
-		client, ctx := getApiClient(cmd)
-		sshKey, err := client.SSHKey.Get(ctx, args[0])
-		if err != nil {
-			log.Fatal(err)
-		}
-		var data [][]string
-		s := []string{sshKey.Name, sshKey.FingerPrint}
-		data = append(data, s)
-		formatter.Output(sshListHeader, data)
-	},
-}
-
 func init() {
 	rootCmd.AddCommand(sshKeyCmd)
 	sshKeyCmd.AddCommand(sshkeyListCmd)
 	sshKeyCmd.AddCommand(sshKeyDeleteCmd)
-	sshKeyCmd.AddCommand(sshKeyGetCmd)
 	scpf := sshKeyCreateCmd.PersistentFlags()
 	scpf.StringVar(&publicKey, "public-key", "", "The Public Key")
 	scpf.StringVar(&sshKeyName, "name", "", "The SSH Key name")
