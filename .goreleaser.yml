@@ -53,3 +53,14 @@ release:
     name: bizflyctl
   prerelease: auto
   name_template: "{{.ProjectName}}-v{{.Version}} {{.Env.USER}}"
+
+brews:
+  - homepage: 'https://github.com/bizflycloud/bizflyctl'
+    description: ' Command Line for Bizfly Cloud.'
+    folder: Formula
+    commit_author:
+      name: Tung Son Do
+      email: tungds@bizflycloud.vn
+    tap:
+      owner: bizflycloud
+      name: bizflyctl
