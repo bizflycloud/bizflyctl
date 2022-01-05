@@ -104,7 +104,7 @@ Example: bizfly server delete fd554aac-9ab1-11ea-b09d-bbaf82f02f58 f5869e9c-9ab2
 					}
 				}
 			}
-			err = client.Server.Delete(ctx, serverID, deleteVolumes)
+			task, err := client.Server.Delete(ctx, serverID, deleteVolumes)
 			if err != nil {
 				if errors.Is(err, gobizfly.ErrNotFound) {
 					fmt.Printf("Server %s is not found", serverID)
@@ -114,6 +114,7 @@ Example: bizfly server delete fd554aac-9ab1-11ea-b09d-bbaf82f02f58 f5869e9c-9ab2
 					return
 				}
 			}
+			fmt.Printf("Deleting server with task id: %s\n", task.TaskID)
 		}
 	},
 }
@@ -125,7 +126,7 @@ var serverListCmd = &cobra.Command{
 	Long:  `List all server in your account`,
 	Run: func(cmd *cobra.Command, args []string) {
 		client, ctx := getApiClient(cmd)
-		servers, err := client.Server.List(ctx, &gobizfly.ListOptions{})
+		servers, err := client.Server.List(ctx, &gobizfly.ServerListOptions{})
 		if err != nil {
 			log.Fatal(err)
 		}
