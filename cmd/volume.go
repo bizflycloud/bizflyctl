@@ -29,12 +29,13 @@ import (
 )
 
 var (
-	volumeHeaderList = []string{"ID", "Name", "Description", "Status", "Size", "Created At", "Type", "Snapshot ID"}
-	volumeName       string
-	volumeSize       int
-	volumeType       string
-	volumeCategory   string
-	serverID         string
+	volumeHeaderList  = []string{"ID", "Name", "Description", "Status", "Size", "Created At", "Type", "Snapshot ID", "Billing Plan"}
+	volumeName        string
+	volumeSize        int
+	volumeType        string
+	volumeCategory    string
+	volumeBillingPlan string
+	serverID          string
 )
 
 // volumeCmd represents the volume command
@@ -93,7 +94,8 @@ Example: bizfly volume get 9e580b1a-0526-460b-9a6f-d8f80130bda8
 			log.Fatal(err)
 		}
 		var data [][]string
-		data = append(data, []string{volume.ID, volume.Name, volume.Description, volume.Status, strconv.Itoa(volume.Size), volume.CreatedAt, volume.SnapshotID})
+		data = append(data, []string{volume.ID, volume.Name, volume.Description, volume.Status,
+			strconv.Itoa(volume.Size), volume.CreatedAt, volume.SnapshotID, volume.BillingPlan})
 		formatter.Output(volumeHeaderList, data)
 	},
 }
@@ -114,7 +116,8 @@ Example: bizfly volume list
 		var data [][]string
 		for _, vol := range volumes {
 			data = append(data, []string{
-				vol.ID, vol.Name, vol.Description, vol.Status, strconv.Itoa(vol.Size), vol.CreatedAt, vol.VolumeType, vol.SnapshotID})
+				vol.ID, vol.Name, vol.Description, vol.Status, strconv.Itoa(vol.Size),
+				vol.CreatedAt, vol.VolumeType, vol.SnapshotID, vol.BillingPlan})
 		}
 		formatter.Output(volumeHeaderList, data)
 	},
@@ -139,6 +142,7 @@ Use: bizfly volume create
 			AvailabilityZone: availabilityZone,
 			VolumeCategory:   volumeCategory,
 			Description:      description,
+			BillingPlan:      volumeBillingPlan,
 		}
 		volume, err := client.Volume.Create(ctx, &vcr)
 		if err != nil {
@@ -146,7 +150,8 @@ Use: bizfly volume create
 			os.Exit(1)
 		}
 		var data [][]string
-		data = append(data, []string{volume.ID, volume.Name, volume.Description, volume.Status, strconv.Itoa(volume.Size), volume.CreatedAt, volume.SnapshotID})
+		data = append(data, []string{volume.ID, volume.Name, volume.Description, volume.Status,
+			strconv.Itoa(volume.Size), volume.CreatedAt, volume.SnapshotID, volume.BillingPlan})
 		formatter.Output(volumeHeaderList, data)
 	},
 }
@@ -307,6 +312,7 @@ func init() {
 	vcpf.StringVar(&availabilityZone, "availability-zone", "HN1", "Avaialability Zone of volume.")
 	vcpf.StringVar(&snapshotID, "snapshot-id", "", "Create a volume from a snapshot")
 	vcpf.StringVar(&serverID, "server-id", "", "Create a new volume and attach to a server")
+	vcpf.StringVar(&volumeBillingPlan, "billing-plan", "saving_plan", "Billing plan of volume: saving_plan, on_demand")
 	volumeCmd.AddCommand(volumeCreateCmd)
 
 	volumeCmd.AddCommand(volumeAttachCmd)
