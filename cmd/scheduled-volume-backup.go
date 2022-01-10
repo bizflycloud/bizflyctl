@@ -176,6 +176,9 @@ var scheduledVolumeBackupUpdateCmd = &cobra.Command{
 			log.Fatal("Too many arguments")
 		}
 		backup, err := client.ScheduledVolumeBackup.Get(ctx, args[0])
+		if err != nil {
+			log.Fatal(err)
+		}
 		payload := gobizfly.UpdateBackupPayload{}
 		if frequency != "" {
 			payload.Frequency = frequency
