@@ -72,8 +72,8 @@ func init() {
 	rootCmd.PersistentFlags().StringVar(&password, "password", "", "Your Bizfly Cloud Password. Read environment variable BIZFLY_CLOUD_PASSWORD")
 	_ = rootCmd.MarkFlagRequired("password")
 
-	rootCmd.PersistentFlags().StringVar(&region, "region", "HN", "Region you want to access the resource.")
-	rootCmd.PersistentFlags().StringVar(&projectName, "project-name", "", "Your Bizfly Cloud Project Name")
+	rootCmd.PersistentFlags().StringVar(&region, "region", "HN", "Region you want to access the resource. Read environment variable BIZFLY_CLOUD_REGION")
+	rootCmd.PersistentFlags().StringVar(&projectName, "project-name", "", "Your Bizfly Cloud Project Name. Read environment variable BIZFLY_CLOUD_PROJECT_NAME")
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
@@ -98,6 +98,7 @@ func initConfig() {
 		viper.SetConfigName(".bizfly")
 	}
 
+	viper.SetEnvPrefix("BIZFLY_CLOUD")
 	viper.AutomaticEnv() // read in environment variables that match
 
 	// If a config file is found, read it in.
