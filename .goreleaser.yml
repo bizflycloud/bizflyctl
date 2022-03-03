@@ -64,3 +64,5 @@ brews:
     tap:
       owner: bizflycloud
       name: bizflyctl
+      token: "{{ secrets.HOMEBREW_TAP_GITHUB_TOKEN }}"
+
