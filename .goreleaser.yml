@@ -63,6 +63,5 @@ brews:
       email: tungds@bizflycloud.vn
     tap:
       owner: bizflycloud
-      name: bizflyctl
-      token: "{{ secrets.HOMEBREW_TAP_GITHUB_TOKEN }}"
+      name: homebrew-bizflyctl
 
