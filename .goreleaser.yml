@@ -25,7 +25,7 @@ builds:
 checksum:
   name_template: '{{ .ProjectName }}_checksums.txt'
 universal_binaries:
-  - name_template: '{{.ProjectName}}_{{.Version}}'
+  - name_template: 'bizfly'
     replace: true
     hooks:
       pre: make build
