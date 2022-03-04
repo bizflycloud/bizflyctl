@@ -5,39 +5,37 @@
 class Bizflyctl < Formula
   desc " Command Line for Bizfly Cloud."
   homepage "https://github.com/bizflycloud/bizflyctl"
-  version "0.2.2"
+  version "0.2.4"
 
   on_macos do
-    if Hardware::CPU.intel?
-      url "https://github.com/bizflycloud/bizflyctl/releases/download/v0.2.2/bizflyctl_Darwin_x86_64.tar.gz"
-      sha256 "25669a5481c20eb9a3492ea23fea970fa5cfb829894746abab8835219d0ae01a"
+    url "https://github.com/bizflycloud/bizflyctl/releases/download/v0.2.4/bizflyctl_Darwin_all.tar.gz"
+    sha256 "3597fdb9ce788732f71cff3a0b0efc0dc1a202d53cc6b524b59dd88d7791c96c"
 
-      def install
-        bin.install "bizfly"
-      end
+    def install
+      bin.install "bizflyctl_0.2.4"
     end
   end
 
   on_linux do
     if Hardware::CPU.arm? && !Hardware::CPU.is_64_bit?
-      url "https://github.com/bizflycloud/bizflyctl/releases/download/v0.2.2/bizflyctl_Linux_armv6.tar.gz"
-      sha256 "769c37be02a67303e87c26ccc24f924a39b5ff9410c25f4865e5e1bceba42d3a"
-
-      def install
-        bin.install "bizfly"
-      end
-    end
-    if Hardware::CPU.intel?
-      url "https://github.com/bizflycloud/bizflyctl/releases/download/v0.2.2/bizflyctl_Linux_x86_64.tar.gz"
-      sha256 "2a59513e4e45aa6fd8547983810494306470170eeae8f9980a036e5c7e9c92f0"
+      url "https://github.com/bizflycloud/bizflyctl/releases/download/v0.2.4/bizflyctl_Linux_armv6.tar.gz"
+      sha256 "c8b6cf15d5457c0cf01cd672b727c0df52a453f92618f6202ec22f3c6b262e3f"
 
       def install
         bin.install "bizfly"
       end
     end
     if Hardware::CPU.arm? && Hardware::CPU.is_64_bit?
-      url "https://github.com/bizflycloud/bizflyctl/releases/download/v0.2.2/bizflyctl_Linux_arm64.tar.gz"
-      sha256 "bb596881d19f5303d9a588fc0afe3c5a722353dd6b8da26ba1de0bd6d895d96d"
+      url "https://github.com/bizflycloud/bizflyctl/releases/download/v0.2.4/bizflyctl_Linux_arm64.tar.gz"
+      sha256 "10d7f7e935dd606d45feec8d56e9b259b217da306ecaca618f95047e07cd3ac6"
+
+      def install
+        bin.install "bizfly"
+      end
+    end
+    if Hardware::CPU.intel?
+      url "https://github.com/bizflycloud/bizflyctl/releases/download/v0.2.4/bizflyctl_Linux_x86_64.tar.gz"
+      sha256 "ca62391626948424fe4fffdf0027e03476a937e94b4feb45919d0d5eca3ffade"
 
       def install
         bin.install "bizfly"
