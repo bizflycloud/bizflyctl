@@ -1,6 +1,6 @@
 # bizflyctl
 
-Command line to interact with Bizfly Cloud 
+Command line to interact with Bizfly Cloud
 
 ### Install `bizflyctl`
 
@@ -14,7 +14,7 @@ brew install bizflyctl
 
 #### Build from source code
 
-- Clone the source code 
+- Clone the source code
 
 ```shell script
 git clone https://github.com/bizflycloud/bizflyctl
@@ -22,7 +22,7 @@ git clone https://github.com/bizflycloud/bizflyctl
 
 - Install golang
 
-- Build 
+- Build
 
 ```shell script
 go build -o bizfly main.go
