@@ -2,9 +2,15 @@
 
 Command line to interact with Bizfly Cloud 
 
-### Install
+### Install `bizflyctl`
 
-There are two ways to install the bizflyctl.
+There are three ways to install the bizflyctl.
+
+### Using homebrew on macOS:
+```shell script
+brew tap bizflycloud/bizflyctl
+brew install bizflyctl
+```
 
 #### Build from source code
 
@@ -30,7 +36,7 @@ go build -o bizfly main.go
 
 
 #### Install and configure
-
+## Using config file
 - Copy bizfly binary to `/usr/local/bin` with Linux and MacOS
 
 - Configure user name and password. Create a file `.bizfly.yaml` in your `$HOME` directory
@@ -40,6 +46,12 @@ email: <your email>
 password: <your password>
 ```
 
+## Using environment variables
+- Configure these environment for using bizflyctl:
+  - `BIZFLY_CLOUD_EMAIL` (Required)
+  - `BIZFLY_CLOUD_PASSWORD` (Required)
+  - `BIZFLY_CLOUD_REGION` (Optional. Default value is HN)
+  - `BIZFLY_CLOUD_PROJECT_NAME` (Optional)
 
 ### Example
 
