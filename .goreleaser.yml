@@ -68,5 +68,5 @@ brews:
       email: tungds@bizflycloud.vn
     tap:
       owner: bizflycloud
-      name: homebrew-bizflyctl
+      name: bizflyctl
 
