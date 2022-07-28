@@ -29,13 +29,15 @@ import (
 )
 
 var (
-	volumeHeaderList  = []string{"ID", "Name", "Description", "Status", "Size", "Created At", "Type", "Snapshot ID", "Billing Plan"}
-	volumeName        string
-	volumeSize        int
-	volumeType        string
-	volumeCategory    string
-	volumeBillingPlan string
-	serverID          string
+	volumeHeaderList     = []string{"ID", "Name", "Description", "Status", "Size", "Created At", "Type", "Snapshot ID", "Billing Plan"}
+	volumeTypeHeaderList = []string{"Name", "Category", "Type", "Availability Zones"}
+	volumeName           string
+	volumeSize           int
+	volumeType           string
+	volumeCategory       string
+	volumeBillingPlan    string
+	serverID             string
+	category             string
 )
 
 // volumeCmd represents the volume command
@@ -291,6 +293,34 @@ Use: bizfly volume patch <volume-id> [--name <vol_name>] [--description <descrip
 	},
 }
 
+var listVolumeTypesCmd = &cobra.Command{
+	Use:   "list-types",
+	Short: "List volume types",
+	Long: `
+List volume types
+Use: bizfly volume list-types --category <category> --availability-zone <availability-zone>`,
+	Run: func(cmd *cobra.Command, args []string) {
+		client, ctx := getApiClient(cmd)
+		opts := &gobizfly.ListVolumeTypesOptions{}
+		if category != "" {
+			opts.Category = category
+		}
+		if availabilityZone != "" {
+			opts.AvailabilityZone = availabilityZone
+		}
+		volumeTypes, err := client.Volume.ListVolumeTypes(ctx, opts)
+		if err != nil {
+			log.Fatal(err)
+		}
+		var data [][]string
+		for _, volumeType := range volumeTypes {
+			data = append(data, []string{volumeType.Name, volumeType.Category, volumeType.Type,
+				strings.Join(volumeType.AvailabilityZones, ",")})
+		}
+		formatter.Output(volumeTypeHeaderList, data)
+	},
+}
+
 func init() {
 	rootCmd.AddCommand(volumeCmd)
 	volumeCmd.AddCommand(volumeListCmd)
@@ -326,4 +356,8 @@ func init() {
 	pvpf.StringVar(&description, "description", "", "Patched volume description")
 	_ = cobra.MarkFlagRequired(pvpf, "description")
 	volumeCmd.AddCommand(patchVolumeCmd)
+	volumeCmd.AddCommand(listVolumeTypesCmd)
+	lvtpf := listVolumeTypesCmd.PersistentFlags()
+	lvtpf.StringVar(&category, "category", "", "Volume category")
+	lvtpf.StringVar(&availabilityZone, "availability-zone", "", "Availability Zone of volume.")
 }
