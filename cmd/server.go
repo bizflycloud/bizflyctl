@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/bizflycloud/bizflyctl/formatter"
@@ -30,6 +31,7 @@ import (
 var (
 	serverListHeader = []string{"ID", "Name", "Zone", "Key Name", "Status", "Flavor", "Category",
 		"LAN IP", "WAN IP", "Attached Volumes", "Created At"}
+	serverTypeListHeader = []string{"ID", "Name", "Enabled", "Compute class"}
 
 	serverName string
 	// serverOS gobizfly type
@@ -419,6 +421,29 @@ var serverRemoveVPCCmd = &cobra.Command{
 	},
 }
 
+var serverListTypes = &cobra.Command{
+	Use:   "list-types",
+	Short: "List server types",
+	Long: `
+List server types.
+Use: bizfly server list-types
+`,
+	Run: func(cmd *cobra.Command, args []string) {
+		client, ctx := getApiClient(cmd)
+		resp, err := client.Server.ListServerTypes(ctx)
+		if err != nil {
+			fmt.Printf("List server types error %v\n", err)
+			os.Exit(1)
+		}
+		var data [][]string
+		for _, serverType := range resp {
+			data = append(data, []string{serverType.ID, serverType.Name, strconv.FormatBool(serverType.Enabled),
+				strings.Join(serverType.ComputeClass, ",")})
+		}
+		formatter.Output(serverTypeListHeader, data)
+	},
+}
+
 func init() {
 	rootCmd.AddCommand(serverCmd)
 	serverCmd.AddCommand(serverListCmd)
@@ -460,4 +485,5 @@ func init() {
 	serverRemoveVPCCmd.PersistentFlags().StringArrayVar(&vpcIDs, "vpc-ids", []string{}, "The VPC IDs")
 	_ = cobra.MarkFlagRequired(serverRemoveVPCCmd.PersistentFlags(), "vpc-ids")
 	serverCmd.AddCommand(serverRemoveVPCCmd)
+	serverCmd.AddCommand(serverListTypes)
 }
