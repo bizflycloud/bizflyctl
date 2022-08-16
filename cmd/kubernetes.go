@@ -36,7 +36,7 @@ import (
 
 var (
 	kubernetesClusterHeader    = []string{"ID", "Name", "VPC Network ID", "Worker Pools Count", "Cluster Status", "Tags", "Created At"}
-	detailKubernetesCluster    = []string{"ID", "Name", "VPCNetworkID", "WorkerPools", "WorkerPoolsCount", "ClusterStatus", "Tags", "CreatedAt"}
+	detailKubernetesCluster    = []string{"ID", "Name", "VPC Network ID", "Worker Pools", "Worker Pools Count", "Cluster Status", "Tags", "Created At"}
 	kubernetesWorkerPoolHeader = []string{"ID", "Name", "Version", "Flavor", "Volume Size", "Volume Type",
 		"Enabled AutoScaling", "Min Size", "Max Size", "Created At"}
 	clusterName              string
