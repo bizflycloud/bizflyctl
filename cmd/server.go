@@ -46,8 +46,9 @@ var (
 	availabilityZone string
 
 	// rootdisk
-	rootDiskType string
-	rootDiskSize int
+	rootDiskType       string
+	rootDiskVolumeType string
+	rootDiskSize       int
 	// ssh key
 	sshKey         string
 	deleteRootDisk bool
@@ -227,7 +228,7 @@ var serverCreateCmd = &cobra.Command{
 		}
 
 		rootDisk := gobizfly.ServerDisk{
-			Type: rootDiskType,
+			Type: &rootDiskType,
 			Size: rootDiskSize,
 		}
 
@@ -465,6 +466,7 @@ func init() {
 	scpf.StringVar(&serverCategory, "category", "premium", "Server category: basic, premium or enterprise.")
 	scpf.StringVar(&availabilityZone, "availability-zone", "HN1", "Availability Zone of server.")
 	scpf.StringVar(&rootDiskType, "rootdisk-type", "HDD", "Type of root disk: HDD or SSD.")
+	scpf.StringVar(&rootDiskVolumeType, "rootdisk-volume-type", "", "Type of root disk volume - get from listing volume types: PREMIUM-HDD1")
 	scpf.IntVar(&rootDiskSize, "rootdisk-size", 0, "Size of root disk in Gigabyte. Minimum is 20GB")
 	_ = cobra.MarkFlagRequired(scpf, "rootdisk-size")
 	scpf.StringVar(&sshKey, "ssh-key", "", "SSH key")
