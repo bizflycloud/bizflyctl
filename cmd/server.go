@@ -57,6 +57,7 @@ var (
 	networkInterfaces []string
 	firewalls         []string
 	networkPlan       string
+	billingPlan       string
 )
 
 const attachTypeRootDisk = "rootdisk"
@@ -445,6 +446,52 @@ Use: bizfly server list-types
 	},
 }
 
+var serverChangeNetworkPlanCmd = &cobra.Command{
+	Use:   "change-network-plan",
+	Short: "Change network plan",
+	Long: `
+Change network plan.
+Use: bizfly server change-network-plan <server-id> --network-plan <network-plan>
+`,
+	Run: func(cmd *cobra.Command, args []string) {
+		if len(args) < 1 {
+			fmt.Println("You need to specify server-id in the command. Use bizfly server change-network-plan <server-id> --network-plan")
+			os.Exit(1)
+		}
+		serverID := args[0]
+		client, ctx := getApiClient(cmd)
+		err := client.Server.ChangeNetworkPlan(ctx, serverID, networkPlan)
+		if err != nil {
+			fmt.Printf("Change network plan error %v\n", err)
+			os.Exit(1)
+		}
+		fmt.Printf("Changing network plan of server %s to %s\n", serverID, networkPlan)
+	},
+}
+
+var serverSwitchBillingPlanCmd = &cobra.Command{
+	Use:   "switch-billing-plan",
+	Short: "Switch billing plan",
+	Long: `
+Switch billing plan.
+Use: bizfly server switch-billing-plan <server-id> --billing-plan <billing-plan>
+`,
+	Run: func(cmd *cobra.Command, args []string) {
+		if len(args) < 1 {
+			fmt.Println("You need to specify server-id in the command. Use bizfly server switch-billing-plan <server-id> --billing-plan")
+			os.Exit(1)
+		}
+		serverID := args[0]
+		client, ctx := getApiClient(cmd)
+		err := client.Server.SwitchBillingPlan(ctx, serverID, billingPlan)
+		if err != nil {
+			fmt.Printf("Switch billing plan error %v\n", err)
+			os.Exit(1)
+		}
+		fmt.Printf("Switching billing plan of server: %s to %s\n", serverID, billingPlan)
+	},
+}
+
 func init() {
 	rootCmd.AddCommand(serverCmd)
 	serverCmd.AddCommand(serverListCmd)
@@ -488,4 +535,11 @@ func init() {
 	_ = cobra.MarkFlagRequired(serverRemoveVPCCmd.PersistentFlags(), "vpc-ids")
 	serverCmd.AddCommand(serverRemoveVPCCmd)
 	serverCmd.AddCommand(serverListTypes)
+	serverCmd.AddCommand(serverChangeNetworkPlanCmd)
+	cnpf := serverChangeNetworkPlanCmd.PersistentFlags()
+	cnpf.StringVar(&networkPlan, "network-plan", "", "Network plan of server (free_bandwidth|free_datatransfer)")
+	_ = cobra.MarkFlagRequired(cnpf, "network-plan")
+	sblpf := serverSwitchBillingPlanCmd.PersistentFlags()
+	sblpf.StringVar(&billingPlan, "billing-plan", "", "Billing plan of server (saving_plan|on_demand)")
+	serverCmd.AddCommand(serverSwitchBillingPlanCmd)
 }
