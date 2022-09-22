@@ -21,7 +21,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"strings"
 	"time"
 
 	"github.com/bizflycloud/gobizfly"
@@ -131,7 +130,7 @@ func getApiClient(cmd *cobra.Command) (*gobizfly.Client, context.Context) {
 		projectName = viper.GetString("project_name")
 	}
 
-	client, err := gobizfly.NewClient(gobizfly.WithTenantName(email), gobizfly.WithRegionName(strings.ToUpper(region))) // nolint
+	client, err := gobizfly.NewClient(gobizfly.WithTenantName(email), gobizfly.WithRegionName(region))
 
 	if err != nil {
 		log.Fatal(err)
