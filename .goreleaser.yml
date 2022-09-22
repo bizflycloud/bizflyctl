@@ -18,6 +18,8 @@ builds:
     ignore:
       - goos: darwin
         goarch: 386
+      - goos: windows
+        goarch: arm64
     main: main.go
     binary: bizfly
     hooks:
