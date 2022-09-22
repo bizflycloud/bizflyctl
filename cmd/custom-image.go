@@ -29,7 +29,7 @@ import (
 )
 
 var (
-	customImageHeader = []string{"ID", "Name", "Description", "Container Format", "Size", "Status", "Visibility"}
+	customImageHeader = []string{"ID", "Name", "Description", "Disk Format", "Size", "Status", "Visibility"}
 	imageURL          string
 	diskFormat        string
 	customImageName   string
@@ -59,7 +59,7 @@ var customImageList = &cobra.Command{
 		var data [][]string
 		for _, image := range images {
 			data = append(data, []string{image.ID, image.Name, image.Description,
-				image.ContainerFormat, strconv.Itoa(image.Size), image.Status, image.Visibility})
+				image.DiskFormat, strconv.Itoa(image.Size), image.Status, image.Visibility})
 		}
 		formatter.Output(customImageHeader, data)
 	},
@@ -90,7 +90,7 @@ Example: bizfly custom-image create --name xyz --disk-format raw --description a
 			image := resp.Image
 			var data [][]string
 			data = append(data, []string{image.ID, image.Name, image.Description,
-				image.ContainerFormat, strconv.Itoa(image.Size), image.Status, image.Visibility})
+				image.DiskFormat, strconv.Itoa(image.Size), image.Status, image.Visibility})
 			formatter.Output(customImageHeader, data)
 		} else {
 			resp, err := client.Server.CreateCustomImage(ctx, &gobizfly.CreateCustomImagePayload{
@@ -122,7 +122,7 @@ Example: bizfly custom-image create --name xyz --disk-format raw --description a
 			image := resp.Image
 			var data [][]string
 			data = append(data, []string{image.ID, image.Name, image.Description,
-				image.ContainerFormat, strconv.Itoa(image.Size), image.Status, image.Visibility})
+				image.DiskFormat, strconv.Itoa(image.Size), image.Status, image.Visibility})
 			formatter.Output(customImageHeader, data)
 		}
 	},
@@ -162,7 +162,7 @@ var customImageDownload = &cobra.Command{
 
 		if image.ID == args[0] {
 			downloadURL := image.File
-			fileName := fmt.Sprintf("%s.%s", image.Name, image.ContainerFormat)
+			fileName := fmt.Sprintf("%s.%s", image.Name, image.DiskFormat)
 			file, err := os.Create(filepath.Join(downloadPath, fileName))
 			if err != nil {
 				log.Fatal(err)
@@ -186,7 +186,7 @@ var customImageDownload = &cobra.Command{
 			fmt.Printf("Downloaded a file %s with size %d Bytes\n", fileName, size)
 
 			data = append(data, []string{image.ID, image.Name, image.Description,
-				image.ContainerFormat, strconv.Itoa(image.Size), image.Status, image.Visibility})
+				image.DiskFormat, strconv.Itoa(image.Size), image.Status, image.Visibility})
 		}
 		formatter.Output(customImageHeader, data)
 	},
