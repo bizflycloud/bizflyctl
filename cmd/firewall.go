@@ -5,7 +5,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+	http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -246,6 +246,17 @@ Example: bizfly firewall rule create <firewall ID> --direction <ingress|egress> 
 			log.Fatal("You need to specify the fireewall ID in the command")
 		}
 		client, ctx := getApiClient(cmd)
+		frcr := gobizfly.FirewallSingleRuleCreateRequest{
+			Direction: fwRuleDirection,
+			FirewallRuleCreateRequest: gobizfly.FirewallRuleCreateRequest{
+				Protocol: fwRuleProtocol,
+				CIDR:     fwRuleCIDR,
+				Type:     "CUSTOM",
+			},
+		}
+		if fwPortRange != "" {
+			frcr.PortRange = fwPortRange
+		}
 		resp, err := client.Firewall.CreateRule(ctx, args[0], &gobizfly.FirewallSingleRuleCreateRequest{
 			Direction: fwRuleDirection,
 			FirewallRuleCreateRequest: gobizfly.FirewallRuleCreateRequest{
@@ -281,7 +292,8 @@ func init() {
 	_ = cobra.MarkFlagRequired(frcf, "direction")
 	frcf.StringVar(&fwRuleProtocol, "protocol", "", "Protocol, one of tcp and udp")
 	_ = cobra.MarkFlagRequired(frcf, "protocol")
-	frcf.StringVar(&fwPortRange, "port-range", "", "Port or Port range. You can specify only one port or port range. Example: 80 and 80-90.")
+	frcf.StringVar(&fwPortRange, "port-range", "1-65535", "Port or Port range. You can specify only one port or port range. Example: 80 and 80-90.")
+	frcf.StringVar(&fwRuleCIDR, "cidr", "0.0.0.0/0", "CIDR. Example: 10.0.0.0/24")
 
 	firewallCmd.AddCommand(firewallCreateCmd)
 	fcf := firewallCreateCmd.PersistentFlags()
