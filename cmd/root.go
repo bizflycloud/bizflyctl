@@ -129,7 +129,7 @@ func getApiClient(cmd *cobra.Command) (*gobizfly.Client, context.Context) {
 	if viper.GetString("project_name") != "" {
 		projectName = viper.GetString("project_name")
 	}
-
+	// nolint:staticcheck
 	client, err := gobizfly.NewClient(gobizfly.WithTenantName(email), gobizfly.WithRegionName(region))
 
 	if err != nil {
