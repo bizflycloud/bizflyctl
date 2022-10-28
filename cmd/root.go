@@ -30,11 +30,11 @@ import (
 )
 
 var (
-	cfgFile     string
-	email       string
-	password    string
-	region      string
-	projectName string
+	cfgFile    string
+	email      string
+	password   string
+	region     string
+	project_id string
 )
 
 // rootCmd represents the base command when called without any subcommands
@@ -72,7 +72,7 @@ func init() {
 	_ = rootCmd.MarkFlagRequired("password")
 
 	rootCmd.PersistentFlags().StringVar(&region, "region", "HN", "Region you want to access the resource. Read environment variable BIZFLY_CLOUD_REGION")
-	rootCmd.PersistentFlags().StringVar(&projectName, "project-name", "", "Your Bizfly Cloud Project Name. Read environment variable BIZFLY_CLOUD_PROJECT_NAME")
+	rootCmd.PersistentFlags().StringVar(&project_id, "project-id", "", "Your Bizfly Cloud Project ID. Read environment variable BIZFLY_CLOUD_PROJECT_ID")
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
@@ -126,11 +126,11 @@ func getApiClient(cmd *cobra.Command) (*gobizfly.Client, context.Context) {
 		region = viper.GetString("region")
 	}
 
-	if viper.GetString("project_name") != "" {
-		projectName = viper.GetString("project_name")
+	if viper.GetString("project_id") != "" {
+		project_id = viper.GetString("project_id")
 	}
 	// nolint:staticcheck
-	client, err := gobizfly.NewClient(gobizfly.WithTenantName(email), gobizfly.WithRegionName(region))
+	client, err := gobizfly.NewClient(gobizfly.WithProjectId(project_id), gobizfly.WithRegionName(region))
 
 	if err != nil {
 		log.Fatal(err)
@@ -138,7 +138,13 @@ func getApiClient(cmd *cobra.Command) (*gobizfly.Client, context.Context) {
 	ctx, cancelFunc := context.WithTimeout(context.Background(), time.Second*10)
 	defer cancelFunc()
 	//TODO Get token from cache
-	tok, err := client.Token.Create(ctx, &gobizfly.TokenCreateRequest{AuthMethod: "password", Username: email, Password: password, ProjectName: projectName})
+	tok, err := client.Token.Create(ctx,
+		&gobizfly.TokenCreateRequest{
+			AuthMethod: "password",
+			Username:   email,
+			Password:   password,
+			ProjectID:  project_id,
+		})
 	if err != nil {
 		log.Fatal(err)
 	}

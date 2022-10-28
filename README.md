@@ -51,7 +51,7 @@ password: <your password>
   - `BIZFLY_CLOUD_EMAIL` (Required)
   - `BIZFLY_CLOUD_PASSWORD` (Required)
   - `BIZFLY_CLOUD_REGION` (Optional. Default value is HN)
-  - `BIZFLY_CLOUD_PROJECT_NAME` (Optional)
+  - `BIZFLY_CLOUD_PROJECT_ID` (Optional)
 
 ### Example
 
