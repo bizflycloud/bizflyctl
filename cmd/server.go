@@ -227,10 +227,13 @@ var serverCreateCmd = &cobra.Command{
 			serverOS.Type = "snapshot"
 			serverOS.ID = snapshotID
 		}
-
 		rootDisk := gobizfly.ServerDisk{
-			Type: &rootDiskType,
 			Size: rootDiskSize,
+		}
+		if rootDiskVolumeType != "" {
+			rootDisk.VolumeType = &rootDiskVolumeType
+		} else {
+			rootDisk.Type = &rootDiskType
 		}
 
 		scr := gobizfly.ServerCreateRequest{
@@ -492,6 +495,29 @@ Use: bizfly server switch-billing-plan <server-id> --billing-plan <billing-plan>
 	},
 }
 
+var serverRename = &cobra.Command{
+	Use:   "rename",
+	Short: "Rename server",
+	Long: `
+Rename server.
+Use: bizfly server rename <server-id> --name <name>
+`,
+	Run: func(cmd *cobra.Command, args []string) {
+		if len(args) < 1 {
+			fmt.Println("You need to specify server-id in the command. Use bizfly server rename <server-id> --name")
+			os.Exit(1)
+		}
+		serverID := args[0]
+		client, ctx := getApiClient(cmd)
+		err := client.Server.Rename(ctx, serverID, serverName)
+		if err != nil {
+			fmt.Printf("Rename server error %v ", err)
+			os.Exit(1)
+		}
+		fmt.Printf("Renaming server: %s to %s ", serverID, serverName)
+	},
+}
+
 func init() {
 	rootCmd.AddCommand(serverCmd)
 	serverCmd.AddCommand(serverListCmd)
@@ -542,4 +568,8 @@ func init() {
 	sblpf := serverSwitchBillingPlanCmd.PersistentFlags()
 	sblpf.StringVar(&billingPlan, "billing-plan", "", "Billing plan of server (saving_plan|on_demand)")
 	serverCmd.AddCommand(serverSwitchBillingPlanCmd)
+
+	serverRename.PersistentFlags().StringVar(&serverName, "name", "", "Name of server")
+	_ = cobra.MarkFlagRequired(serverRename.PersistentFlags(), "name")
+	serverCmd.AddCommand(serverRename)
 }
