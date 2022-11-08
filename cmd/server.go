@@ -58,6 +58,7 @@ var (
 	firewalls         []string
 	networkPlan       string
 	billingPlan       string
+	isCreatedWan      bool
 )
 
 const attachTypeRootDisk = "rootdisk"
@@ -247,6 +248,8 @@ var serverCreateCmd = &cobra.Command{
 			NetworkPlan:      networkPlan,
 			Firewalls:        firewalls,
 			NetworkInterface: networkInterfaces,
+			BillingPlan:      billingPlan,
+			IsCreatedWan:     isCreatedWan,
 		}
 		client, ctx := getApiClient(cmd)
 		svrTask, err := client.Server.Create(ctx, &scr)
@@ -543,6 +546,9 @@ func init() {
 	scpf.IntVar(&rootDiskSize, "rootdisk-size", 0, "Size of root disk in Gigabyte. Minimum is 20GB")
 	_ = cobra.MarkFlagRequired(scpf, "rootdisk-size")
 	scpf.StringVar(&sshKey, "ssh-key", "", "SSH key")
+	scpf.BoolVar(&isCreatedWan, "is-created-wan-ip", true, "Choose whatever create a WAN IP for server")
+	scpf.StringVar(&billingPlan, "billing-plan", "saving_plan", "Billing plan of server (saving_plan|on_demand)."+
+		" Default is saving_plan")
 
 	serverCmd.AddCommand(serverCreateCmd)
 	serverCmd.AddCommand(serverRebootCmd)
@@ -563,10 +569,10 @@ func init() {
 	serverCmd.AddCommand(serverListTypes)
 	serverCmd.AddCommand(serverChangeNetworkPlanCmd)
 	cnpf := serverChangeNetworkPlanCmd.PersistentFlags()
-	cnpf.StringVar(&networkPlan, "network-plan", "", "Network plan of server (free_bandwidth|free_datatransfer)")
+	cnpf.StringVar(&networkPlan, "network-plan", "", "Network plan of server (free_bandwidth|free_datatransfer). Default: free_datatranfer")
 	_ = cobra.MarkFlagRequired(cnpf, "network-plan")
 	sblpf := serverSwitchBillingPlanCmd.PersistentFlags()
-	sblpf.StringVar(&billingPlan, "billing-plan", "", "Billing plan of server (saving_plan|on_demand)")
+	sblpf.StringVar(&billingPlan, "billing-plan", "", "Billing plan of server (saving_plan|on_demand). Default: ")
 	serverCmd.AddCommand(serverSwitchBillingPlanCmd)
 
 	serverRename.PersistentFlags().StringVar(&serverName, "name", "", "Name of server")
