@@ -4,6 +4,14 @@ go 1.17
 
 require (
 	github.com/bizflycloud/gobizfly v1.0.8
+	github.com/jedib0t/go-pretty v4.3.0+incompatible
+	github.com/mitchellh/go-homedir v1.1.0
+	github.com/olekukonko/tablewriter v0.0.4
+	github.com/spf13/cobra v1.0.0
+	github.com/spf13/viper v1.7.1
+	gopkg.in/yaml.v2 v2.2.8
+)
+
 require (
 	github.com/asaskevich/govalidator v0.0.0-20190424111038-f61b66f89f4a // indirect
 	github.com/fsnotify/fsnotify v1.4.7 // indirect
@@ -26,4 +34,3 @@ require (
 	golang.org/x/text v0.3.2 // indirect
 	gopkg.in/ini.v1 v1.51.0 // indirect
 )
-require github.com/go-openapi/strfmt v0.19.5 // indirect

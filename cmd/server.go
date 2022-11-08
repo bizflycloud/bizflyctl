@@ -227,10 +227,13 @@ var serverCreateCmd = &cobra.Command{
 			serverOS.Type = "snapshot"
 			serverOS.ID = snapshotID
 		}
-
 		rootDisk := gobizfly.ServerDisk{
-			Type: &rootDiskType,
 			Size: rootDiskSize,
+		}
+		if rootDiskVolumeType != "" {
+			rootDisk.VolumeType = &rootDiskVolumeType
+		} else {
+			rootDisk.Type = &rootDiskType
 		}
 
 		scr := gobizfly.ServerCreateRequest{

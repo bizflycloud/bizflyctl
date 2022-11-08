@@ -127,17 +127,10 @@ func getApiClient(cmd *cobra.Command) (*gobizfly.Client, context.Context) {
 	}
 
 	if viper.GetString("project_id") != "" {
-<<<<<<< HEAD
 		project_id = viper.GetString("project_id")
 	}
 	// nolint:staticcheck
 	client, err := gobizfly.NewClient(gobizfly.WithProjectId(project_id), gobizfly.WithRegionName(region))
-=======
-		projectName = viper.GetString("project_id")
-	}
-
-	client, err := gobizfly.NewClient(gobizfly.WithRegionName(region))
->>>>>>> 97541a0 (feat: support rename server; switch from use project name to project id)
 
 	if err != nil {
 		log.Fatal(err)
@@ -145,7 +138,6 @@ func getApiClient(cmd *cobra.Command) (*gobizfly.Client, context.Context) {
 	ctx, cancelFunc := context.WithTimeout(context.Background(), time.Second*10)
 	defer cancelFunc()
 	//TODO Get token from cache
-<<<<<<< HEAD
 	tok, err := client.Token.Create(ctx,
 		&gobizfly.TokenCreateRequest{
 			AuthMethod: "password",
@@ -153,9 +145,6 @@ func getApiClient(cmd *cobra.Command) (*gobizfly.Client, context.Context) {
 			Password:   password,
 			ProjectID:  project_id,
 		})
-=======
-	tok, err := client.Token.Create(ctx, &gobizfly.TokenCreateRequest{AuthMethod: "password", Username: email, Password: password, ProjectID: projectName})
->>>>>>> 97541a0 (feat: support rename server; switch from use project name to project id)
 	if err != nil {
 		log.Fatal(err)
 	}
