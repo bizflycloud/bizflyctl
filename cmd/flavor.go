@@ -5,9 +5,15 @@ import (
 	"github.com/bizflycloud/bizflyctl/formatter"
 	"github.com/spf13/cobra"
 	"os"
+	"regexp"
+	"strconv"
 )
 
-var flavorListHeader = []string{"ID", "Name"}
+var (
+	flavorListHeader = []string{"ID", "Name", "CPU", "RAM", "Category"}
+	vcpus            int
+	ram              int
+)
 
 // flavorCmd represents the flavor command
 var flavorCmd = &cobra.Command{
@@ -34,8 +40,24 @@ Use: bizfly flavor list
 			os.Exit(1)
 		}
 		var data [][]string
+		var flavorName string
 		for _, flavor := range flavors {
-			s := []string{flavor.ID, flavor.Name}
+			flavor.RAM = flavor.RAM / 1024
+			if category != "" && category != flavor.Category {
+				continue
+			}
+			if vcpus != -1 && vcpus != flavor.VCPUs {
+				continue
+			}
+			if ram != -1 && ram != flavor.RAM {
+				continue
+			}
+			re := regexp.MustCompile(`(\d+c_\d+g)`)
+			result := re.FindStringSubmatch(flavor.Name)
+			if result[0] != "" {
+				flavorName = result[0]
+			}
+			s := []string{flavor.ID, flavorName, strconv.Itoa(flavor.VCPUs), strconv.Itoa(flavor.RAM), flavor.Category}
 			data = append(data, s)
 		}
 		formatter.Output(flavorListHeader, data)
@@ -46,4 +68,8 @@ Use: bizfly flavor list
 func init() {
 	rootCmd.AddCommand(flavorCmd)
 	flavorCmd.AddCommand(flavorListCmd)
+	flpf := flavorListCmd.PersistentFlags()
+	flpf.StringVar(&category, "category", "", "Filter flavor by category")
+	flpf.IntVar(&vcpus, "cpu", -1, "Filter flavor by cpus")
+	flpf.IntVar(&ram, "ram", -1, "Filter flavor by ram")
 }
