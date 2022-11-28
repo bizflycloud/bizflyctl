@@ -29,7 +29,7 @@ import (
 )
 
 var (
-	volumeHeaderList     = []string{"ID", "Name", "Description", "Status", "Size", "Created At", "Volume Type", "Snapshot ID", "Billing Plan"}
+	volumeHeaderList     = []string{"ID", "Name", "Description", "Status", "Size", "Created At", "Volume Type", "Snapshot ID", "Billing Plan", "Zone"}
 	volumeTypeHeaderList = []string{"Name", "Category", "Type", "Availability Zones"}
 	volumeName           string
 	volumeSize           int
@@ -97,7 +97,8 @@ Example: bizfly volume get 9e580b1a-0526-460b-9a6f-d8f80130bda8
 		}
 		var data [][]string
 		data = append(data, []string{volume.ID, volume.Name, volume.Description, volume.Status,
-			strconv.Itoa(volume.Size), volume.CreatedAt, volume.VolumeType, volume.SnapshotID, volume.BillingPlan})
+			strconv.Itoa(volume.Size), volume.CreatedAt, volume.VolumeType, volume.SnapshotID, volume.BillingPlan,
+			volume.AvailabilityZone})
 		formatter.Output(volumeHeaderList, data)
 	},
 }
@@ -119,7 +120,7 @@ Example: bizfly volume list
 		for _, vol := range volumes {
 			data = append(data, []string{
 				vol.ID, vol.Name, vol.Description, vol.Status, strconv.Itoa(vol.Size),
-				vol.CreatedAt, vol.VolumeType, vol.SnapshotID, vol.BillingPlan})
+				vol.CreatedAt, vol.VolumeType, vol.SnapshotID, vol.BillingPlan, vol.AvailabilityZone})
 		}
 		formatter.Output(volumeHeaderList, data)
 	},
@@ -153,7 +154,8 @@ Use: bizfly volume create
 		}
 		var data [][]string
 		data = append(data, []string{volume.ID, volume.Name, volume.Description, volume.Status,
-			strconv.Itoa(volume.Size), volume.CreatedAt, volume.VolumeType, volume.SnapshotID, volume.BillingPlan})
+			strconv.Itoa(volume.Size), volume.CreatedAt, volume.VolumeType, volume.SnapshotID, volume.BillingPlan,
+			volume.AvailabilityZone})
 		formatter.Output(volumeHeaderList, data)
 	},
 }
@@ -289,7 +291,7 @@ Use: bizfly volume patch <volume-id> [--name <vol_name>] [--description <descrip
 		}
 		var data [][]string
 		data = append(data, []string{volume.ID, volume.Name, volume.Description, volume.Status, strconv.Itoa(volume.Size),
-			volume.CreatedAt, volume.VolumeType, volume.SnapshotID, volume.BillingPlan})
+			volume.CreatedAt, volume.VolumeType, volume.SnapshotID, volume.BillingPlan, volume.AvailabilityZone})
 		formatter.Output(volumeHeaderList, data)
 	},
 }

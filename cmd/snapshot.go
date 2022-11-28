@@ -29,8 +29,9 @@ import (
 )
 
 var (
-	snapshotHeaderList = []string{"ID", "Name", "Status", "Size", "Type", "Created At", "Volume ID", "Billing Plan"}
-	snapshotName       string
+	snapshotHeaderList = []string{"ID", "Name", "Status", "Size", "Type", "Created At",
+		"Volume ID", "Billing Plan", "Zone"}
+	snapshotName string
 )
 
 // snapshotCmd represents the snapshot command
@@ -68,7 +69,7 @@ Exmaple: bizfly snapshot create <volume_id> --name snapshot-name`,
 		}
 		var data [][]string
 		data = append(data, []string{snap.Id, snap.Name, snap.Status, strconv.Itoa(snap.Size),
-			snap.VolumeTypeId, snap.CreateAt, snap.VolumeId, snap.BillingPlan})
+			snap.VolumeTypeId, snap.CreateAt, snap.VolumeId, snap.BillingPlan, snap.ZoneName})
 		formatter.Output(snapshotHeaderList, data)
 	},
 }
@@ -116,7 +117,7 @@ Example: bizfly snapshot get <snapshot_id>`,
 		}
 		var data [][]string
 		data = append(data, []string{snap.Id, snap.Name, snap.Status, strconv.Itoa(snap.Size),
-			snap.VolumeTypeId, snap.CreateAt, snap.VolumeId, snap.BillingPlan})
+			snap.VolumeTypeId, snap.CreateAt, snap.VolumeId, snap.BillingPlan, snap.ZoneName})
 		formatter.Output(snapshotHeaderList, data)
 	},
 }
@@ -141,7 +142,7 @@ Example: bizfly snapshot list
 		for _, snap := range snapshots {
 			data = append(data, []string{
 				snap.Id, snap.Name, snap.Status, strconv.Itoa(snap.Size), snap.VolumeTypeId, snap.CreateAt,
-				snap.VolumeId, snap.BillingPlan})
+				snap.VolumeId, snap.BillingPlan, snap.ZoneName})
 		}
 		formatter.Output(snapshotHeaderList, data)
 	},
