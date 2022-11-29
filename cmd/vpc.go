@@ -28,7 +28,7 @@ import (
 )
 
 var (
-	vpcListHeader = []string{"ID", "Name", "MTU", "CIDR", "Description", "Tags", "Created At", "Is Default"}
+	vpcListHeader = []string{"ID", "Name", "MTU", "CIDR", "Description", "Tags", "Created At", "Is Default", "Zones"}
 	vpcName       string
 	vpcID         string
 	description   string
@@ -82,7 +82,8 @@ var vpcListCmd = &cobra.Command{
 		var data [][]string
 		for _, vpc := range vpcs {
 			s := []string{vpc.ID, vpc.Name, strconv.Itoa(vpc.MTU), vpc.Subnets[0].CIDR, vpc.Description,
-				strings.Join(vpc.Tags, ", "), vpc.CreatedAt, strconv.FormatBool(vpc.IsDefault)}
+				strings.Join(vpc.Tags, ", "), vpc.CreatedAt, strconv.FormatBool(vpc.IsDefault),
+				strings.Join(vpc.AvailabilityZoneHints, ", ")}
 			data = append(data, s)
 		}
 		formatter.Output(vpcListHeader, data)
@@ -109,7 +110,8 @@ Example: bizfly vpc get fd554aac-9ab1-11ea-b09d-bbaf82f02f58`,
 		}
 		var data [][]string
 		s := []string{vpc.ID, vpc.Name, strconv.Itoa(vpc.MTU), vpc.Subnets[0].CIDR, vpc.Description,
-			strings.Join(vpc.Tags, ", "), vpc.CreatedAt, strconv.FormatBool(vpc.IsDefault)}
+			strings.Join(vpc.Tags, ", "), vpc.CreatedAt, strconv.FormatBool(vpc.IsDefault),
+			strings.Join(vpc.AvailabilityZoneHints, ", ")}
 		data = append(data, s)
 		formatter.Output(vpcListHeader, data)
 	},
@@ -138,7 +140,8 @@ var vpcCreateCmd = &cobra.Command{
 		fmt.Printf("Create VPC successfully\n")
 		var data [][]string
 		s := []string{vpc.ID, vpc.Name, strconv.Itoa(vpc.MTU), vpc.Subnets[0].CIDR, vpc.Description,
-			strings.Join(vpc.Tags, ", "), vpc.CreatedAt, strconv.FormatBool(vpc.IsDefault)}
+			strings.Join(vpc.Tags, ", "), vpc.CreatedAt, strconv.FormatBool(vpc.IsDefault),
+			strings.Join(vpc.AvailabilityZoneHints, ", ")}
 		data = append(data, s)
 		formatter.Output(vpcListHeader, data)
 	},
@@ -167,7 +170,8 @@ var vpcUpdateCmd = &cobra.Command{
 		fmt.Printf("Update VPC successfully\n")
 		var data [][]string
 		s := []string{vpc.ID, vpc.Name, strconv.Itoa(vpc.MTU), vpc.Subnets[0].CIDR, vpc.Description,
-			strings.Join(vpc.Tags, ", "), vpc.CreatedAt, strconv.FormatBool(vpc.IsDefault)}
+			strings.Join(vpc.Tags, ", "), vpc.CreatedAt, strconv.FormatBool(vpc.IsDefault),
+			strings.Join(vpc.AvailabilityZoneHints, ", ")}
 		data = append(data, s)
 		formatter.Output(vpcListHeader, data)
 	},
