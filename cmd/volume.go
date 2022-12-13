@@ -29,7 +29,7 @@ import (
 )
 
 var (
-	volumeHeaderList     = []string{"ID", "Name", "Description", "Status", "Size", "Created At", "Volume Type", "Snapshot ID", "Billing Plan", "Zone"}
+	volumeHeaderList     = []string{"ID", "Name", "Description", "Status", "Size", "Created At", "Volume Type", "Snapshot ID", "Billing Plan", "Zone", "Attached Server"}
 	volumeTypeHeaderList = []string{"Name", "Category", "Type", "Availability Zones"}
 	volumeName           string
 	volumeSize           int
@@ -96,9 +96,13 @@ Example: bizfly volume get 9e580b1a-0526-460b-9a6f-d8f80130bda8
 			log.Fatal(err)
 		}
 		var data [][]string
+		serverID := ""
+		if (len(volume.Attachments)) > 0 {
+			serverID = volume.Attachments[0].ServerID
+		}
 		data = append(data, []string{volume.ID, volume.Name, volume.Description, volume.Status,
 			strconv.Itoa(volume.Size), volume.CreatedAt, volume.VolumeType, volume.SnapshotID, volume.BillingPlan,
-			volume.AvailabilityZone})
+			volume.AvailabilityZone, serverID})
 		formatter.Output(volumeHeaderList, data)
 	},
 }
@@ -117,10 +121,14 @@ Example: bizfly volume list
 			log.Fatal(err)
 		}
 		var data [][]string
-		for _, vol := range volumes {
-			data = append(data, []string{
-				vol.ID, vol.Name, vol.Description, vol.Status, strconv.Itoa(vol.Size),
-				vol.CreatedAt, vol.VolumeType, vol.SnapshotID, vol.BillingPlan, vol.AvailabilityZone})
+		for _, volume := range volumes {
+			serverID := ""
+			if (len(volume.Attachments)) > 0 {
+				serverID = volume.Attachments[0].ServerID
+			}
+			data = append(data, []string{volume.ID, volume.Name, volume.Description, volume.Status,
+				strconv.Itoa(volume.Size), volume.CreatedAt, volume.VolumeType, volume.SnapshotID, volume.BillingPlan,
+				volume.AvailabilityZone, serverID})
 		}
 		formatter.Output(volumeHeaderList, data)
 	},
@@ -153,9 +161,13 @@ Use: bizfly volume create
 			os.Exit(1)
 		}
 		var data [][]string
+		serverID := ""
+		if (len(volume.Attachments)) > 0 {
+			serverID = volume.Attachments[0].ServerID
+		}
 		data = append(data, []string{volume.ID, volume.Name, volume.Description, volume.Status,
 			strconv.Itoa(volume.Size), volume.CreatedAt, volume.VolumeType, volume.SnapshotID, volume.BillingPlan,
-			volume.AvailabilityZone})
+			volume.AvailabilityZone, serverID})
 		formatter.Output(volumeHeaderList, data)
 	},
 }
@@ -290,8 +302,13 @@ Use: bizfly volume patch <volume-id> [--name <vol_name>] [--description <descrip
 			log.Fatal(err)
 		}
 		var data [][]string
-		data = append(data, []string{volume.ID, volume.Name, volume.Description, volume.Status, strconv.Itoa(volume.Size),
-			volume.CreatedAt, volume.VolumeType, volume.SnapshotID, volume.BillingPlan, volume.AvailabilityZone})
+		serverID := ""
+		if (len(volume.Attachments)) > 0 {
+			serverID = volume.Attachments[0].ServerID
+		}
+		data = append(data, []string{volume.ID, volume.Name, volume.Description, volume.Status,
+			strconv.Itoa(volume.Size), volume.CreatedAt, volume.VolumeType, volume.SnapshotID, volume.BillingPlan,
+			volume.AvailabilityZone, serverID})
 		formatter.Output(volumeHeaderList, data)
 	},
 }
