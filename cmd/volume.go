@@ -5,7 +5,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+	http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -30,7 +30,7 @@ import (
 
 var (
 	volumeHeaderList     = []string{"ID", "Name", "Description", "Status", "Size", "Created At", "Volume Type", "Snapshot ID", "Billing Plan", "Zone", "Attached Server"}
-	volumeTypeHeaderList = []string{"Name", "Category", "Type", "Availability Zones"}
+	volumeTypeHeaderList = []string{"Type", "Category", "Availability Zones"}
 	volumeName           string
 	volumeSize           int
 	volumeType           string
@@ -334,7 +334,7 @@ Use: bizfly volume list-types --category <category> --availability-zone <availab
 		}
 		var data [][]string
 		for _, volumeType := range volumeTypes {
-			data = append(data, []string{volumeType.Name, volumeType.Category, volumeType.Type,
+			data = append(data, []string{volumeType.Type, volumeType.Category,
 				strings.Join(volumeType.AvailabilityZones, ",")})
 		}
 		formatter.Output(volumeTypeHeaderList, data)
