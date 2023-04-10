@@ -71,7 +71,7 @@ func init() {
 	rootCmd.PersistentFlags().StringVar(&password, "password", "", "Your Bizfly Cloud Password. Read environment variable BIZFLY_CLOUD_PASSWORD")
 	_ = rootCmd.MarkFlagRequired("password")
 
-	rootCmd.PersistentFlags().StringVar(&region, "region", "HN", "Region you want to access the resource. Read environment variable BIZFLY_CLOUD_REGION")
+	rootCmd.PersistentFlags().StringVar(&region, "region", "HaNoi", "Region you want to access the resource. Read environment variable BIZFLY_CLOUD_REGION")
 	rootCmd.PersistentFlags().StringVar(&project_id, "project-id", "", "Your Bizfly Cloud Project ID. Read environment variable BIZFLY_CLOUD_PROJECT_ID")
 
 	// Cobra also supports local flags, which will only run
@@ -124,6 +124,9 @@ func getApiClient(cmd *cobra.Command) (*gobizfly.Client, context.Context) {
 
 	if viper.GetString("region") != "" {
 		region = viper.GetString("region")
+		if region == "HN" || region == "HCM" {
+			log.Println("HN and HCM is deprecated. Using HaNoi and HoChiMinh instead")
+		}
 	}
 
 	if viper.GetString("project_id") != "" {
