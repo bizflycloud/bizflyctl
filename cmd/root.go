@@ -124,6 +124,9 @@ func getApiClient(cmd *cobra.Command) (*gobizfly.Client, context.Context) {
 
 	if viper.GetString("region") != "" {
 		region = viper.GetString("region")
+		if region == "HN" || region == "HCM" {
+			log.Println("HN and HCM is deprecated. Using HaNoi and HoChiMinh instead")
+		}
 	}
 
 	if viper.GetString("project_id") != "" {
