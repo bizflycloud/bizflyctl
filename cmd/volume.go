@@ -116,7 +116,7 @@ Example: bizfly volume list
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 		client, ctx := getApiClient(cmd)
-		volumes, err := client.Volume.List(ctx, &gobizfly.ListOptions{})
+		volumes, err := client.Volume.List(ctx, &gobizfly.VolumeListOptions{})
 		if err != nil {
 			log.Fatal(err)
 		}

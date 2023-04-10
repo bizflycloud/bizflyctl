@@ -71,7 +71,7 @@ func init() {
 	rootCmd.PersistentFlags().StringVar(&password, "password", "", "Your Bizfly Cloud Password. Read environment variable BIZFLY_CLOUD_PASSWORD")
 	_ = rootCmd.MarkFlagRequired("password")
 
-	rootCmd.PersistentFlags().StringVar(&region, "region", "HN", "Region you want to access the resource. Read environment variable BIZFLY_CLOUD_REGION")
+	rootCmd.PersistentFlags().StringVar(&region, "region", "HaNoi", "Region you want to access the resource. Read environment variable BIZFLY_CLOUD_REGION")
 	rootCmd.PersistentFlags().StringVar(&project_id, "project-id", "", "Your Bizfly Cloud Project ID. Read environment variable BIZFLY_CLOUD_PROJECT_ID")
 
 	// Cobra also supports local flags, which will only run
