@@ -35,6 +35,7 @@ var (
 	password   string
 	region     string
 	project_id string
+	version    = "0.2.13"
 )
 
 // rootCmd represents the base command when called without any subcommands
@@ -44,6 +45,15 @@ var rootCmd = &cobra.Command{
 	Long:  `Bizfly Cloud Command Line`,
 	PreRun: func(cmd *cobra.Command, args []string) {
 		fmt.Println("Pre run")
+	},
+}
+
+var versionCmd = &cobra.Command{
+	Use:   "version",
+	Short: "Print the version number of Bizfly Cloud CLI",
+	Long:  `This is the version number of Bizfly Cloud CLI`,
+	Run: func(cmd *cobra.Command, args []string) {
+		fmt.Println("Bizfly Cloud CLI version:", version)
 	},
 }
 
@@ -77,6 +87,7 @@ func init() {
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
 	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	rootCmd.AddCommand(versionCmd)
 }
 
 // initConfig reads in config file and ENV variables if set.
