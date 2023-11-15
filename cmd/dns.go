@@ -3,12 +3,13 @@ package cmd
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/bizflycloud/bizflyctl/formatter"
-	"github.com/bizflycloud/gobizfly"
-	"github.com/spf13/cobra"
 	"log"
 	"strconv"
 	"strings"
+
+	"github.com/bizflycloud/bizflyctl/formatter"
+	"github.com/bizflycloud/gobizfly"
+	"github.com/spf13/cobra"
 )
 
 var (
@@ -92,7 +93,7 @@ Usage: ./bizfly dns get-zone <zone-id>`,
 		var recordSetData [][]string
 		for _, recordSet := range recordSets {
 			recordSetData = append(recordSetData, []string{recordSet.ID, recordSet.Name,
-				recordSet.Type, recordSet.TTL})
+				recordSet.Type, strconv.Itoa(recordSet.TTL)})
 		}
 		formatter.Output(zonesHeader, zoneData)
 		formatter.Output(recordSetHeader, recordSetData)
@@ -130,7 +131,7 @@ Usage: ./bizfly dns create-zone <zone-name> [flags]`,
 		var recordSetData [][]string
 		for _, recordSet := range recordSets {
 			recordSetData = append(recordSetData, []string{recordSet.ID, recordSet.Name,
-				recordSet.Type, recordSet.TTL})
+				recordSet.Type, strconv.Itoa(recordSet.TTL)})
 		}
 		formatter.Output(zonesHeader, zoneData)
 		formatter.Output(recordSetHeader, recordSetData)
@@ -192,12 +193,6 @@ Type arguments:
   - Type: MX
     + domain-data: specify the domains and its priority. Format: --domain-data domain:priority
     Example: ./bizfly dns create-record --zone-id 123-zone --name test_mx_1 --ttl 600 --type MX --domain-data test.com:10 --domain-data test1.com:49
-  - Type: GEOIP
-    + ipv4-policy: Specify IPv4 routing policy in regions (HN, HCM, SG, USA). Format: --ipv4-policy "region_name:<addr1:str>,<addr2:str>" 
-    + ipv6-policy: Specify IPv6 routing policy in regions (HN, HCM, SG, USA). Format: --ipv6-policy "region_name:<addr1:str>,<addr2:str>"
-    + tcp-healthcheck: Specify TCP configuration for healthcheck. Format: --tcp-healthcheck "tcp_port:<port:int>"
-    + http-healthcheck: Specify HTTP configuration for healthcheck. Format: --http-healthcheck "http_port:<port:int>;url_path:<path:str>;ok_codes:<code1:int>,<code2:int>;vhost:<domain:str>;interval:<interval:int>"
-    Example: ./bizfly dns create-record --zone-id zone_123 --name test_policy3 --ttl 600 --type GEOIP --ipv4-policy "HN:1.1.1.1,2.3.4.5" --ipv4-policy "HCM:68.68.79.23" --tcp-healthcheck "tcp_port:100" --http-healthcheck "http_port:1000;url_path:/health;ok_codes:400,404;vhost:test.com;interval:5"
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 		client, ctx := getApiClient(cmd)
@@ -221,54 +216,6 @@ Type arguments:
 			fmt.Printf("%+v\n", payload)
 			json_data, _ := json.Marshal(payload)
 			fmt.Println(string(json_data))
-			recordSet, err := client.DNS.CreateRecord(ctx, zoneID, payload)
-			if err != nil {
-				log.Fatal(err)
-			}
-			var recordSetData [][]string
-			stringData := ""
-			for _, ip := range recordSet.Data {
-				stringData += fmt.Sprintf("%v", ip) + "\n"
-			}
-			recordSetData = append(recordSetData, []string{recordSet.ID, recordSet.Name,
-				recordSet.Type, strconv.Itoa(recordSet.TTL), stringData})
-			formatter.Output(recordSetHeader, recordSetData)
-			outputRecordData(recordSet)
-		} else if recordType == "GEOIP" {
-			if len(ipv4RoutingPolicy) == 0 && len(ipv6RoutingPolicy) == 0 {
-				log.Fatal("Invalid argument")
-			}
-			v4Addrs := parsePolicyRecord(ipv4RoutingPolicy)
-			v6Addrs := parsePolicyRecord(ipv6RoutingPolicy)
-			HealthCheckPayload := gobizfly.HealthCheck{}
-			if httpHealthCheck != "" {
-				httpHealthCheckData := parseHTTPHealthCheck(httpHealthCheck)
-				HealthCheckPayload.HTTPStatus = httpHealthCheckData
-			}
-			if tcpHealthCheck != "" {
-				tcpHealthCheckData := parseTCPHealthCheck(tcpHealthCheck)
-				HealthCheckPayload.TCPConnect = tcpHealthCheckData
-			}
-			payloadData := gobizfly.CreatePolicyRecordPayload{
-				BaseCreateRecordPayload: gobizfly.BaseCreateRecordPayload{
-					Name: recordName,
-					Type: recordType,
-					TTL:  TTL,
-				},
-				RoutingPolicyData: gobizfly.RoutingPolicyData{
-					RoutingData: gobizfly.RoutingData{
-						AddrsV4: v4Addrs,
-						AddrsV6: v6Addrs,
-					},
-					HealthCheck: HealthCheckPayload,
-				},
-			}
-			payload := recordPayload{
-				Record: payloadData,
-			}
-			json_data, _ := json.Marshal(payload)
-			fmt.Println(string(json_data))
-
 			recordSet, err := client.DNS.CreateRecord(ctx, zoneID, payload)
 			if err != nil {
 				log.Fatal(err)
@@ -341,18 +288,6 @@ func outputRecordData(record *gobizfly.Record) {
 			mxDatas = append(mxDatas, []string{domainMap["value"].(string), priority})
 		}
 		formatter.Output(MXDataHeader, mxDatas)
-	} else if record.Type == "GEOIP" {
-		var RoutingData [][]string
-		routingData := record.RoutingPolicyData.RoutingData
-		RoutingData = append(RoutingData,
-			[]string{"HN", joinIps(routingData.AddrsV4.HN), joinIps(routingData.AddrsV6.HN)})
-		RoutingData = append(RoutingData,
-			[]string{"HCM", joinIps(routingData.AddrsV4.HCM), joinIps(routingData.AddrsV6.HCM)})
-		RoutingData = append(RoutingData,
-			[]string{"SG", joinIps(routingData.AddrsV4.SG), joinIps(routingData.AddrsV6.SG)})
-		RoutingData = append(RoutingData,
-			[]string{"USA", joinIps(routingData.AddrsV4.USA), joinIps(routingData.AddrsV6.USA)})
-		formatter.Output(PolicyRoutingHeader, RoutingData)
 	}
 }
 
@@ -386,85 +321,6 @@ func parseMXRecord(data []string) []gobizfly.MXData {
 		mxData = append(mxData, gobizfly.MXData{Value: domain, Priority: priority})
 	}
 	return mxData
-}
-
-func parsePolicyRecord(data []string) gobizfly.Addrs {
-	addrs := gobizfly.Addrs{
-		HN:  []string{},
-		HCM: []string{},
-		SG:  []string{},
-		USA: []string{},
-	}
-	for _, regionData := range data {
-		fragments := strings.Split(regionData, ":")
-		region := fragments[0]
-		ips := strings.Split(fragments[1], ",")
-		switch region {
-		case "HN":
-			addrs.HN = ips
-		case "HCM":
-			addrs.HCM = ips
-		case "SG":
-			addrs.SG = ips
-		case "USA":
-			addrs.USA = ips
-		}
-	}
-	return addrs
-}
-
-func parseHTTPHealthCheck(healthCheckData string) gobizfly.HTTPHealthCheck {
-	var httpHealthCheck gobizfly.HTTPHealthCheck
-	pairFields := strings.Split(healthCheckData, ";")
-	for _, pairField := range pairFields {
-		keyAndValue := strings.Split(pairField, ":")
-		key := keyAndValue[0]
-		value := keyAndValue[1]
-		switch key {
-		case "http_port":
-			port, err := strconv.Atoi(value)
-			if err != nil {
-				log.Fatal(err)
-			}
-			httpHealthCheck.HTTPPort = port
-		case "url_path":
-			httpHealthCheck.URLPath = value
-		case "vhost":
-			httpHealthCheck.VHost = value
-		case "ok_codes":
-			var codes []int
-			for _, code := range strings.Split(value, ",") {
-				intCode, err := strconv.Atoi(code)
-				if err != nil {
-					log.Fatal(err)
-				}
-				codes = append(codes, intCode)
-			}
-			httpHealthCheck.OkCodes = codes
-		case "interval":
-			intInterval, err := strconv.Atoi(value)
-			if err != nil {
-				log.Fatal(err)
-			}
-			httpHealthCheck.Interval = intInterval
-		}
-	}
-	return httpHealthCheck
-}
-
-func parseTCPHealthCheck(data string) gobizfly.TCPHealthCheck {
-	var tcpHealthCheck gobizfly.TCPHealthCheck
-	keyAndValue := strings.Split(data, ":")
-	key := keyAndValue[0]
-	value := keyAndValue[1]
-	if key == "tcp_port" {
-		intPort, err := strconv.Atoi(value)
-		if err != nil {
-			log.Fatal(err)
-		}
-		tcpHealthCheck.TCPPort = intPort
-	}
-	return tcpHealthCheck
 }
 
 func init() {
