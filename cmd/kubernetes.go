@@ -50,6 +50,7 @@ var (
 	maxSize                  int
 	outputKubeConfigFilePath string
 	inputConfigFile          string
+	expireTime				 			 string
 )
 
 var kubernetesCmd = &cobra.Command{
@@ -341,7 +342,10 @@ var getKubeConfig = &cobra.Command{
 			log.Fatal("Invalid arguments")
 		}
 		client, ctx := getApiClient(cmd)
-		resp, err := client.KubernetesEngine.GetKubeConfig(ctx, args[0])
+		kubeconfigOptions := &gobizfly.GetKubeConfigOptions{
+			ExpiteTime: expireTime,
+		}
+		resp, err := client.KubernetesEngine.GetKubeConfig(ctx, args[0], kubeconfigOptions)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -465,5 +469,6 @@ func init() {
 	kubernetesWorkerPoolCmd.AddCommand(updateWorkerPool)
 
 	getKubeConfig.PersistentFlags().StringVar(&outputKubeConfigFilePath, "output", ".", "Output path")
+	getKubeConfig.PersistentFlags().StringVar(&expireTime, "expire-time", "3000", "Set kubeconfig's expire time")
 	kubernetesKubeConfigCmd.AddCommand(getKubeConfig)
 }
