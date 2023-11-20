@@ -50,7 +50,7 @@ var (
 	maxSize                  int
 	outputKubeConfigFilePath string
 	inputConfigFile          string
-	expireTime				 			 string
+	expireTime               string
 )
 
 var kubernetesCmd = &cobra.Command{
