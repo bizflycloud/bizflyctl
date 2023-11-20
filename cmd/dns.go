@@ -291,10 +291,6 @@ func outputRecordData(record *gobizfly.Record) {
 	}
 }
 
-func joinIps(data []string) string {
-	return strings.Join(data, "\n")
-}
-
 func checkValidType(recordType string, validTypes []string) bool {
 	var result bool
 	for _, validType := range validTypes {
