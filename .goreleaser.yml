@@ -68,7 +68,7 @@ brews:
     commit_author:
       name: Tung Son Do
       email: tungds@bizflycloud.vn
-    tap:
+    repository:
       owner: bizflycloud
       name: bizflyctl
 
