@@ -5,11 +5,11 @@
 class Bizflyctl < Formula
   desc " Command Line for Bizfly Cloud."
   homepage "https://github.com/bizflycloud/bizflyctl"
-  version "0.2.12"
+  version "0.2.14"
 
   on_macos do
-    url "https://github.com/bizflycloud/bizflyctl/releases/download/v0.2.12/bizflyctl_Darwin_all.tar.gz"
-    sha256 "5a834d012c76dc6b06e9e56e7ac06ba0f6d180672e39a8d79731e87d97c68b49"
+    url "https://github.com/bizflycloud/bizflyctl/releases/download/v0.2.14/bizflyctl_Darwin_all.tar.gz"
+    sha256 "d2a048ea54b319bacd55ffeaf40f5f394edbd9d2f27289c8ebd421b240b216dc"
 
     def install
       bin.install "bizfly"
@@ -18,24 +18,24 @@ class Bizflyctl < Formula
 
   on_linux do
     if Hardware::CPU.intel?
-      url "https://github.com/bizflycloud/bizflyctl/releases/download/v0.2.12/bizflyctl_Linux_x86_64.tar.gz"
-      sha256 "3c5990aaf5d1d6bfadb648c611a3688daf8bf31765ca43dba4deeda96dff393e"
+      url "https://github.com/bizflycloud/bizflyctl/releases/download/v0.2.14/bizflyctl_Linux_x86_64.tar.gz"
+      sha256 "3678f3e11f147b0b179902ed2d7e099c74c233f06983fade67fdd769c02d822b"
 
       def install
         bin.install "bizfly"
       end
     end
     if Hardware::CPU.arm? && !Hardware::CPU.is_64_bit?
-      url "https://github.com/bizflycloud/bizflyctl/releases/download/v0.2.12/bizflyctl_Linux_armv6.tar.gz"
-      sha256 "5013e95ec3b1e549286d0d2a5e0bebc8692a012c3f110d91332c7ccd71b4157c"
+      url "https://github.com/bizflycloud/bizflyctl/releases/download/v0.2.14/bizflyctl_Linux_armv6.tar.gz"
+      sha256 "66f2aa756ae80747707b259a9fa7bc970c8b7dc6c8c188b277d8393c80107843"
 
       def install
         bin.install "bizfly"
       end
     end
     if Hardware::CPU.arm? && Hardware::CPU.is_64_bit?
-      url "https://github.com/bizflycloud/bizflyctl/releases/download/v0.2.12/bizflyctl_Linux_arm64.tar.gz"
-      sha256 "c1061f30858c9a2c8107de60152d0f1ee0cac5994486a265c23079bbcf049fd1"
+      url "https://github.com/bizflycloud/bizflyctl/releases/download/v0.2.14/bizflyctl_Linux_arm64.tar.gz"
+      sha256 "5a3ad0406565357e17fb4acb325ac1f8ad0acff936b2546836944531bef98af7"
 
       def install
         bin.install "bizfly"
