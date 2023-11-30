@@ -2,11 +2,12 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/bizflycloud/bizflyctl/formatter"
-	"github.com/spf13/cobra"
 	"os"
 	"regexp"
 	"strconv"
+
+	"github.com/bizflycloud/bizflyctl/formatter"
+	"github.com/spf13/cobra"
 )
 
 var (
@@ -54,6 +55,9 @@ Use: bizfly flavor list
 			}
 			re := regexp.MustCompile(`(\d+c_\d+g)`)
 			result := re.FindStringSubmatch(flavor.Name)
+			if len(result) == 0 {
+				continue
+			}
 			if result[0] != "" {
 				flavorName = result[0]
 			}
