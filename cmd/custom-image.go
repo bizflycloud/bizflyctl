@@ -5,7 +5,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+	http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -158,9 +158,13 @@ var customImageDownload = &cobra.Command{
 		}
 		var data [][]string
 		image := resp.Image
-		token := resp.Token
+		token := ctx.Value("token").(string)
 
 		if image.ID == args[0] {
+			if image.Status != "active" {
+				log.Fatalf("Image %s is not ready to download. Status %s", image.ID, image.Status)
+				return
+			}
 			downloadURL := image.File
 			fileName := fmt.Sprintf("%s.%s", image.Name, image.DiskFormat)
 			file, err := os.Create(filepath.Join(downloadPath, fileName))
@@ -178,6 +182,10 @@ var customImageDownload = &cobra.Command{
 				log.Fatal(err)
 			}
 			defer resp.Body.Close()
+			if resp.StatusCode != 200 {
+				log.Fatalf("Download image failed. Status code %d", resp.StatusCode)
+				return
+			}
 			size, err := io.Copy(file, resp.Body)
 			if err != nil {
 				log.Fatal(err)

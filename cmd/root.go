@@ -140,7 +140,7 @@ func getApiClient(cmd *cobra.Command) (*gobizfly.Client, context.Context) {
 	}
 	ctx, cancelFunc := context.WithTimeout(context.Background(), time.Second*10)
 	defer cancelFunc()
-	//TODO Get token from cache
+	// TODO Get token from cache
 	tok, err := client.Token.Create(ctx,
 		&gobizfly.TokenCreateRequest{
 			AuthMethod: "password",
@@ -153,6 +153,7 @@ func getApiClient(cmd *cobra.Command) (*gobizfly.Client, context.Context) {
 	}
 
 	client.SetKeystoneToken(tok)
+	ctx = context.WithValue(ctx, "token", tok.KeystoneToken)
 
 	return client, ctx
 }
