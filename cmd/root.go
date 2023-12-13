@@ -153,6 +153,7 @@ func getApiClient(cmd *cobra.Command) (*gobizfly.Client, context.Context) {
 	}
 
 	client.SetKeystoneToken(tok)
+	ctx = context.WithValue(ctx, "token", tok.KeystoneToken)
 
 	return client, ctx
 }

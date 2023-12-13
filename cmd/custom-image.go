@@ -158,7 +158,7 @@ var customImageDownload = &cobra.Command{
 		}
 		var data [][]string
 		image := resp.Image
-		token := resp.Token
+		token := ctx.Value("token").(string)
 
 		if image.ID == args[0] {
 			if image.Status != "active" {
