@@ -5,7 +5,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+	http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -238,18 +238,18 @@ var serverCreateCmd = &cobra.Command{
 		}
 
 		scr := gobizfly.ServerCreateRequest{
-			Name:             serverName,
-			FlavorName:       flavorName,
-			SSHKey:           sshKey,
-			RootDisk:         &rootDisk,
-			Type:             serverCategory,
-			AvailabilityZone: availabilityZone,
-			OS:               &serverOS,
-			NetworkPlan:      networkPlan,
-			Firewalls:        firewalls,
-			NetworkInterface: networkInterfaces,
-			BillingPlan:      billingPlan,
-			IsCreatedWan:     isCreatedWan,
+			Name:              serverName,
+			FlavorName:        flavorName,
+			SSHKey:            sshKey,
+			RootDisk:          &rootDisk,
+			Type:              serverCategory,
+			AvailabilityZone:  availabilityZone,
+			OS:                &serverOS,
+			NetworkPlan:       networkPlan,
+			Firewalls:         firewalls,
+			NetworkInterfaces: networkInterfaces,
+			BillingPlan:       billingPlan,
+			IsCreatedWan:      &isCreatedWan,
 		}
 		client, ctx := getApiClient(cmd)
 		svrTask, err := client.Server.Create(ctx, &scr)
