@@ -3,7 +3,7 @@ module github.com/bizflycloud/bizflyctl
 go 1.16
 
 require (
-	github.com/bizflycloud/gobizfly v1.0.22
+	github.com/bizflycloud/gobizfly v1.0.24
 	github.com/jedib0t/go-pretty v4.3.0+incompatible
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/olekukonko/tablewriter v0.0.4
