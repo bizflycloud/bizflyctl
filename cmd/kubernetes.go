@@ -205,7 +205,7 @@ var addWorkerPool = &cobra.Command{
 	Use:   "add",
 	Short: "Add worker pool into cluster",
 	Long: `Add Kubernetes worker pool using file or flags (Sample config file in example)
-- Using flag example: ./bizfly kubernetes workerpool add xfbxsws38dcs8o94 --worker-pool name=testworkerpool,flavor=nix.3c_6g,profile_type=premium,volume_type=PREMIUM-HDD1,volume_size=40,availability_zone=HN1,desired_size=1,min_size=1,max_size=10
+- Using flag example: ./bizfly kubernetes workerpool add xfbxsws38dcs8o94 --worker-pool name=testworkerpool;flavor=nix.3c_6g;profile_type=premium;volume_type=PREMIUM-HDD1;volume_size=40;availability_zone=HN1;desired_size=1;min_size=1;max_size=10;labels=env=dev;taints=app=demo:NoSchedule
 - Using config file example: ./bizfly kubernetes add-workerpool 55viixy9ma6yaiwu --config-file add_pools.yml`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) != 1 {
