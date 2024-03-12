@@ -406,7 +406,7 @@ func parseTaints(pair string) []gobizfly.Taint {
 	}
 	values := subStrs[1]
 	taintPairs := strings.Split(values, ",")
-	taints := make([]*gobizfly.Taint, 0)
+	taints := make([]gobizfly.Taint, 0)
 	for _, taintPair := range taintPairs {
 		subStrs := r.FindStringSubmatch(taintPair)
 		fmt.Println(subStrs)
@@ -421,13 +421,9 @@ func parseTaints(pair string) []gobizfly.Taint {
 			Key:    subStrs[1],
 			Value:  subStrs[2],
 		}
-		taints = append(taints, &taint)
+		taints = append(taints, taint)
 	}
-	convertedTaints := make([]gobizfly.Taint, len(taints))
-	for _, t := range taints {
-		convertedTaints = append(convertedTaints, *t)
-	}
-	return convertedTaints
+	return taints
 }
 
 func parseLabels(pair string) map[string]string {
@@ -443,7 +439,7 @@ func parseLabels(pair string) map[string]string {
 	for _, labelPair := range labelPairs {
 		subStrs := r.FindStringSubmatch(labelPair)
 		if len(subStrs) == 0 {
-			log.Fatal("Invalid worker pool input")
+			log.Fatal("Invalid worker pool labels input")
 		}
 		labelsMap[subStrs[1]] = subStrs[2]
 	}
