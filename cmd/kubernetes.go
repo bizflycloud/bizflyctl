@@ -37,8 +37,10 @@ import (
 var (
 	kubernetesClusterHeader    = []string{"ID", "Name", "VPC Network ID", "Worker Pools Count", "Cluster Status", "Tags", "Created At", "Cluster Version"}
 	detailKubernetesCluster    = []string{"ID", "Name", "VPC Network ID", "Worker Pools", "Worker Pools Count", "Cluster Status", "Tags", "Created At", "Cluster Version"}
-	kubernetesWorkerPoolHeader = []string{"ID", "Name", "Version", "Flavor", "Volume Size", "Volume Type",
-		"Enabled AutoScaling", "Min Size", "Max Size", "Created At"}
+	kubernetesWorkerPoolHeader = []string{
+		"ID", "Name", "Version", "Flavor", "Volume Size", "Volume Type",
+		"Enabled AutoScaling", "Min Size", "Max Size", "Created At",
+	}
 	clusterName              string
 	clusterVersion           string
 	vpcNetworkID             string
@@ -98,17 +100,20 @@ var clusterList = &cobra.Command{
 		}
 		var data [][]string
 		for _, cluster := range clusters {
-			data = append(data, []string{cluster.UID, cluster.Name, cluster.VPCNetworkID, strconv.Itoa(cluster.WorkerPoolsCount),
-				cluster.ClusterStatus, strings.Join(cluster.Tags, ", "), cluster.CreatedAt, cluster.Version.K8SVersion})
+			data = append(data, []string{
+				cluster.UID, cluster.Name, cluster.VPCNetworkID, strconv.Itoa(cluster.WorkerPoolsCount),
+				cluster.ClusterStatus, strings.Join(cluster.Tags, ", "), cluster.CreatedAt, cluster.Version.K8SVersion,
+			})
 		}
 		formatter.Output(kubernetesClusterHeader, data)
-	}}
+	},
+}
 
 var clusterCreate = &cobra.Command{
 	Use:   "create",
 	Short: "Create Kubernetes cluster with worker pool",
 	Long: `Create Kubernetes cluster with worker pool using file or flags (Sample config file in example)
-- Using flag example: ./bizfly kubernetes create --name test_cli --version 5f7d3a91d857155ad4993a32 --vpc-network-id 145bed1f-a7f7-4f88-ab3d-ce2fc95a4e71 -tag abc -tag xyz --worker-pool name=testworkerpool,flavor=nix.3c_6g,profile_type=premium,volume_type=PREMIUM-HDD1,volume_size=40,availability_zone=HN1,desired_size=1,min_size=1,max_size=10
+  - Using flag example: ./bizfly kubernetes create --name test_cli --version 5f7d3a91d857155ad4993a32 --vpc-network-id 145bed1f-a7f7-4f88-ab3d-ce2fc95a4e71 -tag abc -tag xyz --worker-pool "name=testworkerpool;flavor=nix.3c_6g;profile_type=premium;volume_type=PREMIUM-HDD1;volume_size=40;availability_zone=HN1;desired_size=1;min_size=1;max_size=10;labels=env=dev;taints=app=demo:NoSchedule"
 - Using config file example: ./bizfly kubernetes create --config-file create_cluster.yml`,
 	Run: func(cmd *cobra.Command, args []string) {
 		client, ctx := getApiClient(cmd)
@@ -126,8 +131,10 @@ var clusterCreate = &cobra.Command{
 			if err != nil {
 				log.Fatal(err)
 			}
-			data = append(data, []string{cluster.UID, cluster.Name, cluster.VPCNetworkID, strconv.Itoa(cluster.WorkerPoolsCount),
-				cluster.ClusterStatus, strings.Join(cluster.Tags, ", "), cluster.CreatedAt, cluster.Version.K8SVersion})
+			data = append(data, []string{
+				cluster.UID, cluster.Name, cluster.VPCNetworkID, strconv.Itoa(cluster.WorkerPoolsCount),
+				cluster.ClusterStatus, strings.Join(cluster.Tags, ", "), cluster.CreatedAt, cluster.Version.K8SVersion,
+			})
 			formatter.Output(kubernetesClusterHeader, data)
 		} else {
 			workerPoolObjs := make([]gobizfly.WorkerPool, 0)
@@ -144,8 +151,10 @@ var clusterCreate = &cobra.Command{
 			if err != nil {
 				log.Fatal(err)
 			}
-			data = append(data, []string{cluster.UID, cluster.Name, cluster.VPCNetworkID, strconv.Itoa(cluster.WorkerPoolsCount),
-				cluster.ClusterStatus, strings.Join(cluster.Tags, ", "), cluster.CreatedAt, cluster.Version.K8SVersion})
+			data = append(data, []string{
+				cluster.UID, cluster.Name, cluster.VPCNetworkID, strconv.Itoa(cluster.WorkerPoolsCount),
+				cluster.ClusterStatus, strings.Join(cluster.Tags, ", "), cluster.CreatedAt, cluster.Version.K8SVersion,
+			})
 			formatter.Output(kubernetesClusterHeader, data)
 		}
 	},
@@ -168,8 +177,10 @@ var clusterGet = &cobra.Command{
 		for _, workerPool := range cluster.WorkerPools {
 			workerPoolIds = append(workerPoolIds, workerPool.UID)
 		}
-		data = append(data, []string{cluster.UID, cluster.Name, cluster.VPCNetworkID, strings.Join(workerPoolIds, "\n"), strconv.Itoa(cluster.WorkerPoolsCount),
-			cluster.ClusterStatus, strings.Join(cluster.Tags, ", "), cluster.CreatedAt, cluster.Version.K8SVersion})
+		data = append(data, []string{
+			cluster.UID, cluster.Name, cluster.VPCNetworkID, strings.Join(workerPoolIds, "\n"), strconv.Itoa(cluster.WorkerPoolsCount),
+			cluster.ClusterStatus, strings.Join(cluster.Tags, ", "), cluster.CreatedAt, cluster.Version.K8SVersion,
+		})
 		formatter.Output(detailKubernetesCluster, data)
 	},
 }
@@ -194,7 +205,7 @@ var addWorkerPool = &cobra.Command{
 	Use:   "add",
 	Short: "Add worker pool into cluster",
 	Long: `Add Kubernetes worker pool using file or flags (Sample config file in example)
-- Using flag example: ./bizfly kubernetes workerpool add xfbxsws38dcs8o94 --worker-pool name=testworkerpool,flavor=nix.3c_6g,profile_type=premium,volume_type=PREMIUM-HDD1,volume_size=40,availability_zone=HN1,desired_size=1,min_size=1,max_size=10
+- Using flag example: ./bizfly kubernetes workerpool add xfbxsws38dcs8o94 --worker-pool name=testworkerpool;flavor=nix.3c_6g;profile_type=premium;volume_type=PREMIUM-HDD1;volume_size=40;availability_zone=HN1;desired_size=1;min_size=1;max_size=10;labels=env=dev;taints=app=demo:NoSchedule
 - Using config file example: ./bizfly kubernetes add-workerpool 55viixy9ma6yaiwu --config-file add_pools.yml`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) != 1 {
@@ -216,9 +227,11 @@ var addWorkerPool = &cobra.Command{
 				log.Fatal(err)
 			}
 			for _, workerPool := range workerPools {
-				data = append(data, []string{workerPool.UID, workerPool.Name, workerPool.Version, workerPool.Flavor,
+				data = append(data, []string{
+					workerPool.UID, workerPool.Name, workerPool.Version, workerPool.Flavor,
 					strconv.Itoa(workerPool.VolumeSize), workerPool.VolumeType, strconv.FormatBool(workerPool.EnableAutoScaling),
-					strconv.Itoa(workerPool.MinSize), strconv.Itoa(workerPool.MaxSize), workerPool.CreatedAt})
+					strconv.Itoa(workerPool.MinSize), strconv.Itoa(workerPool.MaxSize), workerPool.CreatedAt,
+				})
 			}
 			formatter.Output(kubernetesWorkerPoolHeader, data)
 
@@ -234,9 +247,11 @@ var addWorkerPool = &cobra.Command{
 				log.Fatal(err)
 			}
 			for _, workerPool := range workerPools {
-				data = append(data, []string{workerPool.UID, workerPool.Name, workerPool.Version, workerPool.Flavor,
+				data = append(data, []string{
+					workerPool.UID, workerPool.Name, workerPool.Version, workerPool.Flavor,
 					strconv.Itoa(workerPool.VolumeSize), workerPool.VolumeType, strconv.FormatBool(workerPool.EnableAutoScaling),
-					strconv.Itoa(workerPool.MinSize), strconv.Itoa(workerPool.MaxSize), workerPool.CreatedAt})
+					strconv.Itoa(workerPool.MinSize), strconv.Itoa(workerPool.MaxSize), workerPool.CreatedAt,
+				})
 
 				formatter.Output(kubernetesWorkerPoolHeader, data)
 			}
@@ -289,9 +304,11 @@ var getWorkerPool = &cobra.Command{
 			log.Fatal(err)
 		}
 		var data [][]string
-		data = append(data, []string{workerPool.UID, workerPool.Name, workerPool.Version, workerPool.Flavor,
+		data = append(data, []string{
+			workerPool.UID, workerPool.Name, workerPool.Version, workerPool.Flavor,
 			strconv.Itoa(workerPool.VolumeSize), workerPool.VolumeType, strconv.FormatBool(workerPool.EnableAutoScaling),
-			strconv.Itoa(workerPool.MinSize), strconv.Itoa(workerPool.MaxSize), workerPool.CreatedAt})
+			strconv.Itoa(workerPool.MinSize), strconv.Itoa(workerPool.MaxSize), workerPool.CreatedAt,
+		})
 		formatter.Output(kubernetesWorkerPoolHeader, data)
 	},
 }
@@ -364,7 +381,6 @@ var getKubeConfig = &cobra.Command{
 
 		file, _ := os.Create(outputKubeConfigFilePath)
 		_, err = file.WriteString(resp)
-
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -380,15 +396,75 @@ func isIntField(key string) bool {
 	}
 	return false
 }
+
+func parseTaints(pair string) []gobizfly.Taint {
+	r := regexp.MustCompile("(.*)=(.*):(.*)")
+	rTaints := regexp.MustCompile(`taints=(.*)`)
+	subStrs := rTaints.FindStringSubmatch(pair)
+	if len(subStrs) == 0 {
+		log.Fatal("Invalid worker pool taints input")
+	}
+	values := subStrs[1]
+	taintPairs := strings.Split(values, ",")
+	taints := make([]gobizfly.Taint, 0)
+	for _, taintPair := range taintPairs {
+		subStrs := r.FindStringSubmatch(taintPair)
+		fmt.Println(subStrs)
+		if len(subStrs) == 0 {
+			log.Fatal("Invalid worker pool taints input")
+		}
+		if subStrs[3] == "" || subStrs[1] == "" {
+			log.Fatal("Invalid worker pool taints input")
+		}
+		taint := gobizfly.Taint{
+			Effect: subStrs[3],
+			Key:    subStrs[1],
+			Value:  subStrs[2],
+		}
+		taints = append(taints, taint)
+	}
+	return taints
+}
+
+func parseLabels(pair string) map[string]string {
+	r := regexp.MustCompile("(.*)=(.*)")
+	rLabels := regexp.MustCompile(`labels=(.*)`)
+	subStrs := rLabels.FindStringSubmatch(pair)
+	if len(subStrs) == 0 {
+		log.Fatal("Invalid worker pool labels input")
+	}
+	values := subStrs[1]
+	labelPairs := strings.Split(values, ",")
+	labelsMap := make(map[string]string)
+	for _, labelPair := range labelPairs {
+		subStrs := r.FindStringSubmatch(labelPair)
+		if len(subStrs) == 0 {
+			log.Fatal("Invalid worker pool labels input")
+		}
+		labelsMap[subStrs[1]] = subStrs[2]
+	}
+	return labelsMap
+}
+
 func parseWorkerPool(workerPoolStr string) gobizfly.WorkerPool {
-	pairs := strings.Split(workerPoolStr, ",")
+	pairs := strings.Split(workerPoolStr, ";")
 	strRequiredFields := []string{"name", "flavor", "profile_type", "volume_type", "availability_zone"}
 	intRequiredFields := []string{"volume_size", "desired_size", "min_size", "max_size"}
 	strFieldMap := make(map[string]string)
 	intFieldMap := make(map[string]int)
+	mapFieldMap := make(map[string]map[string]string)
+	taintsField := make([]gobizfly.Taint, 0)
 	isEnableAutoScaling := false
 	r := regexp.MustCompile("(.*)=(.*)")
 	for _, pair := range pairs {
+		if strings.Contains(pair, "labels") {
+			mapFieldMap["labels"] = parseLabels(pair)
+			continue
+		}
+		if strings.Contains(pair, "taints") {
+			taintsField = parseTaints(pair)
+			continue
+		}
 		subStrs := r.FindStringSubmatch(pair)
 		if len(subStrs) == 0 {
 			log.Fatal("Invalid worker pool input")
@@ -427,8 +503,10 @@ func parseWorkerPool(workerPoolStr string) gobizfly.WorkerPool {
 		EnableAutoScaling: isEnableAutoScaling,
 		MinSize:           intFieldMap["min_size"],
 		MaxSize:           intFieldMap["max_size"],
+		Labels:            mapFieldMap["labels"],
+		Taints:            taintsField,
 	}
-	fmt.Printf("%v+", workerPool)
+	fmt.Printf("WorkerPool %v+", workerPool)
 	return workerPool
 }
 
