@@ -30,11 +30,13 @@ import (
 )
 
 var (
-	cfgFile    string
-	email      string
-	password   string
-	region     string
-	project_id string
+	cfgFile       string
+	email         string
+	password      string
+	region        string
+	project_id    string
+	appCredSecret string
+	appCredID     string
 )
 
 // rootCmd represents the base command when called without any subcommands
@@ -66,10 +68,9 @@ func init() {
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.bizfly.yaml)")
 
 	rootCmd.PersistentFlags().StringVar(&email, "email", "", "Your Bizfly Cloud Email. Read environment variable BIZFLY_CLOUD_EMAIL")
-	_ = rootCmd.MarkFlagRequired("email")
-
 	rootCmd.PersistentFlags().StringVar(&password, "password", "", "Your Bizfly Cloud Password. Read environment variable BIZFLY_CLOUD_PASSWORD")
-	_ = rootCmd.MarkFlagRequired("password")
+	rootCmd.PersistentFlags().StringVar(&appCredID, "app-credential-id", "", "Your Bizfly Cloud Application Credential Id. Read environment variable BIZFLY_CLOUD_APP_CREDENTIAL_ID")
+	rootCmd.PersistentFlags().StringVar(&appCredSecret, "app-credential-secret", "", "Your Bizfly Cloud Application Credential Secret. Read environment variable BIZFLY_CLOUD_APP_CREDENTIAL_SECRET")
 
 	rootCmd.PersistentFlags().StringVar(&region, "region", "HaNoi", "Region you want to access the resource. Read environment variable BIZFLY_CLOUD_REGION")
 	rootCmd.PersistentFlags().StringVar(&project_id, "project-id", "", "Your Bizfly Cloud Project ID. Read environment variable BIZFLY_CLOUD_PROJECT_ID")
@@ -107,19 +108,23 @@ func initConfig() {
 }
 
 func getApiClient(cmd *cobra.Command) (*gobizfly.Client, context.Context) {
-
-	if email == "" {
-		email = viper.GetString("email")
+	// use application credential auth
+	if appCredID == "" {
+		appCredID = viper.GetString("app_credential_id")
 	}
-	if email == "" {
-		log.Fatal("Email is required")
+	if appCredSecret == "" {
+		appCredSecret = viper.GetString("app_credential_secret")
 	}
-
-	if password == "" {
-		password = viper.GetString("password")
-	}
-	if password == "" {
-		log.Fatal("Password is required")
+	useAppCredential := true
+	if appCredID == "" && appCredSecret == "" {
+		// use username/password auth
+		if email == "" {
+			email = viper.GetString("email")
+		}
+		if password == "" {
+			password = viper.GetString("password")
+		}
+		useAppCredential = false
 	}
 
 	if viper.GetString("region") != "" {
@@ -140,20 +145,24 @@ func getApiClient(cmd *cobra.Command) (*gobizfly.Client, context.Context) {
 	}
 	ctx, cancelFunc := context.WithTimeout(context.Background(), time.Second*10)
 	defer cancelFunc()
-	// TODO Get token from cache
-	tok, err := client.Token.Create(ctx,
-		&gobizfly.TokenCreateRequest{
-			AuthMethod: "password",
-			Username:   email,
-			Password:   password,
-			ProjectID:  project_id,
-		})
+	//TODO Get token from cache
+	request := &gobizfly.TokenCreateRequest{
+		ProjectID: project_id,
+	}
+	if useAppCredential {
+		request.AuthType = gobizfly.AppCredentialAuthType
+		request.AppCredID = appCredID
+		request.AppCredSecret = appCredSecret
+	} else {
+		request.AuthMethod = "password"
+		request.Username = email
+		request.Password = password
+	}
+	tok, err := client.Token.Create(ctx, request)
 	if err != nil {
 		log.Fatal(err)
 	}
-
 	client.SetKeystoneToken(tok)
 	ctx = context.WithValue(ctx, "token", tok.KeystoneToken)
-
 	return client, ctx
 }

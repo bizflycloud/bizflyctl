@@ -15,3 +15,5 @@ require (
 require github.com/go-openapi/strfmt v0.19.5 // indirect
 
 replace golang.org/x/sys => golang.org/x/sys v0.0.0-20220811171246-fbc7d0a398ab
+
+replace github.com/bizflycloud/gobizfly v1.0.24 => github.com/duc20176723/gobizfly v0.0.0-20240405103940-5d9abf7389fd
