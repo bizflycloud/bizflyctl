@@ -21,8 +21,10 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 	"time"
 
+	"github.com/bizflycloud/bizflyctl/constants"
 	"github.com/bizflycloud/gobizfly"
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
@@ -107,6 +109,12 @@ func initConfig() {
 	}
 }
 
+func getRegionName(regionName string) string {
+	lowerRegion := strings.ToLower(regionName)
+	result := constants.RegionMapping[lowerRegion]
+	return result
+}
+
 func getApiClient(cmd *cobra.Command) (*gobizfly.Client, context.Context) {
 	// use application credential auth
 	if appCredID == "" {
@@ -129,16 +137,18 @@ func getApiClient(cmd *cobra.Command) (*gobizfly.Client, context.Context) {
 
 	if viper.GetString("region") != "" {
 		region = viper.GetString("region")
-		if region == "HN" || region == "HCM" {
-			log.Println("HN and HCM is deprecated. Using HaNoi and HoChiMinh instead")
-		}
+	}
+
+	regionName := getRegionName(region)
+	if regionName == "" {
+		log.Fatalf("Invalid region %s", region)
 	}
 
 	if viper.GetString("project_id") != "" {
 		project_id = viper.GetString("project_id")
 	}
 	// nolint:staticcheck
-	client, err := gobizfly.NewClient(gobizfly.WithProjectId(project_id), gobizfly.WithRegionName(region))
+	client, err := gobizfly.NewClient(gobizfly.WithProjectId(project_id), gobizfly.WithRegionName(regionName))
 
 	if err != nil {
 		log.Fatal(err)
