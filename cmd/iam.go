@@ -42,7 +42,7 @@ Use: bizfly projects list
 		}
 		var data [][]string
 		for _, project := range projects {
-			s := []string{project.UUID, project.AliasName, project.Description, strconv.FormatBool(project.IsActive),
+			s := []string{project.ShortUUID, project.AliasName, project.Description, strconv.FormatBool(project.IsActive),
 				project.CreatedAt, project.UpdatedAt}
 			data = append(data, s)
 		}
