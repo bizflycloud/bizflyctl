@@ -19,13 +19,14 @@ package cmd
 import (
 	"bufio"
 	"fmt"
-	"github.com/bizflycloud/bizflyctl/formatter"
-	"github.com/bizflycloud/gobizfly"
-	"github.com/spf13/cobra"
 	"io/ioutil"
 	"log"
 	"os"
 	"strings"
+
+	"github.com/bizflycloud/bizflyctl/formatter"
+	"github.com/bizflycloud/gobizfly"
+	"github.com/spf13/cobra"
 )
 
 var (
@@ -49,7 +50,7 @@ var sshkeyListCmd = &cobra.Command{
 	Long:  "List your SSH keys",
 	Run: func(cmd *cobra.Command, args []string) {
 		client, ctx := getApiClient(cmd)
-		keys, err := client.SSHKey.List(ctx, &gobizfly.ListOptions{})
+		keys, err := client.CloudServer.SSHKeys().List(ctx, &gobizfly.ListOptions{})
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -72,7 +73,7 @@ var sshKeyDeleteCmd = &cobra.Command{
 			os.Exit(1)
 		}
 		client, ctx := getApiClient(cmd)
-		_, err := client.SSHKey.Delete(ctx, args[0])
+		_, err := client.CloudServer.SSHKeys().Delete(ctx, args[0])
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -106,7 +107,7 @@ Example 2: bizfly ssh-key create --name abcxyz --public-key prompt => Paste your
 			publicKey = strings.Join(lines, "")
 			fmt.Println("\nYour public key you typed is: ", publicKey)
 		}
-		key, err := client.SSHKey.Create(ctx, &gobizfly.SSHKeyCreateRequest{
+		key, err := client.CloudServer.SSHKeys().Create(ctx, &gobizfly.SSHKeyCreateRequest{
 			Name:      sshKeyName,
 			PublicKey: publicKey,
 		})

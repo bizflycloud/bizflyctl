@@ -55,7 +55,7 @@ Example: bizfly firewall list
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 		client, ctx := getApiClient(cmd)
-		firewalls, err := client.Firewall.List(ctx, &gobizfly.ListOptions{})
+		firewalls, err := client.CloudServer.Firewalls().List(ctx, &gobizfly.ListOptions{})
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -81,7 +81,7 @@ Example: bizfly firewall delete fd554aac-9ab1-11ea-b09d-bbaf82f02f58 f5869e9c-9a
 		client, ctx := getApiClient(cmd)
 		for _, fwID := range args {
 			fmt.Printf("Deleting firewall %s \n", fwID)
-			_, err := client.Firewall.Delete(ctx, fwID)
+			_, err := client.CloudServer.Firewalls().Delete(ctx, fwID)
 			if err != nil {
 				if errors.Is(err, gobizfly.ErrNotFound) {
 					fmt.Printf("Firewall %s is not found", serverID)
@@ -107,7 +107,7 @@ Example: bizfly firewall server list  02b28284-5a18-4a0e-9ecc-d5d1acaf7e7b
 			log.Fatal("You need to specify firewall ID in the command")
 		}
 		client, ctx := getApiClient(cmd)
-		firewall, err := client.Firewall.Get(ctx, args[0])
+		firewall, err := client.CloudServer.Firewalls().Get(ctx, args[0])
 		if err != nil {
 			if errors.Is(err, gobizfly.ErrNotFound) {
 				fmt.Printf("Firewall %s is not found", serverID)
@@ -140,7 +140,7 @@ Example: bizfly firewall server remove <firewall ID> <server ID 1> <server ID 2>
 		frsr := gobizfly.FirewallRemoveServerRequest{
 			Servers: args[1:],
 		}
-		_, err := client.Firewall.RemoveServer(ctx, args[0], &frsr)
+		_, err := client.CloudServer.Firewalls().RemoveServer(ctx, args[0], &frsr)
 		if err != nil {
 			if errors.Is(err, gobizfly.ErrNotFound) {
 				fmt.Printf("Firewall %s is not found", serverID)
@@ -161,7 +161,7 @@ Example:
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 		client, ctx := getApiClient(cmd)
-		firewall, err := client.Firewall.Create(ctx, &gobizfly.FirewallRequestPayload{Name: fwName})
+		firewall, err := client.CloudServer.Firewalls().Create(ctx, &gobizfly.FirewallRequestPayload{Name: fwName})
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -187,7 +187,7 @@ Example: bizfly firewall rule list <firwall id>
 			log.Fatal("You need to specify firewall ID in the command")
 		}
 		client, ctx := getApiClient(cmd)
-		firewall, err := client.Firewall.Get(ctx, args[0])
+		firewall, err := client.CloudServer.Firewalls().Get(ctx, args[0])
 		if err != nil {
 			if errors.Is(err, gobizfly.ErrNotFound) {
 				fmt.Printf("Firewall %s is not found", serverID)
@@ -218,7 +218,7 @@ Example: bizfly firewall rule delete <firewall ID> <rule ID>
 			log.Fatal("You need to specify firewall ID and rule ID in the command")
 		}
 		client, ctx := getApiClient(cmd)
-		_, err := client.Firewall.Get(ctx, args[0])
+		_, err := client.CloudServer.Firewalls().Get(ctx, args[0])
 		if err != nil {
 			if errors.Is(err, gobizfly.ErrNotFound) {
 				fmt.Printf("Firewall %s is not found", serverID)
@@ -227,7 +227,7 @@ Example: bizfly firewall rule delete <firewall ID> <rule ID>
 				log.Fatal(err)
 			}
 		}
-		resp, err := client.Firewall.DeleteRule(ctx, args[1])
+		resp, err := client.CloudServer.Firewalls().DeleteRule(ctx, args[1])
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -257,7 +257,7 @@ Example: bizfly firewall rule create <firewall ID> --direction <ingress|egress> 
 		if fwPortRange != "" {
 			frcr.PortRange = fwPortRange
 		}
-		resp, err := client.Firewall.CreateRule(ctx, args[0], &gobizfly.FirewallSingleRuleCreateRequest{
+		resp, err := client.CloudServer.Firewalls().CreateRule(ctx, args[0], &gobizfly.FirewallSingleRuleCreateRequest{
 			Direction: fwRuleDirection,
 			FirewallRuleCreateRequest: gobizfly.FirewallRuleCreateRequest{
 				Protocol:  fwRuleProtocol,

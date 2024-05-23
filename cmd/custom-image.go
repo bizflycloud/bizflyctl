@@ -17,15 +17,16 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/bizflycloud/bizflyctl/formatter"
-	"github.com/bizflycloud/gobizfly"
-	"github.com/spf13/cobra"
 	"io"
 	"log"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strconv"
+
+	"github.com/bizflycloud/bizflyctl/formatter"
+	"github.com/bizflycloud/gobizfly"
+	"github.com/spf13/cobra"
 )
 
 var (
@@ -52,7 +53,7 @@ var customImageList = &cobra.Command{
 	Long:  "List your custom images",
 	Run: func(cmd *cobra.Command, args []string) {
 		client, ctx := getApiClient(cmd)
-		images, err := client.Server.ListCustomImages(ctx)
+		images, err := client.CloudServer.CustomImages().List(ctx)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -78,7 +79,7 @@ Example: bizfly custom-image create --name xyz --disk-format raw --description a
 		}
 		client, ctx := getApiClient(cmd)
 		if imageURL != "" {
-			resp, err := client.Server.CreateCustomImage(ctx, &gobizfly.CreateCustomImagePayload{
+			resp, err := client.CloudServer.CustomImages().Create(ctx, &gobizfly.CreateCustomImagePayload{
 				Name:        customImageName,
 				DiskFormat:  diskFormat,
 				Description: description,
@@ -93,7 +94,7 @@ Example: bizfly custom-image create --name xyz --disk-format raw --description a
 				image.DiskFormat, strconv.Itoa(image.Size), image.Status, image.Visibility})
 			formatter.Output(customImageHeader, data)
 		} else {
-			resp, err := client.Server.CreateCustomImage(ctx, &gobizfly.CreateCustomImagePayload{
+			resp, err := client.CloudServer.CustomImages().Create(ctx, &gobizfly.CreateCustomImagePayload{
 				Name:        customImageName,
 				DiskFormat:  diskFormat,
 				Description: description,
@@ -137,7 +138,7 @@ var customImageDelete = &cobra.Command{
 			log.Fatal("Invalid argument")
 		}
 		client, ctx := getApiClient(cmd)
-		err := client.Server.DeleteCustomImage(ctx, args[0])
+		err := client.CloudServer.CustomImages().Delete(ctx, args[0])
 		if err != nil {
 			log.Fatal(err)
 		} else {
@@ -152,7 +153,7 @@ var customImageDownload = &cobra.Command{
 	Long:  "Download a custom image using its ID",
 	Run: func(cmd *cobra.Command, args []string) {
 		client, ctx := getApiClient(cmd)
-		resp, err := client.Server.GetCustomImage(ctx, args[0])
+		resp, err := client.CloudServer.CustomImages().Get(ctx, args[0])
 		if err != nil {
 			log.Fatal(err)
 		}

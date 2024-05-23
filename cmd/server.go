@@ -91,7 +91,7 @@ Example: bizfly server delete fd554aac-9ab1-11ea-b09d-bbaf82f02f58 f5869e9c-9ab2
 		client, ctx := getApiClient(cmd)
 		for _, serverID := range args {
 			fmt.Printf("Deleting server %s \n", serverID)
-			server, err := client.Server.Get(ctx, serverID)
+			server, err := client.CloudServer.Get(ctx, serverID)
 			if err != nil {
 				if errors.Is(err, gobizfly.ErrNotFound) {
 					fmt.Printf("Server %s is not found", serverID)
@@ -109,7 +109,7 @@ Example: bizfly server delete fd554aac-9ab1-11ea-b09d-bbaf82f02f58 f5869e9c-9ab2
 					}
 				}
 			}
-			task, err := client.Server.Delete(ctx, serverID, deleteVolumes)
+			task, err := client.CloudServer.Delete(ctx, serverID, deleteVolumes)
 			if err != nil {
 				if errors.Is(err, gobizfly.ErrNotFound) {
 					fmt.Printf("Server %s is not found", serverID)
@@ -131,7 +131,7 @@ var serverListCmd = &cobra.Command{
 	Long:  `List all server in your account`,
 	Run: func(cmd *cobra.Command, args []string) {
 		client, ctx := getApiClient(cmd)
-		servers, err := client.Server.List(ctx, &gobizfly.ServerListOptions{})
+		servers, err := client.CloudServer.List(ctx, &gobizfly.ServerListOptions{})
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -170,7 +170,7 @@ Example: bizfly server get fd554aac-9ab1-11ea-b09d-bbaf82f02f58
 		}
 		client, ctx := getApiClient(cmd)
 
-		server, err := client.Server.Get(ctx, args[0])
+		server, err := client.CloudServer.Get(ctx, args[0])
 		if err != nil {
 			if errors.Is(err, gobizfly.ErrNotFound) {
 				fmt.Printf("Server %s not found.", args[0])
@@ -252,7 +252,7 @@ var serverCreateCmd = &cobra.Command{
 			IsCreatedWan:      &isCreatedWan,
 		}
 		client, ctx := getApiClient(cmd)
-		svrTask, err := client.Server.Create(ctx, &scr)
+		svrTask, err := client.CloudServer.Create(ctx, &scr)
 		if err != nil {
 			fmt.Printf("Create server error: %v", err)
 			os.Exit(1)
@@ -277,7 +277,7 @@ Use: bizfly server reboot <server-id>
 		}
 		serverID := args[0]
 		client, ctx := getApiClient(cmd)
-		res, err := client.Server.SoftReboot(ctx, serverID)
+		res, err := client.CloudServer.SoftReboot(ctx, serverID)
 		if err != nil {
 			fmt.Printf("Reboot server error %v", err)
 			os.Exit(1)
@@ -302,7 +302,7 @@ Use: bizfly server hard reboot <server-id>
 		}
 		serverID := args[1]
 		client, ctx := getApiClient(cmd)
-		res, err := client.Server.HardReboot(ctx, serverID)
+		res, err := client.CloudServer.HardReboot(ctx, serverID)
 		if err != nil {
 			fmt.Printf("Hard Reboot server error %v\n", err)
 			os.Exit(1)
@@ -327,7 +327,7 @@ Use: bizfly server stop <server-id>
 		}
 		serverID := args[0]
 		client, ctx := getApiClient(cmd)
-		_, err := client.Server.Stop(ctx, serverID)
+		_, err := client.CloudServer.Stop(ctx, serverID)
 		if err != nil {
 			fmt.Printf("Stop server error %v\n", err)
 			os.Exit(1)
@@ -352,7 +352,7 @@ Use: bizfly server start <server-id>
 		}
 		serverID := args[0]
 		client, ctx := getApiClient(cmd)
-		_, err := client.Server.Start(ctx, serverID)
+		_, err := client.CloudServer.Start(ctx, serverID)
 		if err != nil {
 			fmt.Printf("Start server error %v\n", err)
 			os.Exit(1)
@@ -377,7 +377,7 @@ Use: bizfly server resize <server-id> --flavor <flavor name>
 		}
 		serverID := args[0]
 		client, ctx := getApiClient(cmd)
-		_, err := client.Server.Resize(ctx, serverID, flavorName)
+		_, err := client.CloudServer.Resize(ctx, serverID, flavorName)
 		if err != nil {
 			fmt.Printf("Resize server error %v\n", err)
 			os.Exit(1)
@@ -399,7 +399,7 @@ var serverAddVPCCmd = &cobra.Command{
 		}
 		serverID := args[0]
 		client, ctx := getApiClient(cmd)
-		_, err := client.Server.AddVPC(ctx, serverID, vpcIDs)
+		_, err := client.CloudServer.AddVirtualPrivateNetwork(ctx, serverID, vpcIDs)
 		if err != nil {
 			fmt.Printf("Add VPC to server error %v\n", err)
 			os.Exit(1)
@@ -420,7 +420,7 @@ var serverRemoveVPCCmd = &cobra.Command{
 		}
 		serverID := args[0]
 		client, ctx := getApiClient(cmd)
-		_, err := client.Server.RemoveVPC(ctx, serverID, vpcIDs)
+		_, err := client.CloudServer.RemoveNetworkInterface(ctx, serverID, vpcIDs)
 		if err != nil {
 			fmt.Printf("Remove VPC to server error %v\n", err)
 			os.Exit(1)
@@ -438,7 +438,7 @@ Use: bizfly server list-types
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 		client, ctx := getApiClient(cmd)
-		resp, err := client.Server.ListServerTypes(ctx)
+		resp, err := client.CloudServer.ListServerTypes(ctx)
 		if err != nil {
 			fmt.Printf("List server types error %v\n", err)
 			os.Exit(1)
@@ -466,7 +466,7 @@ Use: bizfly server change-network-plan <server-id> --network-plan <network-plan>
 		}
 		serverID := args[0]
 		client, ctx := getApiClient(cmd)
-		err := client.Server.ChangeNetworkPlan(ctx, serverID, networkPlan)
+		err := client.CloudServer.ChangeNetworkPlan(ctx, serverID, networkPlan)
 		if err != nil {
 			fmt.Printf("Change network plan error %v\n", err)
 			os.Exit(1)
@@ -489,7 +489,7 @@ Use: bizfly server switch-billing-plan <server-id> --billing-plan <billing-plan>
 		}
 		serverID := args[0]
 		client, ctx := getApiClient(cmd)
-		err := client.Server.SwitchBillingPlan(ctx, serverID, billingPlan)
+		err := client.CloudServer.SwitchBillingPlan(ctx, serverID, billingPlan)
 		if err != nil {
 			fmt.Printf("Switch billing plan error %v\n", err)
 			os.Exit(1)
@@ -512,7 +512,7 @@ Use: bizfly server rename <server-id> --name <name>
 		}
 		serverID := args[0]
 		client, ctx := getApiClient(cmd)
-		err := client.Server.Rename(ctx, serverID, serverName)
+		err := client.CloudServer.Rename(ctx, serverID, serverName)
 		if err != nil {
 			fmt.Printf("Rename server error %v ", err)
 			os.Exit(1)

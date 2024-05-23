@@ -18,11 +18,12 @@ package cmd
 
 import (
 	"fmt"
+	"log"
+	"strings"
+
 	"github.com/bizflycloud/bizflyctl/formatter"
 	"github.com/bizflycloud/gobizfly"
 	"github.com/spf13/cobra"
-	"log"
-	"strings"
 )
 
 var (
@@ -56,7 +57,7 @@ var networkInterfaceListCmd = &cobra.Command{
 			Status:       networkInterfaceStatus,
 			Type:         networkInterfaceType,
 		}
-		networkInterfaces, err := client.NetworkInterface.List(ctx, &opts)
+		networkInterfaces, err := client.CloudServer.NetworkInterfaces().List(ctx, &opts)
 		if err != nil {
 			log.Fatalln(err)
 		}
@@ -92,7 +93,7 @@ var networkInterfaceCreateCmd = &cobra.Command{
 			FixedIP:        fixedIPAddress,
 			AttachedServer: attachedServer,
 		}
-		networkInterface, err := client.NetworkInterface.Create(ctx, args[0], &payload)
+		networkInterface, err := client.CloudServer.NetworkInterfaces().Create(ctx, args[0], &payload)
 		if err != nil {
 			log.Fatalln(err)
 		}
@@ -121,7 +122,7 @@ var networkInterfaceGetCmd = &cobra.Command{
 		if len(args) == 0 {
 			log.Fatal("Please provide Network Interface ID")
 		}
-		networkInterface, err := client.NetworkInterface.Get(ctx, args[0])
+		networkInterface, err := client.CloudServer.NetworkInterfaces().Get(ctx, args[0])
 		if err != nil {
 			log.Fatalln(err)
 		}
@@ -150,7 +151,7 @@ var networkInterfaceDeleteCmd = &cobra.Command{
 		if len(args) == 0 {
 			log.Fatal("Please provide Network Interface ID")
 		}
-		err := client.NetworkInterface.Delete(ctx, args[0])
+		err := client.CloudServer.NetworkInterfaces().Delete(ctx, args[0])
 		if err != nil {
 			log.Fatalln(err)
 		}
@@ -172,7 +173,7 @@ var networkInterfaceAddFirewall = &cobra.Command{
 			Action:         "add_firewall",
 			SecurityGroups: firewallIDs,
 		}
-		networkInterface, err := client.NetworkInterface.Action(ctx, args[0], &payload)
+		networkInterface, err := client.CloudServer.NetworkInterfaces().Action(ctx, args[0], &payload)
 		if err != nil {
 			log.Fatalln(err)
 		}
@@ -207,7 +208,7 @@ var networkInterfaceRemoveFirewall = &cobra.Command{
 			Action:         "remove_firewall",
 			SecurityGroups: firewallIDs,
 		}
-		networkInterface, err := client.NetworkInterface.Action(ctx, args[0], &payload)
+		networkInterface, err := client.CloudServer.NetworkInterfaces().Action(ctx, args[0], &payload)
 		if err != nil {
 			log.Fatalln(err)
 		}
@@ -242,7 +243,7 @@ var networkInterfaceAttachServer = &cobra.Command{
 			Action:   "attach_server",
 			ServerID: serverID,
 		}
-		networkInterface, err := client.NetworkInterface.Action(ctx, args[0], &payload)
+		networkInterface, err := client.CloudServer.NetworkInterfaces().Action(ctx, args[0], &payload)
 		if err != nil {
 			log.Fatalln(err)
 		}
@@ -276,7 +277,7 @@ var networkInterfaceDetachServer = &cobra.Command{
 		payload := gobizfly.ActionNetworkInterfacePayload{
 			Action: "detach_server",
 		}
-		networkInterface, err := client.NetworkInterface.Action(ctx, args[0], &payload)
+		networkInterface, err := client.CloudServer.NetworkInterfaces().Action(ctx, args[0], &payload)
 		if err != nil {
 			log.Fatalln(err)
 		}

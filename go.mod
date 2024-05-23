@@ -3,7 +3,7 @@ module github.com/bizflycloud/bizflyctl
 go 1.16
 
 require (
-	github.com/bizflycloud/gobizfly v1.0.24
+	github.com/bizflycloud/gobizfly v1.1.2
 	github.com/jedib0t/go-pretty v4.3.0+incompatible
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/olekukonko/tablewriter v0.0.4
@@ -15,5 +15,3 @@ require (
 require github.com/go-openapi/strfmt v0.19.5 // indirect
 
 replace golang.org/x/sys => golang.org/x/sys v0.0.0-20220811171246-fbc7d0a398ab
-
-replace github.com/bizflycloud/gobizfly v1.0.24 => github.com/duc20176723/gobizfly v0.0.0-20240405103940-5d9abf7389fd

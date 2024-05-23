@@ -18,11 +18,12 @@ package cmd
 
 import (
 	"fmt"
+	"log"
+	"strconv"
+
 	"github.com/bizflycloud/bizflyctl/formatter"
 	"github.com/bizflycloud/gobizfly"
 	"github.com/spf13/cobra"
-	"log"
-	"strconv"
 )
 
 var (
@@ -45,7 +46,7 @@ var wanIpListCmd = &cobra.Command{
 	Short: "List WAN IP",
 	Run: func(cmd *cobra.Command, args []string) {
 		client, ctx := getApiClient(cmd)
-		wanIps, err := client.WanIP.List(ctx)
+		wanIps, err := client.CloudServer.PublicNetworkInterfaces().List(ctx)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -74,13 +75,13 @@ var wanIPCreateCmd = &cobra.Command{
 	Short: "Create WAN IP",
 	Run: func(cmd *cobra.Command, args []string) {
 		client, ctx := getApiClient(cmd)
-		payload := gobizfly.CreateWanIpPayload{
+		payload := gobizfly.CreatePublicNetworkInterfacePayload{
 			Name:             wanIpName,
 			AvailabilityZone: availabilityZone,
 			AttachedServer:   serverID,
 		}
 
-		wanIp, err := client.WanIP.Create(ctx, &payload)
+		wanIp, err := client.CloudServer.PublicNetworkInterfaces().Create(ctx, &payload)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -111,7 +112,7 @@ var wanIPGetCmd = &cobra.Command{
 			log.Fatal("Invalid argument")
 		}
 		client, ctx := getApiClient(cmd)
-		wanIp, err := client.WanIP.Get(ctx, args[0])
+		wanIp, err := client.CloudServer.PublicNetworkInterfaces().Get(ctx, args[0])
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -142,7 +143,7 @@ var wanIpDeleteCmd = &cobra.Command{
 			log.Fatal("Invalid argument")
 		}
 		client, ctx := getApiClient(cmd)
-		err := client.WanIP.Delete(ctx, args[0])
+		err := client.CloudServer.PublicNetworkInterfaces().Delete(ctx, args[0])
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -159,15 +160,15 @@ var wanIpAttachServerCmd = &cobra.Command{
 			log.Fatal("Invalid argument")
 		}
 		client, ctx := getApiClient(cmd)
-		payload := gobizfly.ActionWanIpPayload{
+		payload := gobizfly.ActionPublicNetworkInterfacePayload{
 			Action:   "attach_server",
 			ServerId: serverID,
 		}
-		err := client.WanIP.Action(ctx, args[0], &payload)
+		err := client.CloudServer.PublicNetworkInterfaces().Action(ctx, args[0], &payload)
 		if err != nil {
 			log.Fatal(err)
 		}
-		wanIp, err := client.WanIP.Get(ctx, args[0])
+		wanIp, err := client.CloudServer.PublicNetworkInterfaces().Get(ctx, args[0])
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -198,14 +199,14 @@ var wanIpDetachServerCmd = &cobra.Command{
 			log.Fatal("Invalid argument")
 		}
 		client, ctx := getApiClient(cmd)
-		payload := gobizfly.ActionWanIpPayload{
+		payload := gobizfly.ActionPublicNetworkInterfacePayload{
 			Action: "detach_server",
 		}
-		err := client.WanIP.Action(ctx, args[0], &payload)
+		err := client.CloudServer.PublicNetworkInterfaces().Action(ctx, args[0], &payload)
 		if err != nil {
 			log.Fatal(err)
 		}
-		wanIp, err := client.WanIP.Get(ctx, args[0])
+		wanIp, err := client.CloudServer.PublicNetworkInterfaces().Get(ctx, args[0])
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -236,14 +237,14 @@ var wanIpConvertToPaidCmd = &cobra.Command{
 			log.Fatal("Invalid argument")
 		}
 		client, ctx := getApiClient(cmd)
-		payload := gobizfly.ActionWanIpPayload{
+		payload := gobizfly.ActionPublicNetworkInterfacePayload{
 			Action: "convert_to_paid",
 		}
-		err := client.WanIP.Action(ctx, args[0], &payload)
+		err := client.CloudServer.PublicNetworkInterfaces().Action(ctx, args[0], &payload)
 		if err != nil {
 			log.Fatal(err)
 		}
-		wanIp, err := client.WanIP.Get(ctx, args[0])
+		wanIp, err := client.CloudServer.PublicNetworkInterfaces().Get(ctx, args[0])
 		if err != nil {
 			log.Fatal(err)
 		}

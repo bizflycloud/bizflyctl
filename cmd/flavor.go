@@ -35,7 +35,7 @@ Use: bizfly flavor list
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 		client, ctx := getApiClient(cmd)
-		flavors, err := client.Server.ListFlavors(ctx)
+		flavors, err := client.CloudServer.Flavors().List(ctx)
 		if err != nil {
 			fmt.Printf("List flavors error %v", err)
 			os.Exit(1)

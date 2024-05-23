@@ -5,7 +5,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+	http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -62,7 +62,7 @@ Exmaple: bizfly snapshot create <volume_id> --name snapshot-name`,
 			VolumeId: volumeID,
 			Force:    true,
 		}
-		snap, err := client.Snapshot.Create(ctx, &scr)
+		snap, err := client.CloudServer.Snapshots().Create(ctx, &scr)
 		if err != nil {
 			fmt.Printf("Create snapshot for volume %s error %v", volumeID, err)
 			os.Exit(1)
@@ -84,7 +84,7 @@ Example: bizfly snapshot delete <snapshot_id> <snapshot_id>`,
 		client, ctx := getApiClient(cmd)
 		for _, snapshotID := range args {
 			fmt.Printf("Deleting snapshot %s \n", snapshotID)
-			err := client.Snapshot.Delete(ctx, snapshotID)
+			err := client.CloudServer.Snapshots().Delete(ctx, snapshotID)
 			if err != nil {
 				if errors.Is(err, gobizfly.ErrNotFound) {
 					fmt.Printf("Snapshot %s is not found", snapshotID)
@@ -107,7 +107,7 @@ Example: bizfly snapshot get <snapshot_id>`,
 		}
 		client, ctx := getApiClient(cmd)
 
-		snap, err := client.Snapshot.Get(ctx, args[0])
+		snap, err := client.CloudServer.Snapshots().Get(ctx, args[0])
 		if err != nil {
 			if errors.Is(err, gobizfly.ErrNotFound) {
 				fmt.Printf("Snapshot %s not found.", args[0])
@@ -134,7 +134,7 @@ Example: bizfly snapshot list
 		if volumeID != "" {
 			opts.VolumeId = volumeID
 		}
-		snapshots, err := client.Snapshot.List(ctx, opts)
+		snapshots, err := client.CloudServer.Snapshots().List(ctx, opts)
 		if err != nil {
 			log.Fatal(err)
 		}
