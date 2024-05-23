@@ -2,9 +2,10 @@ package cmd
 
 import (
 	"fmt"
+	"strconv"
+
 	"github.com/bizflycloud/bizflyctl/formatter"
 	"github.com/spf13/cobra"
-	"strconv"
 )
 
 var projectListHeader = []string{"ID", "Name", "Description", "Is Active", "Created At", "Updated At"}

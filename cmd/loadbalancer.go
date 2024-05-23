@@ -5,7 +5,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+	http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -133,7 +133,7 @@ Example: bizflyctl loadbalancer create --name lb1 --type large --network-type ex
 			},
 		})
 
-		lb, err := client.LoadBalancer.Create(ctx, &payload)
+		lb, err := client.CloudLoadBalancer.Create(ctx, &payload)
 		if err != nil {
 			log.Fatalf("Error creating load balancer: %v", err)
 		}
@@ -158,7 +158,7 @@ Example: bizfly loadbalancer delete fd554aac-9ab1-11ea-b09d-bbaf82f02f58 f5869e9
 		for _, lbID := range args {
 			fmt.Printf("Deleting load balancer %s \n", lbID)
 			lbdr := gobizfly.LoadBalancerDeleteRequest{ID: lbID, Cascade: true}
-			err := client.LoadBalancer.Delete(ctx, &lbdr)
+			err := client.CloudLoadBalancer.Delete(ctx, &lbdr)
 			if err != nil {
 				if errors.Is(err, gobizfly.ErrNotFound) {
 					fmt.Printf("Load Balancer %s is not found", lbID)
@@ -176,7 +176,7 @@ var lbListCmd = &cobra.Command{
 	Long:  `List all load balancer in your account`,
 	Run: func(cmd *cobra.Command, args []string) {
 		client, ctx := getApiClient(cmd)
-		lbs, err := client.LoadBalancer.List(ctx, &gobizfly.ListOptions{})
+		lbs, err := client.CloudLoadBalancer.List(ctx, &gobizfly.ListOptions{})
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -202,7 +202,7 @@ Example: bizfly loadbalancer get fd554aac-9ab1-11ea-b09d-bbaf82f02f58
 		}
 		client, ctx := getApiClient(cmd)
 
-		lb, err := client.LoadBalancer.Get(ctx, args[0])
+		lb, err := client.CloudLoadBalancer.Get(ctx, args[0])
 		if err != nil {
 			if errors.Is(err, gobizfly.ErrNotFound) {
 				fmt.Printf("Load Balancer %s not found.", args[0])
@@ -228,7 +228,7 @@ Example: bizfly loadbalancer pool delete fd554aac-9ab1-11ea-b09d-bbaf82f02f58
 		// TODO: check length of args
 		poolID := args[0]
 		fmt.Printf("Deleting pool %s \n", poolID)
-		err := client.Pool.Delete(ctx, poolID)
+		err := client.CloudLoadBalancer.Pools().Delete(ctx, poolID)
 		if err != nil {
 			if errors.Is(err, gobizfly.ErrNotFound) {
 				fmt.Printf("Pool %s is not found", poolID)
@@ -249,7 +249,7 @@ Example: bizfly loadbalancer pool list <loadbalancer_id>
 		client, ctx := getApiClient(cmd)
 		// TODO Check length args
 		lbID := args[0]
-		pools, err := client.Pool.List(ctx, lbID, &gobizfly.ListOptions{})
+		pools, err := client.CloudLoadBalancer.Pools().List(ctx, lbID, &gobizfly.ListOptions{})
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -287,7 +287,7 @@ Example: bizfly loadbalancer pool create <loadbalancer_id> --name <pool_name> --
 				payload.SessionPersistence.CookieName = &sessionPersistenceCookieName
 			}
 		}
-		pool, err := client.Pool.Create(ctx, args[0], payload)
+		pool, err := client.CloudLoadBalancer.Pools().Create(ctx, args[0], payload)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -307,7 +307,7 @@ Example: bizfly loadbalancer listener update <loadbalancer_id> --name <listener_
 		if len(args) > 1 {
 			fmt.Printf("Unknow variable %s", strings.Join(args[1:], ""))
 		}
-		listener, err := client.Listener.Update(ctx, args[0], &gobizfly.ListenerUpdateRequest{
+		listener, err := client.CloudLoadBalancer.Listeners().Update(ctx, args[0], &gobizfly.ListenerUpdateRequest{
 			Name:                   &listenerName,
 			Description:            &description,
 			DefaultPoolID:          &defaultPoolID,
@@ -335,7 +335,7 @@ Example: bizfly loadbalancer pool get fd554aac-9ab1-11ea-b09d-bbaf82f02f58
 		}
 		client, ctx := getApiClient(cmd)
 
-		pool, err := client.Pool.Get(ctx, args[0])
+		pool, err := client.CloudLoadBalancer.Pools().Get(ctx, args[0])
 		if err != nil {
 			if errors.Is(err, gobizfly.ErrNotFound) {
 				fmt.Printf("Pool %s not found.", args[0])
@@ -359,7 +359,7 @@ Example: bizfly loadbalancer listener create <loadbalancer_id> --name <listener_
 		if len(args) > 1 {
 			fmt.Printf("Unknow variable %s", strings.Join(args[1:], ""))
 		}
-		listener, err := client.Listener.Create(ctx, args[0], &gobizfly.ListenerCreateRequest{
+		listener, err := client.CloudLoadBalancer.Listeners().Create(ctx, args[0], &gobizfly.ListenerCreateRequest{
 			Name:          &listenerName,
 			Description:   &description,
 			Protocol:      listenerProtocol,
@@ -387,7 +387,7 @@ Example: bizfly loadbalancer listener delete fd554aac-9ab1-11ea-b09d-bbaf82f02f5
 		// TODO: check length of args
 		listenerID := args[0]
 		fmt.Printf("Deleting listener %s \n", listenerID)
-		err := client.Listener.Delete(ctx, listenerID)
+		err := client.CloudLoadBalancer.Listeners().Delete(ctx, listenerID)
 		if err != nil {
 			if errors.Is(err, gobizfly.ErrNotFound) {
 				fmt.Printf("Listener %s is not found", listenerID)
@@ -408,7 +408,7 @@ Example: bizfly loadbalancer listener list <loadbalancer_id>
 		client, ctx := getApiClient(cmd)
 		// TODO Check length args
 		lbID := args[0]
-		listeners, err := client.Listener.List(ctx, lbID, &gobizfly.ListOptions{})
+		listeners, err := client.CloudLoadBalancer.Listeners().List(ctx, lbID, &gobizfly.ListOptions{})
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -434,7 +434,7 @@ Example: bizfly loadbalancer listener get fd554aac-9ab1-11ea-b09d-bbaf82f02f58
 		}
 		client, ctx := getApiClient(cmd)
 
-		listener, err := client.Listener.Get(ctx, args[0])
+		listener, err := client.CloudLoadBalancer.Listeners().Get(ctx, args[0])
 		if err != nil {
 			if errors.Is(err, gobizfly.ErrNotFound) {
 				fmt.Printf("Listener %s not found.", args[0])
@@ -460,7 +460,7 @@ Example: bizfly loadbalancer listener get fd554aac-9ab1-11ea-b09d-bbaf82f02f58
 			fmt.Printf("Unknow variable %s", strings.Join(args[1:], ""))
 		}
 		client, ctx := getApiClient(cmd)
-		healthMontior, err := client.HealthMonitor.Get(ctx, args[0])
+		healthMontior, err := client.CloudLoadBalancer.HealthMonitors().Get(ctx, args[0])
 		if err != nil {
 			if errors.Is(err, gobizfly.ErrNotFound) {
 				fmt.Printf("Health monitor of listener %s not found.", args[0])
@@ -487,7 +487,7 @@ Example: bizfly loadbalancer listener delete fd554aac-9ab1-11ea-b09d-bbaf82f02f5
 			fmt.Printf("Unknow variable %s", strings.Join(args[1:], ""))
 		}
 		client, ctx := getApiClient(cmd)
-		err := client.HealthMonitor.Delete(ctx, args[0])
+		err := client.CloudLoadBalancer.HealthMonitors().Delete(ctx, args[0])
 		if err != nil {
 			if errors.Is(err, gobizfly.ErrNotFound) {
 				fmt.Printf("Health monitor of listener %s not found.", args[0])
@@ -522,7 +522,7 @@ Example: bizfly loadbalancer listener create <pool-id> --name sadjf --type HTTP 
 			HTTPMethod:     healthMonitorMethod,
 			ExpectedCodes:  healthMonitorExpectedStatusCode,
 		}
-		healthMonitor, err := client.HealthMonitor.Create(ctx, args[0], &payload)
+		healthMonitor, err := client.CloudLoadBalancer.HealthMonitors().Create(ctx, args[0], &payload)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -554,7 +554,7 @@ Example: bizfly loadbalancer listener update <health-monitor-id> --name sadjf --
 			HTTPMethod:     &healthMonitorMethod,
 			ExpectedCodes:  &healthMonitorExpectedStatusCode,
 		}
-		healthMonitor, err := client.HealthMonitor.Update(ctx, args[0], &payload)
+		healthMonitor, err := client.CloudLoadBalancer.HealthMonitors().Update(ctx, args[0], &payload)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -578,11 +578,11 @@ var lbResizeLoadBalancerCmd = &cobra.Command{
 		client, ctx := getApiClient(cmd)
 		lbID := args[0]
 		newType := args[1]
-		err := client.LoadBalancer.Resize(ctx, lbID, newType)
+		err := client.CloudLoadBalancer.Resize(ctx, lbID, newType)
 		if err != nil {
 			log.Fatal(err)
 		}
-		lb, err := client.LoadBalancer.Get(ctx, lbID)
+		lb, err := client.CloudLoadBalancer.Get(ctx, lbID)
 		if err != nil {
 			log.Fatal(err)
 		}

@@ -18,10 +18,11 @@ package cmd
 
 import (
 	"fmt"
+	"log"
+
 	"github.com/bizflycloud/bizflyctl/formatter"
 	"github.com/bizflycloud/gobizfly"
 	"github.com/spf13/cobra"
-	"log"
 )
 
 var (
@@ -47,7 +48,7 @@ var scheduledVolumeBackupListCmd = &cobra.Command{
 	Short: "List scheduled volume backup",
 	Run: func(cmd *cobra.Command, args []string) {
 		client, ctx := getApiClient(cmd)
-		backups, err := client.ScheduledVolumeBackup.List(ctx)
+		backups, err := client.CloudServer.ScheduledVolumeBackups().List(ctx)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -78,7 +79,7 @@ var scheduledVolumeBackupGetCmd = &cobra.Command{
 		} else if len(args) > 1 {
 			log.Fatal("Too many arguments")
 		}
-		backup, err := client.ScheduledVolumeBackup.Get(ctx, args[0])
+		backup, err := client.CloudServer.ScheduledVolumeBackups().Get(ctx, args[0])
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -126,7 +127,7 @@ var scheduleVolumeBackupCreateCmd = &cobra.Command{
 			Size:       size,
 			Hour:       hour,
 		}
-		backup, err := client.ScheduledVolumeBackup.Create(ctx, payload)
+		backup, err := client.CloudServer.ScheduledVolumeBackups().Create(ctx, payload)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -156,7 +157,7 @@ var scheduledVolumeBackupDeleteCmd = &cobra.Command{
 		} else if len(args) > 1 {
 			log.Fatal("Too many arguments")
 		}
-		err := client.ScheduledVolumeBackup.Delete(ctx, args[0])
+		err := client.CloudServer.ScheduledVolumeBackups().Delete(ctx, args[0])
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -175,7 +176,7 @@ var scheduledVolumeBackupUpdateCmd = &cobra.Command{
 		} else if len(args) > 1 {
 			log.Fatal("Too many arguments")
 		}
-		backup, err := client.ScheduledVolumeBackup.Get(ctx, args[0])
+		backup, err := client.CloudServer.ScheduledVolumeBackups().Get(ctx, args[0])
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -192,7 +193,7 @@ var scheduledVolumeBackupUpdateCmd = &cobra.Command{
 			payload.Hour = backup.ScheduledHour
 		}
 
-		backup, err = client.ScheduledVolumeBackup.Update(ctx, args[0], &payload)
+		backup, err = client.CloudServer.ScheduledVolumeBackups().Update(ctx, args[0], &payload)
 		if err != nil {
 			log.Fatal(err)
 		}

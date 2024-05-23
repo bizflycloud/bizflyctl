@@ -63,7 +63,7 @@ Example: bizfly volume delete fd554aac-9ab1-11ea-b09d-bbaf82f02f58 f5869e9c-9ab2
 		client, ctx := getApiClient(cmd)
 		for _, volumeID := range args {
 			fmt.Printf("Deleting volume %s \n", volumeID)
-			err := client.Volume.Delete(ctx, volumeID)
+			err := client.CloudServer.Volumes().Delete(ctx, volumeID)
 			if err != nil {
 				if errors.Is(err, gobizfly.ErrNotFound) {
 					fmt.Printf("Volume %s is not found", volumeID)
@@ -87,7 +87,7 @@ Example: bizfly volume get 9e580b1a-0526-460b-9a6f-d8f80130bda8
 		}
 		client, ctx := getApiClient(cmd)
 
-		volume, err := client.Volume.Get(ctx, args[0])
+		volume, err := client.CloudServer.Volumes().Get(ctx, args[0])
 		if err != nil {
 			if errors.Is(err, gobizfly.ErrNotFound) {
 				fmt.Printf("Volume %s not found.", args[0])
@@ -116,7 +116,7 @@ Example: bizfly volume list
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 		client, ctx := getApiClient(cmd)
-		volumes, err := client.Volume.List(ctx, &gobizfly.VolumeListOptions{})
+		volumes, err := client.CloudServer.Volumes().List(ctx, &gobizfly.VolumeListOptions{})
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -155,7 +155,7 @@ Use: bizfly volume create
 			Description:      description,
 			BillingPlan:      volumeBillingPlan,
 		}
-		volume, err := client.Volume.Create(ctx, &vcr)
+		volume, err := client.CloudServer.Volumes().Create(ctx, &vcr)
 		if err != nil {
 			fmt.Printf("Create a new volume error: %v", err)
 			os.Exit(1)
@@ -196,7 +196,7 @@ Use: bizfly volume attach <volume-id> <server-id>
 			os.Exit(1)
 		}
 		client, ctx := getApiClient(cmd)
-		res, err := client.Volume.Attach(ctx, volumeID, serverID)
+		res, err := client.CloudServer.Volumes().Attach(ctx, volumeID, serverID)
 		if err != nil {
 			fmt.Printf("Attach a volume to a server error: %v", err)
 			os.Exit(1)
@@ -229,7 +229,7 @@ Use: bizfly volume detach <volume-id> <server-id>
 			os.Exit(1)
 		}
 		client, ctx := getApiClient(cmd)
-		res, err := client.Volume.Detach(ctx, volumeID, serverID)
+		res, err := client.CloudServer.Volumes().Detach(ctx, volumeID, serverID)
 		if err != nil {
 			fmt.Printf("Detach a volume from a server error: %v", err)
 			os.Exit(1)
@@ -253,7 +253,7 @@ Use: bizfly volume extend <volume-id> --size <new-size>
 		}
 		volumeID := args[0]
 		client, ctx := getApiClient(cmd)
-		_, err := client.Volume.ExtendVolume(ctx, volumeID, volumeSize)
+		_, err := client.CloudServer.Volumes().ExtendVolume(ctx, volumeID, volumeSize)
 		if err != nil {
 			fmt.Printf("Extend volume error: %v\n", err)
 		}
@@ -275,7 +275,7 @@ Use: bizfly volume restore <volume-id> --snapshot-id <snapshot-id>
 		}
 		volumeID := args[0]
 		client, ctx := getApiClient(cmd)
-		_, err := client.Volume.Restore(ctx, volumeID, snapshotID)
+		_, err := client.CloudServer.Volumes().Restore(ctx, volumeID, snapshotID)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -297,7 +297,7 @@ Use: bizfly volume patch <volume-id> [--name <vol_name>] [--description <descrip
 		client, ctx := getApiClient(cmd)
 		req := &gobizfly.VolumePatchRequest{}
 		req.Description = description
-		volume, err := client.Volume.Patch(ctx, volumeID, req)
+		volume, err := client.CloudServer.Volumes().Patch(ctx, volumeID, req)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -328,7 +328,7 @@ Use: bizfly volume list-types --category <category> --availability-zone <availab
 		if availabilityZone != "" {
 			opts.AvailabilityZone = availabilityZone
 		}
-		volumeTypes, err := client.Volume.ListVolumeTypes(ctx, opts)
+		volumeTypes, err := client.CloudServer.Volumes().ListVolumeTypes(ctx, opts)
 		if err != nil {
 			log.Fatal(err)
 		}

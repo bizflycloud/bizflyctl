@@ -5,7 +5,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+	http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,13 +18,14 @@ package cmd
 import (
 	"errors"
 	"fmt"
-	"github.com/bizflycloud/bizflyctl/formatter"
-	"github.com/bizflycloud/gobizfly"
-	"github.com/spf13/cobra"
 	"log"
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/bizflycloud/bizflyctl/formatter"
+	"github.com/bizflycloud/gobizfly"
+	"github.com/spf13/cobra"
 )
 
 var (
@@ -57,7 +58,7 @@ Example: bizfly vpc delete fd554aac-9ab1-11ea-b09d-bbaf82f02f58`,
 		client, ctx := getApiClient(cmd)
 
 		fmt.Printf("Deleting VPC: %v", vpcID)
-		err := client.VPC.Delete(ctx, vpcID)
+		err := client.CloudServer.VPCNetworks().Delete(ctx, vpcID)
 		if err != nil {
 			if errors.Is(err, gobizfly.ErrNotFound) {
 				fmt.Printf("VPC %s is not found", serverID)
@@ -75,7 +76,7 @@ var vpcListCmd = &cobra.Command{
 	Long:  "List all vpcs in your account",
 	Run: func(cmd *cobra.Command, args []string) {
 		client, ctx := getApiClient(cmd)
-		vpcs, err := client.VPC.List(ctx)
+		vpcs, err := client.CloudServer.VPCNetworks().List(ctx)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -100,7 +101,7 @@ Example: bizfly vpc get fd554aac-9ab1-11ea-b09d-bbaf82f02f58`,
 			fmt.Printf("Unknown variable %s", strings.Join(args[1:], ""))
 		}
 		client, ctx := getApiClient(cmd)
-		vpc, err := client.VPC.Get(ctx, args[0])
+		vpc, err := client.CloudServer.VPCNetworks().Get(ctx, args[0])
 		if err != nil {
 			if errors.Is(err, gobizfly.ErrNotFound) {
 				fmt.Printf("Server %s not found.", args[0])
@@ -132,7 +133,7 @@ var vpcCreateCmd = &cobra.Command{
 			IsDefault:   isDefault,
 		}
 		client, ctx := getApiClient(cmd)
-		vpc, err := client.VPC.Create(ctx, &cvpl)
+		vpc, err := client.CloudServer.VPCNetworks().Create(ctx, &cvpl)
 		if err != nil {
 			fmt.Printf("Create VPC error: %v", err)
 			os.Exit(1)
@@ -162,7 +163,7 @@ var vpcUpdateCmd = &cobra.Command{
 			IsDefault:   isDefault,
 		}
 		client, ctx := getApiClient(cmd)
-		vpc, err := client.VPC.Update(ctx, args[0], &uvpl)
+		vpc, err := client.CloudServer.VPCNetworks().Update(ctx, args[0], &uvpl)
 		if err != nil {
 			fmt.Printf("Update VPC error: %v", err)
 			os.Exit(1)

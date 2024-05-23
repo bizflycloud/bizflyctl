@@ -453,7 +453,7 @@ var alarmCreateCmd = &cobra.Command{
 		}
 		var alarmLoadBalancersMonitors = []*gobizfly.AlarmLoadBalancersMonitor{}
 		for _, rawLoadBalancer := range rawLoadBalancers {
-			lb, err := client.LoadBalancer.Get(ctx, rawLoadBalancer["id"].(string))
+			lb, err := client.CloudLoadBalancer.Get(ctx, rawLoadBalancer["id"].(string))
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -467,13 +467,13 @@ var alarmCreateCmd = &cobra.Command{
 
 			// Validate frontend/backend of loadbalancer
 			if rawLoadBalancer["tgtype"] == "frontend" {
-				frontend, err := client.Listener.Get(ctx, rawLoadBalancer["tgid"].(string))
+				frontend, err := client.CloudLoadBalancer.Listeners().Get(ctx, rawLoadBalancer["tgid"].(string))
 				if err != nil {
 					log.Fatal(err)
 				}
 				albm.TargetName = frontend.Name
 			} else {
-				backend, err := client.Pool.Get(ctx, rawLoadBalancer["tgid"].(string))
+				backend, err := client.CloudLoadBalancer.Pools().Get(ctx, rawLoadBalancer["tgid"].(string))
 				if err != nil {
 					log.Fatal(err)
 				}
@@ -520,7 +520,7 @@ var alarmCreateCmd = &cobra.Command{
 		var volumesMonitor = []gobizfly.AlarmVolumesMonitor{}
 		if len(alarmVolumes) > 0 {
 			for _, volumeID := range alarmVolumes {
-				volume, err := client.Volume.Get(ctx, volumeID)
+				volume, err := client.CloudServer.Volumes().Get(ctx, volumeID)
 				if err != nil {
 					log.Fatal(err)
 				}
@@ -535,7 +535,7 @@ var alarmCreateCmd = &cobra.Command{
 		var instancesMonitor = []gobizfly.AlarmInstancesMonitors{}
 		if len(alarmInstances) > 0 {
 			for _, instanceID := range alarmInstances {
-				instance, err := client.Server.Get(ctx, instanceID)
+				instance, err := client.CloudServer.Get(ctx, instanceID)
 				if err != nil {
 					log.Fatal(err)
 				}
@@ -772,7 +772,7 @@ var alarmSetCmd = &cobra.Command{
 
 			}
 			for _, rawLoadBalancer := range rawLoadBalancers {
-				lb, err := client.LoadBalancer.Get(ctx, rawLoadBalancer["id"].(string))
+				lb, err := client.CloudLoadBalancer.Get(ctx, rawLoadBalancer["id"].(string))
 				if err != nil {
 					log.Fatal(err)
 				}
@@ -786,13 +786,13 @@ var alarmSetCmd = &cobra.Command{
 
 				// Validate frontend/backend of loadbalancer
 				if rawLoadBalancer["tgtype"] == "frontend" {
-					frontend, err := client.Listener.Get(ctx, rawLoadBalancer["tgid"].(string))
+					frontend, err := client.CloudLoadBalancer.Listeners().Get(ctx, rawLoadBalancer["tgid"].(string))
 					if err != nil {
 						log.Fatal(err)
 					}
 					albm.TargetName = frontend.Name
 				} else {
-					backend, err := client.Pool.Get(ctx, rawLoadBalancer["tgid"].(string))
+					backend, err := client.CloudLoadBalancer.Pools().Get(ctx, rawLoadBalancer["tgid"].(string))
 					if err != nil {
 						log.Fatal(err)
 					}
@@ -842,7 +842,7 @@ var alarmSetCmd = &cobra.Command{
 		var volumesMonitor = []gobizfly.AlarmVolumesMonitor{}
 		if len(alarmVolumes) > 0 {
 			for _, volumeID := range alarmVolumes {
-				volume, err := client.Volume.Get(ctx, volumeID)
+				volume, err := client.CloudServer.Volumes().Get(ctx, volumeID)
 				if err != nil {
 					log.Fatal(err)
 				}
@@ -861,7 +861,7 @@ var alarmSetCmd = &cobra.Command{
 		var instancesMonitor = []gobizfly.AlarmInstancesMonitors{}
 		if len(alarmInstances) > 0 {
 			for _, instanceID := range alarmInstances {
-				instance, err := client.Server.Get(ctx, instanceID)
+				instance, err := client.CloudServer.Get(ctx, instanceID)
 				if err != nil {
 					log.Fatal(err)
 				}

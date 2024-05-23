@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+
 	"github.com/bizflycloud/bizflyctl/formatter"
 	"github.com/spf13/cobra"
 )
@@ -27,7 +28,7 @@ Use: bizfly image list
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 		client, ctx := getApiClient(cmd)
-		images, err := client.Server.ListOSImages(ctx)
+		images, err := client.CloudServer.OSImages().List(ctx)
 		if err != nil {
 			fmt.Printf("List os image error: %v", err)
 		}
