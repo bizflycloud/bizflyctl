@@ -576,10 +576,10 @@ func init() {
 	kccq.StringVar(&vpcNetworkID, "vpc-network-id", "", "VPC Network ID")
 	kccq.StringArrayVar(&tags, "tag", []string{}, "Tags of cluster")
 	kccq.StringArrayVar(&workerPools, "worker-pool", []string{}, "Worker pools")
-	clusterCreate.MarkFlagRequired("name")
-	clusterCreate.MarkFlagRequired("version")
-	clusterCreate.MarkFlagRequired("vpc-network-id")
-	clusterCreate.MarkFlagRequired("worker-pool")
+	_ = clusterCreate.MarkFlagRequired("name")
+	_ = clusterCreate.MarkFlagRequired("version")
+	_ = clusterCreate.MarkFlagRequired("vpc-network-id")
+	_ = clusterCreate.MarkFlagRequired("worker-pool")
 	kubernetesCmd.AddCommand(clusterCreate)
 
 	awp := addWorkerPool.PersistentFlags()
@@ -593,9 +593,9 @@ func init() {
 	uwp.IntVar(&minSize, "min-size", 1, "Min size")
 	uwp.IntVar(&maxSize, "max-size", 1, "Max size")
 
-	updateWorkerPool.MarkFlagRequired("desired-size")
-	updateWorkerPool.MarkFlagRequired("min-size")
-	updateWorkerPool.MarkFlagRequired("max-size")
+	_ = updateWorkerPool.MarkFlagRequired("desired-size")
+	_ = updateWorkerPool.MarkFlagRequired("min-size")
+	_ = updateWorkerPool.MarkFlagRequired("max-size")
 
 	kubernetesWorkerPoolCmd.AddCommand(updateWorkerPool)
 
