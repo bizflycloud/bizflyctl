@@ -38,7 +38,7 @@ var (
 	kubernetesClusterHeader    = []string{"ID", "Name", "VPC Network ID", "Worker Pools Count", "Cluster Status", "Tags", "Created At", "Cluster Version"}
 	detailKubernetesCluster    = []string{"ID", "Name", "VPC Network ID", "Worker Pools", "Worker Pools Count", "Cluster Status", "Tags", "Created At", "Cluster Version"}
 	kubernetesWorkerPoolHeader = []string{
-		"ID", "Name", "Version", "Flavor", "Volume Size", "Volume Type",
+		"ID", "Name", "Version", "Flavor", "Volume Size", "Volume Type", "Nodes",
 		"Enabled AutoScaling", "Min Size", "Max Size", "Created At",
 	}
 	clusterName              string
@@ -60,7 +60,7 @@ var kubernetesCmd = &cobra.Command{
 	Short: "Bizfly Kubernetes Engine Interaction",
 	Long:  "Bizfly Kubernetes Engine Action: List, Create, Delete, Get",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("kubernetes engine called")
+		_ = cmd.Help() // Display the help message
 	},
 }
 
@@ -68,7 +68,7 @@ var kubernetesWorkerPoolCmd = &cobra.Command{
 	Use:   "workerpool",
 	Short: "Bizfly Kubernetes Engine Worker Pool Interaction",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("worker pool called")
+		_ = cmd.Help() // Display the help message
 	},
 }
 
@@ -76,7 +76,7 @@ var kubernetesKubeConfigCmd = &cobra.Command{
 	Use:   "kubeconfig",
 	Short: "Bizfly Kubernetes Engine Kubeconfig Interaction",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("kubeconfig called")
+		_ = cmd.Help() // Display the help message
 	},
 }
 
@@ -84,7 +84,7 @@ var kubernetesNodeCmd = &cobra.Command{
 	Use:   "node",
 	Short: "Bizfly Kubernetes Engine Node Interaction",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("node called")
+		_ = cmd.Help() // Display the help message
 	},
 }
 
@@ -113,7 +113,7 @@ var clusterCreate = &cobra.Command{
 	Use:   "create",
 	Short: "Create Kubernetes cluster with worker pool",
 	Long: `Create Kubernetes cluster with worker pool using file or flags (Sample config file in example)
-  - Using flag example: ./bizfly kubernetes create --name test_cli --version 5f7d3a91d857155ad4993a32 --vpc-network-id 145bed1f-a7f7-4f88-ab3d-ce2fc95a4e71 -tag abc -tag xyz --worker-pool "name=testworkerpool;flavor=nix.3c_6g;profile_type=premium;volume_type=PREMIUM-HDD1;volume_size=40;availability_zone=HN1;desired_size=1;min_size=1;max_size=10;labels=env=dev;taints=app=demo:NoSchedule"
+- Using flag example: ./bizfly kubernetes create --name test_cli --version 5f7d3a91d857155ad4993a32 --vpc-network-id 145bed1f-a7f7-4f88-ab3d-ce2fc95a4e71 -tag abc -tag xyz --worker-pool "name=testworkerpool;flavor=nix.3c_6g;profile_type=premium;volume_type=PREMIUM-HDD1;volume_size=40;availability_zone=HN1;desired_size=1;min_size=1;max_size=10;labels=env=dev;taints=app=demo:NoSchedule"
 - Using config file example: ./bizfly kubernetes create --config-file create_cluster.yml`,
 	Run: func(cmd *cobra.Command, args []string) {
 		client, ctx := getApiClient(cmd)
@@ -163,9 +163,14 @@ var clusterCreate = &cobra.Command{
 var clusterGet = &cobra.Command{
 	Use:   "get",
 	Short: "Get Kubernetes cluster with worker pool",
+	Long: `Get detail of cluster. 
+- Using example: bizfly kubernetes get <cluster id>
+	`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) != 1 {
-			log.Fatal("Invalid arguments")
+			fmt.Println("Invalid arguments")
+			_ = cmd.Help() // Display the help message
+			return
 		}
 		client, ctx := getApiClient(cmd)
 		cluster, err := client.KubernetesEngine.Get(ctx, args[0])
@@ -187,10 +192,15 @@ var clusterGet = &cobra.Command{
 
 var clusterDelete = &cobra.Command{
 	Use:   "delete",
-	Short: "Delete Kubernetes cluster with worker pool",
+	Short: "Delete Kubernetes cluster with worker pools",
+	Long: `Delete a kubernetes cluster and all worker pools
+- Using example: bizfly kubernetes delete <cluster id>
+	`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) != 1 {
-			log.Fatal("Invalid arguments")
+			fmt.Println("Invalid arguments")
+			_ = cmd.Help() // Display the help message
+			return
 		}
 		client, ctx := getApiClient(cmd)
 		err := client.KubernetesEngine.Delete(ctx, args[0])
@@ -209,7 +219,9 @@ var addWorkerPool = &cobra.Command{
 - Using config file example: ./bizfly kubernetes add-workerpool 55viixy9ma6yaiwu --config-file add_pools.yml`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) != 1 {
-			log.Fatal("Invalid arguments")
+			fmt.Println("Invalid arguments")
+			_ = cmd.Help() // Display the help message
+			return
 		}
 		client, ctx := getApiClient(cmd)
 		var data [][]string
@@ -262,9 +274,14 @@ var addWorkerPool = &cobra.Command{
 var recycleNode = &cobra.Command{
 	Use:   "recycle",
 	Short: "Recycle Node",
+	Long: `Recycle a node in a worker pool in a cluster 
+Using example: bizfly kubernetes workerpool node recycle <cluster id> <workerpool id> <node id>
+	`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) != 3 {
-			log.Fatal("Invalid arguments")
+			fmt.Println("Invalid arguments")
+			_ = cmd.Help() // Display the help message
+			return
 		}
 		client, ctx := getApiClient(cmd)
 		err := client.KubernetesEngine.RecycleNode(ctx, args[0], args[1], args[2])
@@ -278,25 +295,35 @@ var recycleNode = &cobra.Command{
 var deleteWorkerPool = &cobra.Command{
 	Use:   "delete",
 	Short: "Delete worker pool",
+	Long: `Delete a worker pool in a kubernetes cluster
+- Using example: bizfly kubernetes workerpool delete <cluster id> <worker pool id>
+	`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) != 2 {
-			log.Fatal("Invalid arguments")
+			fmt.Println("Invalid arguments")
+			_ = cmd.Help() // Display the help message
+			return
 		}
 		client, ctx := getApiClient(cmd)
 		err := client.KubernetesEngine.DeleteClusterWorkerPool(ctx, args[0], args[1])
 		if err != nil {
 			log.Fatal(err)
 		}
-		fmt.Println("Node is recycling now")
+		fmt.Println("Worker pool is deleting now")
 	},
 }
 
 var getWorkerPool = &cobra.Command{
 	Use:   "get",
 	Short: "Get worker pool",
+	Long: `Get detail of worker pool in a kubernetes cluster
+- Using example: bizfly kubernetes workerpool get <cluster id> <worker pool id>
+	`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) != 2 {
-			log.Fatal("Invalid arguments")
+			fmt.Println("Invalid arguments")
+			_ = cmd.Help() // Display the help message
+			return
 		}
 		client, ctx := getApiClient(cmd)
 		workerPool, err := client.KubernetesEngine.GetClusterWorkerPool(ctx, args[0], args[1])
@@ -304,9 +331,13 @@ var getWorkerPool = &cobra.Command{
 			log.Fatal(err)
 		}
 		var data [][]string
+		var nodes []string
+		for _, node := range workerPool.Nodes {
+			nodes = append(nodes, node.PhysicalID)
+		}
 		data = append(data, []string{
 			workerPool.UID, workerPool.Name, workerPool.Version, workerPool.Flavor,
-			strconv.Itoa(workerPool.VolumeSize), workerPool.VolumeType, strconv.FormatBool(workerPool.EnableAutoScaling),
+			strconv.Itoa(workerPool.VolumeSize), workerPool.VolumeType, strings.Join(nodes, "\n"), strconv.FormatBool(workerPool.EnableAutoScaling),
 			strconv.Itoa(workerPool.MinSize), strconv.Itoa(workerPool.MaxSize), workerPool.CreatedAt,
 		})
 		formatter.Output(kubernetesWorkerPoolHeader, data)
@@ -316,10 +347,16 @@ var getWorkerPool = &cobra.Command{
 var updateWorkerPool = &cobra.Command{
 	Use:   "update",
 	Short: "Update worker pool",
+	Long: `Update a worker pool in a cluster
+- Using example: bizfly kubnernetes worker pool update <cluster id> <workerpool id> --desired-size <size> --min-size <size> --max-size <size> --autoscaling <true|false>
+	`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) != 2 {
-			log.Fatal("Invalid arguments")
+			fmt.Println("Invalid arguments")
+			_ = cmd.Help() // Display the help message
+			return
 		}
+
 		client, ctx := getApiClient(cmd)
 		uwr := &gobizfly.UpdateWorkerPoolRequest{
 			DesiredSize:       desiredSize,
@@ -338,9 +375,14 @@ var updateWorkerPool = &cobra.Command{
 var deleteWorkerPoolNode = &cobra.Command{
 	Use:   "delete",
 	Short: "Delete node",
+	Long: `Delete a node in a worker pool in a cluster 
+Using example: bizfly kubernetes workerpool node delete <cluster id> <worker pool id> <node id>
+	`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) != 3 {
-			log.Fatal("Invalid arguments")
+			fmt.Println("Invalid arguments")
+			_ = cmd.Help() // Display the help message
+			return
 		}
 		client, ctx := getApiClient(cmd)
 		err := client.KubernetesEngine.DeleteClusterWorkerPoolNode(ctx, args[0], args[1], args[2])
@@ -356,7 +398,9 @@ var getKubeConfig = &cobra.Command{
 	Short: "Get kubeconfig",
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) != 1 {
-			log.Fatal("Invalid arguments")
+			fmt.Println("Invalid arguments")
+			_ = cmd.Help() // Display the help message
+			return
 		}
 		client, ctx := getApiClient(cmd)
 		kubeconfigOptions := &gobizfly.GetKubeConfigOptions{
@@ -522,16 +566,20 @@ func init() {
 	kubernetesWorkerPoolCmd.AddCommand(deleteWorkerPool)
 	kubernetesWorkerPoolCmd.AddCommand(getWorkerPool)
 
-	kubernetesWorkerPoolCmd.AddCommand(deleteWorkerPoolNode)
-	kubernetesWorkerPoolCmd.AddCommand(recycleNode)
+	kubernetesNodeCmd.AddCommand(deleteWorkerPoolNode)
+	kubernetesNodeCmd.AddCommand(recycleNode)
 
-	kccq := clusterCreate.PersistentFlags()
+	kccq := clusterCreate.Flags()
 	kccq.StringVar(&inputConfigFile, "config-file", "", "Input config file")
 	kccq.StringVar(&clusterName, "name", "", "Name of cluster")
 	kccq.StringVar(&clusterVersion, "version", "", "Version of cluster")
 	kccq.StringVar(&vpcNetworkID, "vpc-network-id", "", "VPC Network ID")
 	kccq.StringArrayVar(&tags, "tag", []string{}, "Tags of cluster")
 	kccq.StringArrayVar(&workerPools, "worker-pool", []string{}, "Worker pools")
+	_ = clusterCreate.MarkFlagRequired("name")
+	_ = clusterCreate.MarkFlagRequired("version")
+	_ = clusterCreate.MarkFlagRequired("vpc-network-id")
+	_ = clusterCreate.MarkFlagRequired("worker-pool")
 	kubernetesCmd.AddCommand(clusterCreate)
 
 	awp := addWorkerPool.PersistentFlags()
@@ -539,11 +587,16 @@ func init() {
 	awp.StringArrayVar(&workerPools, "worker-pool", []string{}, "Worker pools")
 	kubernetesWorkerPoolCmd.AddCommand(addWorkerPool)
 
-	uwp := updateWorkerPool.PersistentFlags()
-	uwp.IntVar(&desiredSize, "desired-size", 0, "Desired size")
+	uwp := updateWorkerPool.Flags()
+	uwp.IntVar(&desiredSize, "desired-size", 1, "Desired size")
 	uwp.BoolVar(&enableAutoScaling, "autoscaling", false, "Enable Auto scaling")
-	uwp.IntVar(&minSize, "min-size", 0, "Min size")
-	uwp.IntVar(&maxSize, "max-size", 0, "Max size")
+	uwp.IntVar(&minSize, "min-size", 1, "Min size")
+	uwp.IntVar(&maxSize, "max-size", 1, "Max size")
+
+	_ = updateWorkerPool.MarkFlagRequired("desired-size")
+	_ = updateWorkerPool.MarkFlagRequired("min-size")
+	_ = updateWorkerPool.MarkFlagRequired("max-size")
+
 	kubernetesWorkerPoolCmd.AddCommand(updateWorkerPool)
 
 	getKubeConfig.PersistentFlags().StringVar(&outputKubeConfigFilePath, "output", ".", "Output path")
