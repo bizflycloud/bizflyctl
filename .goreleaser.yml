@@ -66,9 +66,9 @@ brews:
     description: ' Command Line for Bizfly Cloud.'
     directory: Formula
     commit_author:
-      name: Tung Son Do
-      email: tungds@bizflycloud.vn
+      name: bizflycloud_bot
+      email: support@bizflycloud.vn
     repository:
       owner: bizflycloud
-      name: bizflyctl
+      name: homebrew-bizflyctl
 
