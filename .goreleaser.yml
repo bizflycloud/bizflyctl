@@ -71,4 +71,5 @@ brews:
     repository:
       owner: bizflycloud
       name: homebrew-bizflyctl
+      token: '{{ .Env.BREW_RELEASE_TOKEN }}'
 
