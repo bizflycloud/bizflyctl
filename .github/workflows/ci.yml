@@ -1,69 +1,69 @@
 on: [push, pull_request]
 name: Test
 jobs:
-  Lint:
-    runs-on: ubuntu-latest
-    name: Lint
-    steps:
-      - name: Allow unsecurity commands
-        run: |
-          echo "ACTIONS_ALLOW_UNSECURE_COMMANDS=true" >> $GITHUB_ENV
-      - name: Checkout code
-        uses: actions/checkout@v3
-        with:
-          go-version: '1.17.8'
-          check-latest: false
-      - name: golangci-lint
-        uses: golangci/golangci-lint-action@v3
-        with:
-          version: v1.54
-          args: -v
+    Lint:
+        runs-on: ubuntu-latest
+        name: Lint
+        steps:
+            - name: Allow unsecurity commands
+              run: |
+                  echo "ACTIONS_ALLOW_UNSECURE_COMMANDS=true" >> $GITHUB_ENV
+            - name: Checkout code
+              uses: actions/checkout@v3
+              with:
+                  go-version: "1.17.8"
+                  check-latest: false
+            - name: golangci-lint
+              uses: golangci/golangci-lint-action@v3
+              with:
+                  version: v1.61
+                  args: -v
 
-  test-with-module:
-    strategy:
-      matrix:
-        go-version: [1.16.x, 1.17.x]
-        platform: [ubuntu-latest, windows-latest, macos-latest]
-    env:
-      GO111MODULE: on
-      GOPROXY: "https://proxy.golang.org"
-    runs-on: ${{ matrix.platform }}
-    steps:
-      - name: Install Go
-        uses: actions/setup-go@v1
-        with:
-          go-version: ${{ matrix.go-version }}
-      - name: Checkout code
-        uses: actions/checkout@v1
-      - name: Run Unit tests.
-        run: make test-coverage
-  # uncomment if use codeclimate
-  # coverage:
-  #   needs: [test-with-module]
-  #   name: coverage
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@master
-  #     - uses: actions/setup-node@master
-  #       with:
-  #         go-version: 1.13.x
-  #     - uses: paambaati/codeclimate-action@v2.5.6
-  #       env:
-  #         CC_TEST_REPORTER_ID: c91f892b8957ff9b030830b15d17d9b8e51dc0657f82ad3143ef9c4f79c757f0
-  #       with:
-  #         coverageCommand: make test-coverage
-  #         debug: true
+    test-with-module:
+        strategy:
+            matrix:
+                go-version: [1.16.x, 1.17.x]
+                platform: [ubuntu-latest, windows-latest, macos-latest]
+        env:
+            GO111MODULE: on
+            GOPROXY: "https://proxy.golang.org"
+        runs-on: ${{ matrix.platform }}
+        steps:
+            - name: Install Go
+              uses: actions/setup-go@v1
+              with:
+                  go-version: ${{ matrix.go-version }}
+            - name: Checkout code
+              uses: actions/checkout@v1
+            - name: Run Unit tests.
+              run: make test-coverage
+    # uncomment if use codeclimate
+    # coverage:
+    #   needs: [test-with-module]
+    #   name: coverage
+    #   runs-on: ubuntu-latest
+    #   steps:
+    #     - uses: actions/checkout@master
+    #     - uses: actions/setup-node@master
+    #       with:
+    #         go-version: 1.13.x
+    #     - uses: paambaati/codeclimate-action@v2.5.6
+    #       env:
+    #         CC_TEST_REPORTER_ID: c91f892b8957ff9b030830b15d17d9b8e51dc0657f82ad3143ef9c4f79c757f0
+    #       with:
+    #         coverageCommand: make test-coverage
+    #         debug: true
 
-  build:
-    name: Build
-    runs-on: ubuntu-latest
-    needs: [lint, test-with-module]
-    steps:
-      - name: Set up Go
-        uses: actions/setup-go@v1
-        with:
-          go-version: 1.16
-      - name: Check out code
-        uses: actions/checkout@v1
-      - name: Build
-        run: make build
+    build:
+        name: Build
+        runs-on: ubuntu-latest
+        needs: [lint, test-with-module]
+        steps:
+            - name: Set up Go
+              uses: actions/setup-go@v1
+              with:
+                  go-version: 1.16
+            - name: Check out code
+              uses: actions/checkout@v1
+            - name: Build
+              run: make build
