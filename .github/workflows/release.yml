@@ -1,24 +1,25 @@
 name: Make releases
 
 on:
-  create:
-    tags:
-      - 'v*'
+    create:
+        tags:
+            - "v*"
 jobs:
-  git:
-    name: Release on Git
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v2
-      - name: Validates GO releaser config
-        uses: docker://goreleaser/goreleaser:latest
-        with:
-          args: check
-      - name: Create release on GitHub
-        uses: goreleaser/goreleaser-action@v5
-        with:
-          version: latest
-          args: release --clean
-        env:
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+    git:
+        name: Release on Git
+        runs-on: ubuntu-latest
+        steps:
+            - name: Check out code
+              uses: actions/checkout@v2
+            - name: Validates GO releaser config
+              uses: docker://goreleaser/goreleaser:latest
+              with:
+                  args: check
+            - name: Create release on GitHub
+              uses: goreleaser/goreleaser-action@v5
+              with:
+                  version: latest
+                  args: release --clean
+              env:
+                  GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+                  BREW_RELEASE_TOKEN: ${{ secrets.BREW_RELEASE_TOKEN }}
