@@ -18,7 +18,6 @@ package cmd
 
 import (
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -119,7 +118,7 @@ var clusterCreate = &cobra.Command{
 		client, ctx := getApiClient(cmd)
 		var data [][]string
 		if inputConfigFile != "" {
-			fileBytes, err := ioutil.ReadFile(inputConfigFile)
+			fileBytes, err := os.ReadFile(inputConfigFile)
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -226,7 +225,7 @@ var addWorkerPool = &cobra.Command{
 		client, ctx := getApiClient(cmd)
 		var data [][]string
 		if inputConfigFile != "" {
-			fileBytes, err := ioutil.ReadFile(inputConfigFile)
+			fileBytes, err := os.ReadFile(inputConfigFile)
 			if err != nil {
 				log.Fatal(err)
 			}

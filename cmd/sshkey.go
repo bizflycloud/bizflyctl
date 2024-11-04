@@ -19,7 +19,6 @@ package cmd
 import (
 	"bufio"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"strings"
@@ -92,7 +91,7 @@ Example 2: bizfly ssh-key create --name abcxyz --public-key prompt => Paste your
 
 	Run: func(cmd *cobra.Command, args []string) {
 		client, ctx := getApiClient(cmd)
-		content, err := ioutil.ReadFile(publicKey)
+		content, err := os.ReadFile(publicKey)
 		if err == nil {
 			publicKey = string(content)
 		}
