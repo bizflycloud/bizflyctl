@@ -246,30 +246,51 @@ Example: bizfly firewall rule create <firewall ID> --direction <ingress|egress> 
 			log.Fatal("You need to specify the fireewall ID in the command")
 		}
 		client, ctx := getApiClient(cmd)
-		frcr := gobizfly.FirewallSingleRuleCreateRequest{
-			Direction: fwRuleDirection,
-			FirewallRuleCreateRequest: gobizfly.FirewallRuleCreateRequest{
-				Protocol: fwRuleProtocol,
-				CIDR:     fwRuleCIDR,
-				Type:     "CUSTOM",
-			},
-		}
-		if fwPortRange != "" {
-			frcr.PortRange = fwPortRange
-		}
-		resp, err := client.CloudServer.Firewalls().CreateRule(ctx, args[0], &gobizfly.FirewallSingleRuleCreateRequest{
-			Direction: fwRuleDirection,
-			FirewallRuleCreateRequest: gobizfly.FirewallRuleCreateRequest{
-				Protocol:  fwRuleProtocol,
-				CIDR:      fwRuleCIDR,
-				PortRange: fwPortRange,
-				Type:      "CUSTOM",
-			},
-		})
+		firewall, err := client.CloudServer.Firewalls().Get(ctx, args[0])
 		if err != nil {
 			log.Fatal(err)
 		}
-		fmt.Printf("Created new firewall rule with ID %s", resp.ID)
+		var inBoundRules []gobizfly.FirewallRuleCreateRequest
+		var outBoundRules []gobizfly.FirewallRuleCreateRequest
+		for _, rule := range firewall.InBound {
+			inBoundRules = append(inBoundRules, gobizfly.FirewallRuleCreateRequest{
+				Protocol:  rule.Protocol,
+				CIDR:      rule.CIDR,
+				PortRange: rule.PortRange,
+				Type:      rule.Type,
+			})
+		}
+		for _, rule := range firewall.OutBound {
+			outBoundRules = append(outBoundRules, gobizfly.FirewallRuleCreateRequest{
+				Protocol:  rule.Protocol,
+				CIDR:      rule.CIDR,
+				PortRange: rule.PortRange,
+				Type:      rule.Type,
+			})
+		}
+		newRule := gobizfly.FirewallRuleCreateRequest{
+			Protocol:  fwRuleProtocol,
+			CIDR:      fwRuleCIDR,
+			PortRange: fwPortRange,
+			Type:      "CUSTOM",
+		}
+		if fwRuleDirection == "ingress" {
+			inBoundRules = append(inBoundRules, newRule)
+		} else {
+			outBoundRules = append(outBoundRules, newRule)
+		}
+		
+		payload := gobizfly.FirewallRequestPayload{
+			Name:     firewall.Name,
+			InBound:  inBoundRules,
+			OutBound: outBoundRules,
+		}
+		
+		_, err = client.CloudServer.Firewalls().Update(ctx, args[0], &payload)
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Println("Created new firewall rule successfully")
 	},
 }
 

@@ -57,7 +57,7 @@ var wanIpListCmd = &cobra.Command{
 				wanIp.Name,
 				wanIp.Status,
 				wanIp.DeviceID,
-				wanIp.IpAddress,
+				wanIp.IPAddress,
 				strconv.Itoa(wanIp.IpVersion),
 				wanIp.BillingType,
 				strconv.Itoa(wanIp.Bandwidth),
@@ -91,7 +91,7 @@ var wanIPCreateCmd = &cobra.Command{
 			wanIp.Name,
 			wanIp.Status,
 			wanIp.DeviceID,
-			wanIp.IpAddress,
+			wanIp.IPAddress,
 			strconv.Itoa(wanIp.IpVersion),
 			wanIp.BillingType,
 			strconv.Itoa(wanIp.Bandwidth),
@@ -122,7 +122,7 @@ var wanIPGetCmd = &cobra.Command{
 			wanIp.Name,
 			wanIp.Status,
 			wanIp.DeviceID,
-			wanIp.IpAddress,
+			wanIp.IPAddress,
 			strconv.Itoa(wanIp.IpVersion),
 			wanIp.BillingType,
 			strconv.Itoa(wanIp.Bandwidth),
@@ -162,7 +162,7 @@ var wanIpAttachServerCmd = &cobra.Command{
 		client, ctx := getApiClient(cmd)
 		payload := gobizfly.ActionPublicNetworkInterfacePayload{
 			Action:   "attach_server",
-			ServerId: serverID,
+			ServerID: serverID,
 		}
 		err := client.CloudServer.PublicNetworkInterfaces().Action(ctx, args[0], &payload)
 		if err != nil {
@@ -178,7 +178,7 @@ var wanIpAttachServerCmd = &cobra.Command{
 			wanIp.Name,
 			wanIp.Status,
 			wanIp.DeviceID,
-			wanIp.IpAddress,
+			wanIp.IPAddress,
 			strconv.Itoa(wanIp.IpVersion),
 			wanIp.BillingType,
 			strconv.Itoa(wanIp.Bandwidth),
@@ -216,7 +216,7 @@ var wanIpDetachServerCmd = &cobra.Command{
 			wanIp.Name,
 			wanIp.Status,
 			wanIp.DeviceID,
-			wanIp.IpAddress,
+			wanIp.IPAddress,
 			strconv.Itoa(wanIp.IpVersion),
 			wanIp.BillingType,
 			strconv.Itoa(wanIp.Bandwidth),
@@ -254,7 +254,7 @@ var wanIpConvertToPaidCmd = &cobra.Command{
 			wanIp.Name,
 			wanIp.Status,
 			wanIp.DeviceID,
-			wanIp.IpAddress,
+			wanIp.IPAddress,
 			strconv.Itoa(wanIp.IpVersion),
 			wanIp.BillingType,
 			strconv.Itoa(wanIp.Bandwidth),

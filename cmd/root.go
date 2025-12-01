@@ -148,7 +148,7 @@ func getApiClient(cmd *cobra.Command) (*gobizfly.Client, context.Context) {
 		project_id = viper.GetString("project_id")
 	}
 	// nolint:staticcheck
-	client, err := gobizfly.NewClient(gobizfly.WithProjectId(project_id), gobizfly.WithRegionName(regionName))
+	client, err := gobizfly.NewClient(gobizfly.WithProjectID(project_id), gobizfly.WithRegionName(regionName))
 
 	if err != nil {
 		log.Fatal(err)
@@ -160,7 +160,7 @@ func getApiClient(cmd *cobra.Command) (*gobizfly.Client, context.Context) {
 		ProjectID: project_id,
 	}
 	if useAppCredential {
-		request.AuthType = gobizfly.AppCredentialAuthType
+		request.AuthType = "app_credential"
 		request.AppCredID = appCredID
 		request.AppCredSecret = appCredSecret
 	} else {

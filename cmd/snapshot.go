@@ -59,7 +59,7 @@ Exmaple: bizfly snapshot create <volume_id> --name snapshot-name`,
 		client, ctx := getApiClient(cmd)
 		scr := gobizfly.SnapshotCreateRequest{
 			Name:     snapshotName,
-			VolumeId: volumeID,
+			VolumeID: volumeID,
 			Force:    true,
 		}
 		snap, err := client.CloudServer.Snapshots().Create(ctx, &scr)
@@ -68,8 +68,8 @@ Exmaple: bizfly snapshot create <volume_id> --name snapshot-name`,
 			os.Exit(1)
 		}
 		var data [][]string
-		data = append(data, []string{snap.Id, snap.Name, snap.Status, strconv.Itoa(snap.Size),
-			snap.VolumeTypeId, snap.CreateAt, snap.VolumeId, snap.BillingPlan, snap.ZoneName})
+		data = append(data, []string{snap.ID, snap.Name, snap.Status, strconv.Itoa(snap.Size),
+			snap.VolumeTypeID, snap.CreateAt, snap.VolumeID, snap.BillingPlan, snap.ZoneName})
 		formatter.Output(snapshotHeaderList, data)
 	},
 }
@@ -116,8 +116,8 @@ Example: bizfly snapshot get <snapshot_id>`,
 			log.Fatal(err)
 		}
 		var data [][]string
-		data = append(data, []string{snap.Id, snap.Name, snap.Status, strconv.Itoa(snap.Size),
-			snap.VolumeTypeId, snap.CreateAt, snap.VolumeId, snap.BillingPlan, snap.ZoneName})
+		data = append(data, []string{snap.ID, snap.Name, snap.Status, strconv.Itoa(snap.Size),
+			snap.VolumeTypeID, snap.CreateAt, snap.VolumeID, snap.BillingPlan, snap.ZoneName})
 		formatter.Output(snapshotHeaderList, data)
 	},
 }
@@ -132,7 +132,7 @@ Example: bizfly snapshot list
 		client, ctx := getApiClient(cmd)
 		opts := &gobizfly.ListSnasphotsOptions{}
 		if volumeID != "" {
-			opts.VolumeId = volumeID
+			opts.VolumeID = volumeID
 		}
 		snapshots, err := client.CloudServer.Snapshots().List(ctx, opts)
 		if err != nil {
@@ -141,8 +141,8 @@ Example: bizfly snapshot list
 		var data [][]string
 		for _, snap := range snapshots {
 			data = append(data, []string{
-				snap.Id, snap.Name, snap.Status, strconv.Itoa(snap.Size), snap.VolumeTypeId, snap.CreateAt,
-				snap.VolumeId, snap.BillingPlan, snap.ZoneName})
+				snap.ID, snap.Name, snap.Status, strconv.Itoa(snap.Size), snap.VolumeTypeID, snap.CreateAt,
+				snap.VolumeID, snap.BillingPlan, snap.ZoneName})
 		}
 		formatter.Output(snapshotHeaderList, data)
 	},

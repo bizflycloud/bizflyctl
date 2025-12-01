@@ -120,7 +120,7 @@ Example: bizflyctl loadbalancer create --name lb1 --type large --network-type ex
 				Name:        listenerPoolName,
 				Protocol:    listenerProtocol,
 				Members:     []string{},
-				HealthMonitor: gobizfly.ListenerHealthMonitor{
+				CloudLoadBalancerHealthMonitor: gobizfly.ListenerHealthMonitor{
 					Delay:          healthMonitorDelay,
 					MaxRetries:     healthMonitorMaxRetries,
 					Timeout:        healthMonitorTimeout,
@@ -273,7 +273,7 @@ Example: bizfly loadbalancer pool create <loadbalancer_id> --name <pool_name> --
 		if len(args) > 1 {
 			fmt.Printf("Unknow variable %s", strings.Join(args[1:], ""))
 		}
-		payload := &gobizfly.PoolCreateRequest{
+		payload := &gobizfly.CloudLoadBalancerPoolCreateRequest{
 			Name:        &poolName,
 			Protocol:    protocol,
 			LBAlgorithm: lbAlgorithm,
@@ -307,7 +307,7 @@ Example: bizfly loadbalancer listener update <loadbalancer_id> --name <listener_
 		if len(args) > 1 {
 			fmt.Printf("Unknow variable %s", strings.Join(args[1:], ""))
 		}
-		listener, err := client.CloudLoadBalancer.Listeners().Update(ctx, args[0], &gobizfly.ListenerUpdateRequest{
+		listener, err := client.CloudLoadBalancer.Listeners().Update(ctx, args[0], &gobizfly.CloudLoadBalancerListenerUpdateRequest{
 			Name:                   &listenerName,
 			Description:            &description,
 			DefaultPoolID:          &defaultPoolID,
@@ -359,7 +359,7 @@ Example: bizfly loadbalancer listener create <loadbalancer_id> --name <listener_
 		if len(args) > 1 {
 			fmt.Printf("Unknow variable %s", strings.Join(args[1:], ""))
 		}
-		listener, err := client.CloudLoadBalancer.Listeners().Create(ctx, args[0], &gobizfly.ListenerCreateRequest{
+		listener, err := client.CloudLoadBalancer.Listeners().Create(ctx, args[0], &gobizfly.CloudLoadBalancerListenerCreateRequest{
 			Name:          &listenerName,
 			Description:   &description,
 			Protocol:      listenerProtocol,
@@ -471,7 +471,7 @@ Example: bizfly loadbalancer listener get fd554aac-9ab1-11ea-b09d-bbaf82f02f58
 		var data [][]string
 		data = append(data, []string{healthMontior.ID, healthMontior.Name, healthMontior.Type,
 			strconv.Itoa(healthMontior.Delay), strconv.Itoa(healthMontior.TimeOut), strconv.Itoa(healthMontior.MaxRetries),
-			healthMontior.DomainName, healthMontior.UrlPath})
+			healthMontior.DomainName, healthMontior.URLPath})
 		formatter.Output(healthMonitorListHeader, data)
 	},
 }
@@ -510,7 +510,7 @@ Example: bizfly loadbalancer listener create <pool-id> --name sadjf --type HTTP 
 			fmt.Printf("Unknow variable %s", strings.Join(args[1:], ""))
 		}
 		client, ctx := getApiClient(cmd)
-		payload := gobizfly.HealthMonitorCreateRequest{
+		payload := gobizfly.CloudLoadBalancerHealthMonitorCreateRequest{
 			Name:           healthMonitorName,
 			Type:           healthMonitorProtocol,
 			Delay:          healthMonitorDelay,
@@ -529,7 +529,7 @@ Example: bizfly loadbalancer listener create <pool-id> --name sadjf --type HTTP 
 		var data [][]string
 		data = append(data, []string{healthMonitor.ID, healthMonitor.Name, healthMonitor.Type,
 			strconv.Itoa(healthMonitor.Delay), strconv.Itoa(healthMonitor.TimeOut), strconv.Itoa(healthMonitor.MaxRetries),
-			healthMonitor.DomainName, healthMonitor.UrlPath})
+			healthMonitor.DomainName, healthMonitor.URLPath})
 		formatter.Output(healthMonitorListHeader, data)
 	},
 }
@@ -544,7 +544,7 @@ Example: bizfly loadbalancer listener update <health-monitor-id> --name sadjf --
 			fmt.Printf("Unknow variable %s", strings.Join(args[1:], ""))
 		}
 		client, ctx := getApiClient(cmd)
-		payload := gobizfly.HealthMonitorUpdateRequest{
+		payload := gobizfly.CloudLoadBalancerHealthMonitorUpdateRequest{
 			Name:           healthMonitorName,
 			Delay:          &healthMonitorDelay,
 			TimeOut:        &healthMonitorTimeout,
@@ -561,7 +561,7 @@ Example: bizfly loadbalancer listener update <health-monitor-id> --name sadjf --
 		var data [][]string
 		data = append(data, []string{healthMonitor.ID, healthMonitor.Name, healthMonitor.Type,
 			strconv.Itoa(healthMonitor.Delay), strconv.Itoa(healthMonitor.TimeOut), strconv.Itoa(healthMonitor.MaxRetries),
-			healthMonitor.DomainName, healthMonitor.UrlPath})
+			healthMonitor.DomainName, healthMonitor.URLPath})
 		formatter.Output(healthMonitorListHeader, data)
 	},
 }
