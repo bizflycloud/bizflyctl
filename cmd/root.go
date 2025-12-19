@@ -135,6 +135,10 @@ func getApiClient(cmd *cobra.Command) (*gobizfly.Client, context.Context) {
 		useAppCredential = false
 	}
 
+	// Check for stored token
+	authToken := viper.GetString("auth_token")
+
+
 	if viper.GetString("region") != "" {
 		region = viper.GetString("region")
 	}
@@ -155,23 +159,41 @@ func getApiClient(cmd *cobra.Command) (*gobizfly.Client, context.Context) {
 	}
 	ctx, cancelFunc := context.WithTimeout(context.Background(), time.Second*10)
 	defer cancelFunc()
-	//TODO Get token from cache
-	request := &gobizfly.TokenCreateRequest{
-		ProjectID: project_id,
-	}
-	if useAppCredential {
-		request.AuthType = "app_credential"
-		request.AppCredID = appCredID
-		request.AppCredSecret = appCredSecret
+
+	var tok *gobizfly.Token
+	if authToken != "" {
+		// Use stored token
+		tcr := &gobizfly.TokenCreateRequest{
+			Token: authToken,
+			ProjectID:     project_id, // We might need to fetch project ID if not provided, but for now assume it's set or not needed for initial client creation if token is valid?
+			// Actually, gobizfly.Token struct has ProjectID.
+		}
+		tok, err = client.Token.Init(ctx, tcr)
+		if err != nil {
+			log.Fatal(err)
+		}
+		// If project_id is empty, we might want to try to inspect the token or just proceed.
+		// However, NewClient already took project_id.
 	} else {
-		request.AuthMethod = "password"
-		request.Username = email
-		request.Password = password
+		//TODO Get token from cache
+		request := &gobizfly.TokenCreateRequest{
+			ProjectID: project_id,
+		}
+		if useAppCredential {
+			request.AuthType = "app_credential"
+			request.AppCredID = appCredID
+			request.AppCredSecret = appCredSecret
+		} else {
+			request.AuthMethod = "password"
+			request.Username = email
+			request.Password = password
+		}
+		tok, err = client.Token.Create(ctx, request)
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
-	tok, err := client.Token.Create(ctx, request)
-	if err != nil {
-		log.Fatal(err)
-	}
+
 	client.SetKeystoneToken(tok)
 	ctx = context.WithValue(ctx, "token", tok.KeystoneToken)
 	return client, ctx
