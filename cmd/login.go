@@ -17,7 +17,9 @@ limitations under the License.
 package cmd
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"encoding/xml"
 	"fmt"
 	"io"
@@ -27,7 +29,9 @@ import (
 	"os"
 	"os/exec"
 	"runtime"
+	"time"
 
+	"github.com/bizflycloud/gobizfly"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -38,7 +42,7 @@ var loginCmd = &cobra.Command{
 	Short: "Login to Bizfly Cloud via browser",
 	Long:  `Login to Bizfly Cloud via browser to obtain an authentication token.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		if err := runLogin(); err != nil {
+		if err := runLogin(cmd); err != nil {
 			log.Fatalf("Login failed: %v", err)
 		}
 	},
@@ -48,7 +52,7 @@ func init() {
 	rootCmd.AddCommand(loginCmd)
 }
 
-func runLogin() error {
+func runLogin(cmd *cobra.Command) error {
 	// 1. Start a local HTTP server on port 15995
 	listener, err := net.Listen("tcp", "localhost:15995")
 	if err != nil {
@@ -142,7 +146,101 @@ func runLogin() error {
 
 	select {
 	case token := <-tokenChan:
-		// 5. Save the token
+		// 5. Check if project_id is provided
+		// Get project_id from flag, config, or environment variable
+		projID := ""
+		// First try to get from persistent flag (check root command)
+		if rootFlag := cmd.Root().PersistentFlags().Lookup("project-id"); rootFlag != nil {
+			projID = rootFlag.Value.String()
+		}
+		// Fall back to package variable (set by persistent flag)
+		if projID == "" {
+			projID = project_id
+		}
+		// Finally check config/environment
+		if projID == "" {
+			projID = viper.GetString("project_id")
+		}
+
+		// If project_id is provided, exchange root token for project-scoped token
+		if projID != "" {
+			// Get region for client creation
+			reg := region
+			if reg == "" {
+				reg = viper.GetString("region")
+			}
+			if reg == "" {
+				reg = "HaNoi" // default region
+			}
+
+			regionName := getRegionName(reg)
+			if regionName == "" {
+				return fmt.Errorf("invalid region %s", reg)
+			}
+
+			// Exchange root token for project-scoped token
+			// Make direct HTTP call since gobizfly library bypasses HTTP request when Token is set
+			ctx, cancelFunc := context.WithTimeout(context.Background(), time.Second*10)
+			defer cancelFunc()
+
+			// Construct the token endpoint URL based on region
+			// The endpoint format is typically: https://manage.bizflycloud.vn/api/token
+			tokenURL := "https://manage.bizflycloud.vn/api/token"
+			
+			// Prepare the request payload
+			payload := map[string]string{
+				"auth_method": "token",
+				"token":       token,
+				"project_id":  projID,
+			}
+			
+			jsonPayload, err := json.Marshal(payload)
+			if err != nil {
+				return fmt.Errorf("failed to marshal request payload: %w", err)
+			}
+
+			// Create HTTP request
+			req, err := http.NewRequestWithContext(ctx, http.MethodPost, tokenURL, bytes.NewBuffer(jsonPayload))
+			if err != nil {
+				return fmt.Errorf("failed to create request: %w", err)
+			}
+			
+			req.Header.Set("Content-Type", "application/json")
+
+			// Make the HTTP request
+			httpClient := &http.Client{
+				Timeout: time.Second * 10,
+			}
+			resp, err := httpClient.Do(req)
+			if err != nil {
+				return fmt.Errorf("failed to exchange token: %w", err)
+			}
+			defer resp.Body.Close()
+
+			// Check response status
+			if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusCreated {
+				body, _ := io.ReadAll(resp.Body)
+				return fmt.Errorf("token exchange failed with status %d: %s", resp.StatusCode, string(body))
+			}
+
+			// Parse response
+			var tokenResponse gobizfly.Token
+			if err := json.NewDecoder(resp.Body).Decode(&tokenResponse); err != nil {
+				return fmt.Errorf("failed to decode response: %w", err)
+			}
+
+			// Use the project-scoped token
+			if tokenResponse.KeystoneToken != "" {
+				// Check if the token actually changed
+				if tokenResponse.KeystoneToken == token {
+					fmt.Printf("Warning: Token did not change after exchange. The API returned the same token.\n")
+				}
+				token = tokenResponse.KeystoneToken
+			} else {
+				return fmt.Errorf("received empty token from exchange")
+			}
+		}
+		// Save the token
 		viper.Set("auth_token", token)
 		
 		// Get the config file path
@@ -172,7 +270,12 @@ func runLogin() error {
 				return fmt.Errorf("failed to save config: %w", err)
 			}
 		}
-		fmt.Println("Login successful! Token saved to config file.")
+		
+		if projID != "" {
+			fmt.Println("Login successful! Project-scoped token saved to config file.")
+		} else {
+			fmt.Println("Login successful! Token saved to config file.")
+		}
 		return server.Shutdown(context.Background())
 	case err := <-errChan:
 		return err
@@ -218,4 +321,12 @@ type AuthenticationFailure struct {
 	XMLName xml.Name `xml:"http://www.yale.edu/tp/cas authenticationFailure"`
 	Code    string   `xml:"code,attr"`
 	Message string   `xml:",chardata"`
+}
+
+// min returns the minimum of two integers
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
 }

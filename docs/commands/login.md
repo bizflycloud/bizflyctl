@@ -5,7 +5,7 @@ The `login` command authenticates you with Bizfly Cloud using a browser-based au
 ## Usage
 
 ```bash
-bizfly login
+bizfly login [--project-id PROJECT_ID]
 ```
 
 ## Description
@@ -16,6 +16,15 @@ The `login` command provides an interactive way to authenticate with Bizfly Clou
 2. Opens your default web browser to the Bizfly Cloud login page
 3. Waits for you to complete authentication in the browser
 4. Automatically saves your authentication token to the configuration file
+
+### Project-Scoped Tokens
+
+If you provide the `--project-id` flag, the login command will:
+
+- Exchange the root token for a project-scoped token
+- Save the project-scoped token to your configuration file
+
+If you don't provide `--project-id`, the root token is saved as-is.
 
 ## How It Works
 
@@ -40,6 +49,23 @@ Opening browser to login: https://id.bizflycloud.vn/login?service=http://localho
 Login successful! Token saved to config file.
 ```
 
+### Login with Project ID
+
+To exchange the root token for a project-scoped token:
+
+```bash
+bizfly login --project-id 092a68edd01b4afca8f4d4783395727c
+```
+
+Output:
+
+```
+Opening browser to login: https://id.bizflycloud.vn/login?service=http://localhost:15995/callback
+Login successful! Project-scoped token saved to config file.
+```
+
+This will exchange the root token for a project-scoped token that is limited to the specified project.
+
 ### Login with Manual Browser Opening
 
 If the browser doesn't open automatically, you'll see:
@@ -60,6 +86,11 @@ After successful login, the authentication token is saved to your configuration 
 -   **Field:** `auth_token`
 
 The token is used for subsequent API calls, so you don't need to log in again until it expires.
+
+### Token Types
+
+-   **Root Token**: Obtained when logging in without `--project-id`. This token has access to all projects.
+-   **Project-Scoped Token**: Obtained when logging in with `--project-id`. This token is limited to the specified project and is automatically exchanged from the root token.
 
 ## Troubleshooting
 

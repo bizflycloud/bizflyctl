@@ -12,13 +12,22 @@ The easiest way to authenticate is using the browser login command:
 bizfly login
 ```
 
+Or with a project ID to get a project-scoped token:
+
+```bash
+bizfly login --project-id YOUR_PROJECT_ID
+```
+
 This command will:
 
 1. Open your default web browser
 2. Redirect you to the Bizfly Cloud login page
 3. After successful login, automatically save your authentication token
+4. If `--project-id` is provided, exchange the root token for a project-scoped token
 
 **Note:** The token is saved to `~/.bizfly.yaml` (or `%USERPROFILE%\.bizfly.yaml` on Windows).
+
+**Project-Scoped Tokens:** When you provide `--project-id`, the login command exchanges the root token for a project-scoped token that is limited to the specified project. This is useful when you want to restrict access to a specific project.
 
 ### Method 2: Configuration File
 
