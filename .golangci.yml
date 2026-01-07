@@ -1,5 +1,7 @@
-issues:
-  exclude-rules:
-    - linters:
-        - staticcheck
-      text: "SA1029:"
+version: "2"
+linters:
+  exclusions:
+    rules:
+      - linters:
+          - staticcheck
+        text: "SA1029:"
