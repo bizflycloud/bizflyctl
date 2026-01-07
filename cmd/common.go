@@ -25,7 +25,7 @@ import (
 // ProcessDataTables - Process data to generate tables
 func ProcessDataTables(data []table.Row, parsingData map[string]interface{}) []table.Row {
 	for parentKey, parentValue := range parsingData {
-		var value string = "\n"
+		value := "\n"
 		switch parentValue := parentValue.(type) {
 		case map[string]interface{}:
 			for childKey, childValue := range parentValue {
