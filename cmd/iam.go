@@ -6,6 +6,7 @@ import (
 
 	"github.com/bizflycloud/bizflyctl/formatter"
 	"github.com/spf13/cobra"
+	"github.com/bizflycloud/gobizfly"
 )
 
 var projectListHeader = []string{"ID", "Name", "Description", "Is Active", "Created At", "Updated At"}
@@ -36,7 +37,7 @@ Use: bizfly projects list
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 		client, ctx := getApiClient(cmd)
-		projects, err := client.IAM.ListProjects(ctx)
+		projects, err := client.IAM.ListProjects(ctx, gobizfly.ListProjectsOpts{})
 		if err != nil {
 			fmt.Printf("List projects error: %v", err)
 		}
