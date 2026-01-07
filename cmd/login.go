@@ -58,7 +58,11 @@ func runLogin(cmd *cobra.Command) error {
 	if err != nil {
 		return fmt.Errorf("failed to start local server: %w", err)
 	}
-	defer listener.Close()
+	defer func() {
+		if cerr := listener.Close(); cerr != nil {
+			log.Printf("failed to close login listener: %v", cerr)
+		}
+	}()
 
 	port := 15995
 	callbackURL := fmt.Sprintf("http://localhost:%d/callback", port)
@@ -80,10 +84,16 @@ func runLogin(cmd *cobra.Command) error {
 
 	server := &http.Server{}
 	http.HandleFunc("/callback", func(w http.ResponseWriter, r *http.Request) {
+		writeResponse := func(format string, args ...interface{}) {
+			if _, err := fmt.Fprintf(w, format, args...); err != nil {
+				log.Printf("failed to write login response: %v", err)
+			}
+		}
+
 		// Get ticket from query params
 		ticket := r.URL.Query().Get("ticket")
 		if ticket == "" {
-			fmt.Fprintf(w, "Login failed: No ticket found in callback request. Query params: %v", r.URL.Query())
+			writeResponse("Login failed: No ticket found in callback request. Query params: %v", r.URL.Query())
 			errChan <- fmt.Errorf("no ticket found in callback")
 			return
 		}
@@ -92,15 +102,19 @@ func runLogin(cmd *cobra.Command) error {
 		validateURL := fmt.Sprintf("https://manage.bizflycloud.vn/cas/serviceValidate?ticket=%s&service=%s", ticket, callbackURL)
 		resp, err := http.Get(validateURL)
 		if err != nil {
-			fmt.Fprintf(w, "Login failed: Failed to validate ticket: %v", err)
+			writeResponse("Login failed: Failed to validate ticket: %v", err)
 			errChan <- fmt.Errorf("failed to validate ticket: %w", err)
 			return
 		}
-		defer resp.Body.Close()
+		defer func() {
+			if cerr := resp.Body.Close(); cerr != nil {
+				log.Printf("failed to close validation response body: %v", cerr)
+			}
+		}()
 
 		body, err := io.ReadAll(resp.Body)
 		if err != nil {
-			fmt.Fprintf(w, "Login failed: Failed to read validation response: %v", err)
+			writeResponse("Login failed: Failed to read validation response: %v", err)
 			errChan <- fmt.Errorf("failed to read validation response: %w", err)
 			return
 		}
@@ -108,33 +122,33 @@ func runLogin(cmd *cobra.Command) error {
 		// Parse XML response
 		var casResponse CASServiceResponse
 		if err := xml.Unmarshal(body, &casResponse); err != nil {
-			fmt.Fprintf(w, "Login failed: Failed to parse validation response: %v", err)
+			writeResponse("Login failed: Failed to parse validation response: %v", err)
 			errChan <- fmt.Errorf("failed to parse validation response: %w", err)
 			return
 		}
 
 		// Extract token from response
 		if casResponse.AuthenticationSuccess == nil {
-			fmt.Fprintf(w, "Login failed: Authentication failed. Response: %s", string(body))
+			writeResponse("Login failed: Authentication failed. Response: %s", string(body))
 			errChan <- fmt.Errorf("authentication failed")
 			return
 		}
 
 		// Get token from attributes section
 		if casResponse.AuthenticationSuccess.Attributes == nil {
-			fmt.Fprintf(w, "Login failed: No attributes in validation response. Response: %s", string(body))
+			writeResponse("Login failed: No attributes in validation response. Response: %s", string(body))
 			errChan <- fmt.Errorf("no attributes in validation response")
 			return
 		}
 
 		token := casResponse.AuthenticationSuccess.Attributes.Token
 		if token == "" {
-			fmt.Fprintf(w, "Login failed: No token in validation response. Response: %s", string(body))
+			writeResponse("Login failed: No token in validation response. Response: %s", string(body))
 			errChan <- fmt.Errorf("no token in validation response")
 			return
 		}
 
-		fmt.Fprintf(w, "Login successful! You can close this window.")
+		writeResponse("Login successful! You can close this window.")
 		tokenChan <- token
 	})
 
@@ -186,14 +200,14 @@ func runLogin(cmd *cobra.Command) error {
 			// Construct the token endpoint URL based on region
 			// The endpoint format is typically: https://manage.bizflycloud.vn/api/token
 			tokenURL := "https://manage.bizflycloud.vn/api/token"
-			
+
 			// Prepare the request payload
 			payload := map[string]string{
 				"auth_method": "token",
 				"token":       token,
 				"project_id":  projID,
 			}
-			
+
 			jsonPayload, err := json.Marshal(payload)
 			if err != nil {
 				return fmt.Errorf("failed to marshal request payload: %w", err)
@@ -204,7 +218,7 @@ func runLogin(cmd *cobra.Command) error {
 			if err != nil {
 				return fmt.Errorf("failed to create request: %w", err)
 			}
-			
+
 			req.Header.Set("Content-Type", "application/json")
 
 			// Make the HTTP request
@@ -215,7 +229,11 @@ func runLogin(cmd *cobra.Command) error {
 			if err != nil {
 				return fmt.Errorf("failed to exchange token: %w", err)
 			}
-			defer resp.Body.Close()
+			defer func() {
+				if cerr := resp.Body.Close(); cerr != nil {
+					log.Printf("failed to close token exchange response body: %v", cerr)
+				}
+			}()
 
 			// Check response status
 			if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusCreated {
@@ -242,7 +260,7 @@ func runLogin(cmd *cobra.Command) error {
 		}
 		// Save the token
 		viper.Set("auth_token", token)
-		
+
 		// Get the config file path
 		configPath := viper.ConfigFileUsed()
 		if configPath == "" {
@@ -254,10 +272,10 @@ func runLogin(cmd *cobra.Command) error {
 			configPath = fmt.Sprintf("%s/.bizfly.yaml", home)
 			viper.SetConfigFile(configPath)
 		}
-		
+
 		// Set config type to yaml to ensure viper knows the format
 		viper.SetConfigType("yaml")
-		
+
 		// Check if config file exists
 		if _, err := os.Stat(configPath); os.IsNotExist(err) {
 			// File doesn't exist, use WriteConfigAs to create it with the full path
@@ -270,7 +288,7 @@ func runLogin(cmd *cobra.Command) error {
 				return fmt.Errorf("failed to save config: %w", err)
 			}
 		}
-		
+
 		if projID != "" {
 			fmt.Println("Login successful! Project-scoped token saved to config file.")
 		} else {
@@ -302,7 +320,7 @@ func openBrowser(url string) error {
 // CASServiceResponse represents the CAS serviceValidate XML response
 // XML namespace: http://www.yale.edu/tp/cas
 type CASServiceResponse struct {
-	XMLName              xml.Name              `xml:"http://www.yale.edu/tp/cas serviceResponse"`
+	XMLName               xml.Name               `xml:"http://www.yale.edu/tp/cas serviceResponse"`
 	AuthenticationSuccess *AuthenticationSuccess `xml:"http://www.yale.edu/tp/cas authenticationSuccess"`
 	AuthenticationFailure *AuthenticationFailure `xml:"http://www.yale.edu/tp/cas authenticationFailure"`
 }
@@ -321,12 +339,4 @@ type AuthenticationFailure struct {
 	XMLName xml.Name `xml:"http://www.yale.edu/tp/cas authenticationFailure"`
 	Code    string   `xml:"code,attr"`
 	Message string   `xml:",chardata"`
-}
-
-// min returns the minimum of two integers
-func min(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
 }

@@ -106,6 +106,11 @@ Example: bizfly custom-image create --name xyz --disk-format raw --description a
 			if err != nil {
 				log.Fatal(err)
 			}
+			defer func() {
+				if err := file.Close(); err != nil {
+					log.Printf("failed to close upload file: %v", err)
+				}
+			}()
 			fmt.Println(resp.UploadURI)
 			r, err := http.NewRequest("PUT", resp.UploadURI, file)
 
@@ -119,7 +124,11 @@ Example: bizfly custom-image create --name xyz --disk-format raw --description a
 			if err != nil {
 				log.Fatal(err)
 			}
-			defer response.Body.Close()
+			defer func() {
+				if err := response.Body.Close(); err != nil {
+					log.Printf("failed to close upload response body: %v", err)
+				}
+			}()
 			image := resp.Image
 			var data [][]string
 			data = append(data, []string{image.ID, image.Name, image.Description,
@@ -172,6 +181,11 @@ var customImageDownload = &cobra.Command{
 			if err != nil {
 				log.Fatal(err)
 			}
+			defer func() {
+				if err := file.Close(); err != nil {
+					log.Printf("failed to close download file: %v", err)
+				}
+			}()
 			client := http.Client{}
 			req, err := http.NewRequest(http.MethodGet, downloadURL, nil)
 			if err != nil {
@@ -182,7 +196,11 @@ var customImageDownload = &cobra.Command{
 			if err != nil {
 				log.Fatal(err)
 			}
-			defer resp.Body.Close()
+			defer func() {
+				if err := resp.Body.Close(); err != nil {
+					log.Printf("failed to close download response body: %v", err)
+				}
+			}()
 			if resp.StatusCode != 200 {
 				log.Fatalf("Download image failed. Status code %d", resp.StatusCode)
 				return
@@ -191,7 +209,6 @@ var customImageDownload = &cobra.Command{
 			if err != nil {
 				log.Fatal(err)
 			}
-			defer file.Close()
 			fmt.Printf("Downloaded a file %s with size %d Bytes\n", fileName, size)
 
 			data = append(data, []string{image.ID, image.Name, image.Description,
