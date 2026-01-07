@@ -1,3 +1,4 @@
+version: 2
 env:
   - GO111MODULE=on
 before:
@@ -49,7 +50,7 @@ archives:
       {{- if .Arm }}v{{ .Arm }}{{ end -}}
     format_overrides:
       - goos: windows
-        format: zip
+        formats: zip
 source:
   enabled: true
   name_template: '{{ .ProjectName }}'
@@ -61,10 +62,11 @@ release:
   prerelease: auto
   name_template: "{{.ProjectName}}-v{{.Version}} {{.Env.USER}}"
 
-brews:
+homebrew_casks:
   - homepage: 'https://github.com/bizflycloud/bizflyctl'
     description: ' Command Line for Bizfly Cloud.'
-    directory: Formula
+    binaries:
+      - 'bizfly'
     commit_author:
       name: bizflycloud_bot
       email: support@bizflycloud.vn
