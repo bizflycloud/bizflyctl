@@ -61,11 +61,13 @@ release:
     name: bizflyctl
   prerelease: auto
   name_template: "{{.ProjectName}}-v{{.Version}} {{.Env.USER}}"
+
 brews:
   - name: bizflyctl
     description: 'Command Line for Bizfly Cloud.'
     homepage: 'https://github.com/bizflycloud/bizflyctl'
     folder: Formula
+
     commit_author:
       name: bizflycloud_bot
       email: support@bizflycloud.vn
