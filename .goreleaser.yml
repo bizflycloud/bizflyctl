@@ -61,6 +61,7 @@ release:
     name: bizflyctl
   prerelease: auto
   name_template: "{{.ProjectName}}-v{{.Version}} {{.Env.USER}}"
+
 brews:
   - name: bizflyctl
     description: 'Command Line for Bizfly Cloud.'
