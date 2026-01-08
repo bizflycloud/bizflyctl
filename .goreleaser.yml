@@ -1,4 +1,4 @@
-version: 1
+version: 2
 env:
   - GO111MODULE=on
 before:
@@ -50,7 +50,7 @@ archives:
       {{- if .Arm }}v{{ .Arm }}{{ end -}}
     format_overrides:
       - goos: windows
-        format: zip
+        formats: zip
 source:
   enabled: true
   name_template: '{{ .ProjectName }}'
