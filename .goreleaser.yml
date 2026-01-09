@@ -78,4 +78,3 @@ brews:
       bin.install 'bizfly'
     test: |
       system "#{bin}/bizfly", '--version'
-
