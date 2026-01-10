@@ -73,7 +73,7 @@ homebrew_casks:
           owner: bizflycloud
           name: homebrew-bizflyctl
           token: "{{ .Env.BREW_RELEASE_TOKEN }}"
-      directory: Formula
+      directory: Casks
       binaries:
           - bizfly
       commit_author:
