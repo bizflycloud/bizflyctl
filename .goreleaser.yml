@@ -1,80 +1,81 @@
 version: 2
 env:
-  - GO111MODULE=on
+    - GO111MODULE=on
 before:
-  hooks:
-    - go mod download
+    hooks:
+        - go mod download
 builds:
-  - env:
-      - CGO_ENABLED=0
-    goos:
-      - linux
-      - windows
-      - darwin
-    goarch:
-      - 386
-      - amd64
-      - arm
-      - arm64
-    ignore:
-      - goos: darwin
-        goarch: 386
-      - goos: windows
-        goarch: arm64
-    main: main.go
-    binary: bizfly
-    hooks:
-      pre: make build
+    - env:
+          - CGO_ENABLED=0
+      goos:
+          - linux
+          - windows
+          - darwin
+      goarch:
+          - 386
+          - amd64
+          - arm
+          - arm64
+      ignore:
+          - goos: darwin
+            goarch: 386
+          - goos: windows
+            goarch: arm64
+          - goos: windows
+            goarch: arm
+      main: main.go
+      binary: bizfly
+      hooks:
+          pre: make build
 checksum:
-  name_template: '{{ .ProjectName }}_checksums.txt'
+    name_template: "{{ .ProjectName }}_checksums.txt"
 universal_binaries:
-  - name_template: 'bizfly'
-    replace: true
-    hooks:
-      pre: make build
+    - name_template: "bizfly"
+      replace: true
+      hooks:
+          pre: make build
 changelog:
-  sort: asc
-  filters:
-    exclude:
-      - '^docs:'
-      - '^test:'
-      - Merge pull request
-      - Merge branch
+    sort: asc
+    filters:
+        exclude:
+            - "^docs:"
+            - "^test:"
+            - Merge pull request
+            - Merge branch
 archives:
-  - name_template: >-
-      {{- .ProjectName }}_
-      {{- title .Os }}_
-      {{- if eq .Arch "amd64" }}x86_64
-      {{- else if eq .Arch "386" }}i386
-      {{- else }}{{ .Arch }}{{ end }}
-      {{- if .Arm }}v{{ .Arm }}{{ end -}}
-    format_overrides:
-      - goos: windows
-        format: zip
+    - name_template: >-
+          {{- .ProjectName }}_
+          {{- title .Os }}_
+          {{- if eq .Arch "amd64" }}x86_64
+          {{- else if eq .Arch "386" }}i386
+          {{- else }}{{ .Arch }}{{ end }}
+          {{- if .Arm }}v{{ .Arm }}{{ end -}}
+      format_overrides:
+          - goos: windows
+            formats:
+                - zip
 source:
-  enabled: true
-  name_template: '{{ .ProjectName }}'
-  format: 'tar'
+    enabled: true
+    name_template: "{{ .ProjectName }}"
+    format: "tar"
 release:
-  github:
-    owner: bizflycloud
-    name: bizflyctl
-  prerelease: auto
-  name_template: "{{.ProjectName}}-v{{.Version}} {{.Env.USER}}"
+    github:
+        owner: bizflycloud
+        name: bizflyctl
+    prerelease: auto
+    name_template: "{{.ProjectName}}-v{{.Version}} {{.Env.USER}}"
 
-brews:
-  - name: bizflyctl
-    description: 'Command Line for Bizfly Cloud.'
-    homepage: 'https://github.com/bizflycloud/bizflyctl'
-    directory: Formula
-    commit_author:
-      name: bizflycloud_bot
-      email: support@bizflycloud.vn
-    repository:
-      owner: bizflycloud
-      name: homebrew-bizflyctl
-      token: '{{ .Env.BREW_RELEASE_TOKEN }}'
-    install: |
-      bin.install 'bizfly'
-    test: |
-      system "#{bin}/bizfly", '--version'
+homebrew_casks:
+    - name: bizflyctl
+      description: "Command Line for Bizfly Cloud."
+      homepage: "https://github.com/bizflycloud/bizflyctl"
+      repository:
+          owner: bizflycloud
+          name: homebrew-bizflyctl
+          token: "{{ .Env.BREW_RELEASE_TOKEN }}"
+      directory: Formula
+      binaries:
+          - bizfly
+      commit_author:
+          name: bizflycloud_bot
+          email: support@bizflycloud.vn
