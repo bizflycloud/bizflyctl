@@ -539,7 +539,7 @@ func init() {
 	scpf.StringArrayVar(&networkInterfaces, "net-interface", []string{}, "Network interface IDs")
 	scpf.StringArrayVar(&firewalls, "firewall", []string{}, "Firewalls IDs")
 	_ = cobra.MarkFlagRequired(scpf, "flavor")
-	scpf.StringVar(&serverCategory, "category", "premium", "Server category: basic, premium, vps or enterprise.")
+	scpf.StringVar(&serverCategory, "category", "premium", "Server category: basic, premium, dedicated, vps or enterprise.")
 	scpf.StringVar(&availabilityZone, "availability-zone", "HN1", "Availability Zone of server.")
 	scpf.StringVar(&rootDiskType, "rootdisk-type", "HDD", "Type of root disk: HDD or SSD.")
 	scpf.StringVar(&rootDiskVolumeType, "rootdisk-volume-type", "", "Type of root disk volume - get from listing volume types: PREMIUM-HDD1")
