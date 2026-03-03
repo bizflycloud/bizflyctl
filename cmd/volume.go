@@ -356,7 +356,7 @@ func init() {
 	_ = cobra.MarkFlagRequired(vcpf, "name")
 	vcpf.StringVar(&description, "description", "", "Volume description")
 	vcpf.StringVar(&volumeType, "type", "HDD", "Volume type: SSD or HDD.")
-	vcpf.StringVar(&volumeCategory, "category", "premium", "Volume category: premium, enterprise or basic.")
+	vcpf.StringVar(&volumeCategory, "category", "premium", "Volume category: premium, enterprise, dedicated or basic.")
 	vcpf.IntVar(&volumeSize, "size", 0, "Volume size")
 	_ = cobra.MarkFlagRequired(vcpf, "size")
 	vcpf.StringVar(&availabilityZone, "availability-zone", "HN1", "Avaialability Zone of volume.")
