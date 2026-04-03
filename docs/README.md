@@ -13,6 +13,7 @@ Welcome to the Bizfly Cloud CLI documentation! This guide will help you install,
     - [Volume Management](commands/volume.md)
     - [Snapshot Management](commands/snapshot.md)
     - [VPC Management](commands/vpc.md)
+    - [Internet Gateway Management](commands/internet-gateway.md)
     - [Network Interface Management](commands/network-interface.md)
     - [Firewall Management](commands/firewall.md)
     - [Load Balancer Management](commands/loadbalancer.md)
